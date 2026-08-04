@@ -4,23 +4,10 @@ const output = new URL("../docs/", import.meta.url);
 const basePath = "/ai-image-hall-frontend-prototype";
 const routes = [
   "works",
-  "consent",
-  "create/face",
-  "verify/consent",
-  "verify/provider",
-  "verify/processing",
-  "verify/result",
-  "create/body",
-  "create/voice",
-  "create/voice-consent",
-  "create/record",
-  "create/memory",
-  "create/place",
-  "create/line",
-  "create/confirm",
+  "create",
+  "mine",
   "task/demo-task",
   "result/demo-task",
-  "share/demo-task",
   "work/demo-share",
 ];
 

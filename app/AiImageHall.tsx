@@ -1,209 +1,511 @@
-"use client";
-
-import { ChangeEvent, ReactNode, RefObject, useEffect, useRef, useState } from "react";
+import {
+  type ChangeEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 type Tab = "gallery" | "create" | "mine";
 type Stage = 1 | 2 | 3;
-type Verify = "idle" | "checking" | "passed" | "failed";
-type TaskState = "review" | "running" | "succeeded" | "failed";
-type GalleryState = "works" | "loading" | "empty" | "failed";
+type VerifyState = "idle" | "checking" | "passed" | "failed";
+type TaskState = "running" | "success" | "failed";
+type GalleryMode = "works" | "loading" | "empty" | "failed";
+type Motion = "" | "up" | "down" | "left" | "right";
+type IconName = "gallery" | "create" | "mine" | "back" | "share" | "download" | "delete" | "more" | "play" | "pause" | "check" | "upload" | "retry" | "close";
+
+const asset = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
+
+type Shot = {
+  id: string;
+  name: string;
+  tag: string;
+  image: string;
+  lines: string[];
+};
 
 type Scene = {
   id: string;
   name: string;
   image: string;
-  places: { id: string; name: string; tag: string; lines: string[] }[];
+  shots: Shot[];
+};
+
+type Work = {
+  id: string;
+  title: string;
+  sceneId: string;
+  shotId: string;
+  scene: string;
+  duration: string;
+  image: string;
+  line: string;
+  tags: string[];
+  visibility?: "公开展示" | "仅自己可见" | "发布中";
+  time?: string;
+};
+
+type TaskItem = {
+  id: string;
+  title: string;
+  scene: string;
+  image: string;
+  status: TaskState;
+  time: string;
+  progress?: number;
+  workId?: string;
 };
 
 const scenes: Scene[] = [
-  { id: "dongmen", name: "东门", image: "/images/city-04.jpg", places: [
-    { id: "old-street", name: "深圳墟老街记忆", tag: "在旧街巷里遇见深圳的过去", lines: ["老街还在，故事也一直都在。", "从深圳墟出发，我又走回熟悉的东门。", "每一条旧街，都藏着一段深圳记忆。"] },
-    { id: "walking-street", name: "东门步行街烟火", tag: "在人潮与霓虹中感受城市脉搏", lines: ["人潮来往，这里一直是深圳最热闹的地方。", "熟悉的街口，装着一代人的青春。"] },
-  ] },
-  { id: "huaqiangbei", name: "华强北", image: "/images/city-01.jpg", places: [
-    { id: "seg", name: "赛格电子市场", tag: "走进中国电子第一街的高光时刻", lines: ["一块屏幕、一颗芯片，也能连接整个世界。", "这里的每一层楼，都跳动着创新的速度。", "从柜台到世界，华强北从不缺少可能。"] },
-    { id: "tech-street", name: "科技街区新生", tag: "在霓虹与科技中看见城市更新", lines: ["老街区不断更新，创新的脚步从未停下。", "今天的华强北，依然比想象更快一步。"] },
-  ] },
-  { id: "shekou", name: "蛇口", image: "/images/city-03.jpg", places: [
-    { id: "sea-world", name: "海上世界与明华轮", tag: "在海港灯火中遇见浪漫蛇口", lines: ["海风吹过明华轮，也吹来了新的生活。", "港湾的灯亮起，蛇口拥有了另一种浪漫。"] },
-    { id: "first-blast", name: "开山第一炮", tag: "回到改革开放的历史起点", lines: ["一声炮响，打开了向未来出发的道路。", "敢闯敢试，是这片土地最早的回声。"] },
-  ] },
+  {
+    id: "dongmen",
+    name: "东门",
+    image: asset("images/v3/dongmen-main.jpg"),
+    shots: [
+      {
+        id: "dongmen-night",
+        name: "雨夜食堂",
+        tag: "街巷烟火",
+        image: asset("images/v3/dongmen-main.jpg"),
+        lines: ["忙了一天，这一口就是深圳的安慰。", "城市很快，热饭要慢慢吃。", "今晚的东门，替我留了一盏灯。"],
+      },
+      {
+        id: "dongmen-morning",
+        name: "清晨闸机",
+        tag: "通勤日常",
+        image: asset("images/v3/dongmen-morning.jpg"),
+        lines: ["八点二十九分，我和早餐一起冲线。", "脚步不停，生活也在向前。", "深圳的早晨，从闸机声里醒来。"],
+      },
+      {
+        id: "dongmen-milktea",
+        name: "一杯回魂",
+        tag: "下班片刻",
+        image: asset("images/v3/dongmen-milktea.jpg"),
+        lines: ["这一口，先把今天原谅了。", "下班后的快乐，可以很简单。", "城市没慢下来，我先喘口气。"],
+      },
+    ],
+  },
+  {
+    id: "huaqiangbei",
+    name: "华强北",
+    image: asset("images/v3/huaqiangbei-main.jpg"),
+    shots: [
+      {
+        id: "huaqiangbei-market",
+        name: "芯片市场",
+        tag: "创新现场",
+        image: asset("images/v3/huaqiangbei-main.jpg"),
+        lines: ["一块芯片，也能装下一个新世界。", "灵感在柜台之间通电。", "华强北的速度，永远比想象快一步。"],
+      },
+      {
+        id: "huaqiangbei-night",
+        name: "凌晨工位",
+        tag: "城市夜班",
+        image: asset("images/v3/huaqiangbei-night.jpg"),
+        lines: ["灯还亮着，答案就还在路上。", "凌晨一点半，灵感刚刚开机。", "今天的难题，留给明天的惊喜。"],
+      },
+      {
+        id: "huaqiangbei-commute",
+        name: "人潮向上",
+        tag: "通勤节奏",
+        image: asset("images/v3/huaqiangbei-commute.jpg"),
+        lines: ["人潮向上，我也一样。", "每一步，都是城市的脉冲。", "抱紧今天，也抱紧新的可能。"],
+      },
+    ],
+  },
+  {
+    id: "shekou",
+    name: "蛇口",
+    image: asset("images/v3/shekou-main.jpg"),
+    shots: [
+      {
+        id: "shekou-sunset",
+        name: "海湾落日",
+        tag: "海风时刻",
+        image: asset("images/v3/shekou-main.jpg"),
+        lines: ["看到海的这一刻，今天值得被原谅。", "风从海上来，也把疲惫带走。", "下班以后，把时间还给晚霞。"],
+      },
+      {
+        id: "shekou-warehouse",
+        name: "旧仓新生",
+        tag: "城市漫游",
+        image: asset("images/v3/shekou-warehouse.jpg"),
+        lines: ["旧砖墙里，也住着新的故事。", "时间留下痕迹，也留下惊喜。", "沿着海港，遇见深圳的另一面。"],
+      },
+      {
+        id: "shekou-night",
+        name: "港湾夜色",
+        tag: "夜间松弛",
+        image: asset("images/v3/shekou-night.jpg"),
+        lines: ["海风一吹，今天就轻了一点。", "万家灯火，也有一盏属于我。", "深圳的夜，替我收好所有疲惫。"],
+      },
+    ],
+  },
 ];
 
-const works = [
-  { id: "dongmen", name: "东门 · 老街还在", scene: "dongmen", place: "old-street", line: "老街还在，故事也一直都在。", image: "/images/city-04.jpg", tall: true },
-  { id: "shekou", name: "蛇口 · 海风吹过", scene: "shekou", place: "sea-world", line: "海风吹过明华轮，也吹来了新的生活。", image: "/images/city-03.jpg", tall: false },
-  { id: "huaqiangbei", name: "华强北 · 创新的速度", scene: "huaqiangbei", place: "seg", line: "这里的每一层楼，都跳动着创新的速度。", image: "/images/city-01.jpg", tall: true },
-  { id: "dongmen-night", name: "东门 · 人潮与霓虹", scene: "dongmen", place: "walking-street", line: "人潮来往，这里一直是深圳最热闹的地方。", image: "/images/demo-video-poster.jpg", tall: false },
+const works: Work[] = scenes.flatMap((scene) =>
+  scene.shots.map((shot, index) => ({
+    id: shot.id,
+    title: shot.name,
+    sceneId: scene.id,
+    shotId: shot.id,
+    scene: scene.name,
+    duration: index === 1 ? "18秒" : "15秒",
+    image: shot.image,
+    line: shot.lines[0],
+    tags: [shot.tag, index === 0 ? "城市记忆" : "深圳日常"],
+    visibility: index === 0 ? "公开展示" : index === 1 ? "仅自己可见" : "发布中",
+    time: `8月${3 - index}日`,
+  })),
+);
+
+const initialTasks: TaskItem[] = [
+  { id: "task-running", title: "凌晨工位", scene: "华强北", image: asset("images/v3/huaqiangbei-night.jpg"), status: "running", time: "今天 14:20", progress: 68 },
+  { id: "task-success", title: "海湾落日", scene: "蛇口", image: asset("images/v3/shekou-main.jpg"), status: "success", time: "8月3日 18:42", workId: "shekou-sunset" },
+  { id: "task-failed", title: "清晨闸机", scene: "东门", image: asset("images/v3/dongmen-morning.jpg"), status: "failed", time: "8月2日 09:08" },
 ];
 
-type Work = (typeof works)[number];
-type Place = Scene["places"][number];
-type CreateProps = {
-  stage: Stage; title: string; consent: boolean; setConsent: (value: boolean) => void; face?: string;
-  faceInput: RefObject<HTMLInputElement | null>; onFace: (event: ChangeEvent<HTMLInputElement>, target: "face" | "appearance") => void;
-  verify: Verify; onVerify: () => void; appearance: "system" | "upload"; setAppearance: (value: "system" | "upload") => void;
-  appearanceImage?: string; appearanceInput: RefObject<HTMLInputElement | null>; onAppearance: (event: ChangeEvent<HTMLInputElement>, target: "face" | "appearance") => void;
-  currentScene: Scene; currentPlace: Place; line: string; selectScene: (scene: Scene) => void; setPlace: (id: string) => void; setLine: (line: string) => void;
-  task: TaskState | null; published: boolean; canNext: boolean; onStage: (stage: Stage) => void; onSubmit: () => void; onAdmin: () => void; onRetry: () => void; onPublish: () => void; notify: (value: string) => void;
-};
+function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
+  const common = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
+  if (name === "gallery") return <svg {...common}><rect x="3" y="4" width="18" height="16" rx="5" /><path d="M7 15l3-3 2 2 3-4 3 5" /></svg>;
+  if (name === "create") return <svg {...common}><path d="M12 3v18M3 12h18" /></svg>;
+  if (name === "mine") return <svg {...common}><circle cx="12" cy="8" r="3.5" /><path d="M5 21a7 7 0 0 1 14 0" /></svg>;
+  if (name === "back") return <svg {...common}><path d="M15 18l-6-6 6-6" /></svg>;
+  if (name === "share") return <svg {...common}><circle cx="18" cy="5" r="2" /><circle cx="6" cy="12" r="2" /><circle cx="18" cy="19" r="2" /><path d="M8 11l8-5M8 13l8 5" /></svg>;
+  if (name === "download") return <svg {...common}><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" /></svg>;
+  if (name === "delete") return <svg {...common}><path d="M4 7h16M9 7V4h6v3m3 0l-1 14H7L6 7m4 4v6m4-6v6" /></svg>;
+  if (name === "more") return <svg {...common}><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none" /><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" /><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none" /></svg>;
+  if (name === "play") return <svg {...common}><path d="M9 7l8 5-8 5z" fill="currentColor" stroke="none" /></svg>;
+  if (name === "pause") return <svg {...common}><path d="M9 7v10M15 7v10" /></svg>;
+  if (name === "check") return <svg {...common}><path d="M5 12l4 4L19 6" /></svg>;
+  if (name === "upload") return <svg {...common}><path d="M12 16V4m0 0L8 8m4-4l4 4M4 20h16" /></svg>;
+  if (name === "retry") return <svg {...common}><path d="M20 7v5h-5M4 17v-5h5" /><path d="M18 12a6 6 0 0 0-10-4L4 12m16 0l-4 4a6 6 0 0 1-10-4" /></svg>;
+  if (name === "close") return <svg {...common}><path d="M6 6l12 12M18 6L6 18" /></svg>;
+  return null;
+}
 
-function IconButton({ children, label, onClick }: { children: ReactNode; label: string; onClick?: () => void }) {
-  return <button className="icon-button" aria-label={label} onClick={onClick}>{children}</button>;
+function IconButton({ name, label, onClick, className = "" }: { name: IconName; label: string; onClick?: () => void; className?: string }) {
+  return <button type="button" className={`icon-button ${className}`} aria-label={label} title={label} onClick={onClick}><Icon name={name} /></button>;
+}
+
+function CinematicLoop({ work, playing = true }: { work: Work; playing?: boolean }) {
+  const scene = scenes.find((item) => item.id === work.sceneId) ?? scenes[0];
+  const initial = Math.max(0, scene.shots.findIndex((item) => item.id === work.shotId));
+  const [frame, setFrame] = useState(initial);
+  useEffect(() => {
+    if (!playing) return;
+    const timer = window.setInterval(() => setFrame((current) => (current + 1) % scene.shots.length), 2800);
+    return () => window.clearInterval(timer);
+  }, [playing, scene.shots.length]);
+  const shot = scene.shots[frame] ?? scene.shots[0];
+  return <div className={`cinematic-loop ${playing ? "playing" : "paused"}`}><img key={shot.id} src={shot.image} width="941" height="1672" alt="" /></div>;
+}
+
+function Header({ title, dark = false, back, more }: { title: string; dark?: boolean; back?: () => void; more?: () => void }) {
+  return <header className={`app-header ${dark ? "dark" : ""}`}>
+    <div>{back && <IconButton name="back" label="返回" onClick={back} />}</div>
+    <strong>{title}</strong>
+    <div>{more && <IconButton name="more" label="更多状态" onClick={more} />}</div>
+  </header>;
 }
 
 export default function AiImageHall() {
   const [tab, setTab] = useState<Tab>("gallery");
-  const [detail, setDetail] = useState<(typeof works)[number] | null>(null);
   const [stage, setStage] = useState<Stage>(1);
-  const [consent, setConsent] = useState(false);
-  const [face, setFace] = useState<string>();
-  const [verify, setVerify] = useState<Verify>("idle");
-  const [appearance, setAppearance] = useState<"system" | "upload">("system");
-  const [appearanceImage, setAppearanceImage] = useState<string>();
   const [sceneId, setSceneId] = useState("dongmen");
-  const [placeId, setPlaceId] = useState("old-street");
-  const [line, setLine] = useState("老街还在，故事也一直都在。");
-  const [task, setTask] = useState<TaskState | null>(null);
+  const [shotId, setShotId] = useState("dongmen-night");
+  const [line, setLine] = useState(scenes[0].shots[0].lines[0]);
+  const [galleryMode, setGalleryMode] = useState<GalleryMode>("works");
+  const [detailWork, setDetailWork] = useState<Work | null>(null);
+  const [taskDetail, setTaskDetail] = useState<TaskItem | null>(null);
+  const [mineTab, setMineTab] = useState<"tasks" | "works">("tasks");
+  const [taskState, setTaskState] = useState<TaskState | null>(null);
   const [published, setPublished] = useState(false);
-  const [activeVideo, setActiveVideo] = useState("dongmen");
-  const [galleryState, setGalleryState] = useState<GalleryState>("works");
-  const [demoOpen, setDemoOpen] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const [face, setFace] = useState<string | null>(null);
+  const [verify, setVerify] = useState<VerifyState>("idle");
+  const [appearance, setAppearance] = useState<"auto" | "upload">("auto");
+  const [appearanceImage, setAppearanceImage] = useState<string | null>(null);
+  const [sheet, setSheet] = useState<"states" | "busy" | "publish" | "unpublish" | "delete" | null>(null);
   const [toast, setToast] = useState("");
+  const [deleted, setDeleted] = useState<string[]>([]);
+  const [visibilityOverrides, setVisibilityOverrides] = useState<Record<string, boolean>>({});
   const faceInput = useRef<HTMLInputElement>(null);
   const appearanceInput = useRef<HTMLInputElement>(null);
-  const currentScene = scenes.find((item) => item.id === sceneId) ?? scenes[0];
-  const currentPlace = currentScene.places.find((item) => item.id === placeId) ?? currentScene.places[0];
-  const canNext = consent && Boolean(face) && verify === "passed";
 
-  useEffect(() => {
-    if (task !== "running") return;
-    const timer = window.setTimeout(() => setTask("succeeded"), 2400);
-    return () => window.clearTimeout(timer);
-  }, [task]);
+  const scene = scenes.find((item) => item.id === sceneId) ?? scenes[0];
+  const shot = scene.shots.find((item) => item.id === shotId) ?? scene.shots[0];
+  const visibleWorks = works.filter((work) => !deleted.includes(work.id));
+  const theme = tab === "gallery" || detailWork ? "dark" : "light";
+  const canNext = Boolean(consent && face && verify === "passed" && (appearance === "auto" || appearanceImage));
 
   useEffect(() => {
     if (!toast) return;
-    const timer = window.setTimeout(() => setToast(""), 1900);
+    const timer = window.setTimeout(() => setToast(""), 1800);
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  const stageTitle = ["上传素材", "选择场景和台词", "视频生成"][stage - 1];
-  const notify = (message: string) => setToast(message);
-  const goCreate = (work?: (typeof works)[number]) => {
+  const chooseScene = (next: Scene) => {
+    setSceneId(next.id);
+    setShotId(next.shots[0].id);
+    setLine(next.shots[0].lines[0]);
+  };
+
+  const chooseShot = (next: Shot) => {
+    setShotId(next.id);
+    setLine(next.lines[0]);
+  };
+
+  const goCreate = (work?: Work) => {
     if (work) {
-      setSceneId(work.scene); setPlaceId(work.place); setLine(work.line);
-      notify("已带入同款场景与台词，只需补充你的素材");
+      const nextScene = scenes.find((item) => item.id === work.sceneId) ?? scenes[0];
+      const nextShot = nextScene.shots.find((item) => item.id === work.shotId) ?? nextScene.shots[0];
+      setSceneId(nextScene.id);
+      setShotId(nextShot.id);
+      setLine(work.line);
     }
-    setDetail(null); setStage(1); setTab("create");
+    setDetailWork(null);
+    setTaskDetail(null);
+    setTab("create");
+    setStage(1);
   };
-  const selectScene = (next: Scene) => {
-    setSceneId(next.id); setPlaceId(next.places[0].id); setLine(next.places[0].lines[0]);
-  };
-  const handleFile = (event: ChangeEvent<HTMLInputElement>, target: "face" | "appearance") => {
-    const file = event.target.files?.[0]; if (!file) return;
+
+  const addFile = (event: ChangeEvent<HTMLInputElement>, target: "face" | "appearance") => {
+    const file = event.target.files?.[0];
+    if (!file) return;
     const url = URL.createObjectURL(file);
-    if (target === "face") setFace(url); else setAppearanceImage(url);
-    notify("素材已加入本次 Demo，不会上传或保存");
-  };
-  const runVerify = () => {
-    setVerify("checking");
-    window.setTimeout(() => setVerify("passed"), 900);
+    if (target === "face") {
+      setFace(url);
+      setVerify("checking");
+      window.setTimeout(() => setVerify("passed"), 1100);
+    } else {
+      setAppearanceImage(url);
+    }
   };
 
-  return <div className="site-shell high-fidelity-shell">
-    <div className="ambient-word">AI IMAGE HALL</div>
-    <main className="phone-shell high-fidelity-phone">
-      {detail ? <WorkDetail work={detail} onBack={() => setDetail(null)} onCreate={() => goCreate(detail)} notify={notify} /> :
-        tab === "gallery" ? <Gallery state={galleryState} activeVideo={activeVideo} onActive={setActiveVideo} onOpen={setDetail} onCreate={goCreate} onDemo={() => setDemoOpen(true)} /> :
-        tab === "create" ? <Create stage={stage} title={stageTitle} consent={consent} setConsent={setConsent} face={face} faceInput={faceInput} onFace={handleFile} verify={verify} onVerify={runVerify} appearance={appearance} setAppearance={setAppearance} appearanceImage={appearanceImage} appearanceInput={appearanceInput} onAppearance={handleFile} currentScene={currentScene} currentPlace={currentPlace} line={line} selectScene={selectScene} setPlace={(id) => { const place = currentScene.places.find((item) => item.id === id) ?? currentScene.places[0]; setPlaceId(place.id); setLine(place.lines[0]); }} setLine={setLine} task={task} published={published} canNext={canNext} onStage={setStage} onSubmit={() => { setTask("review"); notify("生成申请已提交，等待 Mac 管理员确认"); }} onAdmin={() => setTask("running")} onRetry={() => setTask("review")} onPublish={() => { setPublished(true); notify("已确认公开发布到作品展示"); }} notify={notify} /> :
-        <Mine task={task} published={published} onCreate={() => goCreate()} notify={notify} />}
-      {!detail && <BottomNav tab={tab} setTab={setTab} onCreate={() => goCreate()} />}
+  const submitGeneration = () => setSheet("busy");
+  const continueGeneration = () => {
+    setSheet(null);
+    setTaskState("running");
+    setToast("已加入生成队列");
+  };
+  const share = () => setToast("分享链接已准备好");
+  const download = () => setToast("开始下载视频");
+
+  const openTaskWork = (item: TaskItem) => {
+    if (!item.workId) return;
+    const work = works.find((candidate) => candidate.id === item.workId);
+    if (work) {
+      setTaskDetail(null);
+      setDetailWork(work);
+    }
+  };
+
+  if (detailWork) {
+    const isPublic = visibilityOverrides[detailWork.id] ?? detailWork.visibility === "公开展示";
+    return <div className="prototype-frame dark-frame"><WorkViewer work={detailWork} mineMode={tab === "mine"} onBack={() => setDetailWork(null)} onCreate={() => goCreate(detailWork)} onShare={share} onDownload={download} onDelete={() => setSheet("delete")} isPublic={isPublic} onPublish={() => setSheet(isPublic ? "unpublish" : "publish")} />{sheet && <Sheet kind={sheet} onClose={() => setSheet(null)} onContinue={continueGeneration} onProgress={() => {}} onPublish={() => { const next = sheet === "publish"; setVisibilityOverrides((items) => ({ ...items, [detailWork.id]: next })); setSheet(null); setToast(next ? "作品已公开展示" : "作品已取消公开"); }} onDelete={() => { setDeleted((items) => [...items, detailWork.id]); setDetailWork(null); setSheet(null); setToast("作品已删除"); }} />}{toast && <Toast text={toast} />}</div>;
+  }
+
+  if (taskDetail) {
+    return <div className="prototype-frame light-frame"><TaskDetail item={taskDetail} onBack={() => setTaskDetail(null)} onOpenWork={() => openTaskWork(taskDetail)} onRetry={() => { setTaskDetail(null); goCreate(); }} />{toast && <Toast text={toast} />}</div>;
+  }
+
+  return <div className={`prototype-frame ${theme}-frame`}>
+    <a className="skip-link" href="#main-content">跳到主要内容</a>
+    <main id="main-content" className="app-main">
+      {tab === "gallery" && <Gallery mode={galleryMode} works={visibleWorks} onOpen={setDetailWork} onCreate={goCreate} onMore={() => setSheet("states")} />}
+      {tab === "create" && <CreateFlow stage={stage} setStage={setStage} scene={scene} shot={shot} line={line} chooseScene={chooseScene} chooseShot={chooseShot} setLine={setLine} consent={consent} setConsent={setConsent} face={face} faceInput={faceInput} addFile={addFile} verify={verify} setVerify={setVerify} appearance={appearance} setAppearance={setAppearance} appearanceImage={appearanceImage} appearanceInput={appearanceInput} canNext={canNext} taskState={taskState} published={published} onSubmit={submitGeneration} onOpenResult={() => setDetailWork(works.find((work) => work.shotId === shot.id) ?? works[0])} onMine={() => { setTab("mine"); setMineTab("tasks"); }} onPublish={() => setSheet("publish")} onDownload={download} onShare={share} onMore={() => setSheet("states")} />}
+      {tab === "mine" && <Mine mineTab={mineTab} setMineTab={setMineTab} works={visibleWorks.slice(0, 4)} onOpenTask={setTaskDetail} onOpenWork={setDetailWork} onCreate={() => goCreate()} onShare={share} onDownload={download} onDelete={(work) => { setDetailWork(work); setSheet("delete"); }} onExit={() => setToast("已退出登录")} />}
     </main>
-    {demoOpen && <DemoPanel close={() => setDemoOpen(false)} setGallery={setGalleryState} forceFail={() => { setTask("failed"); setStage(3); setTab("create"); setDemoOpen(false); }} />}
-    {toast && <div className="toast">{toast}</div>}
+    {!sheet && <BottomNav tab={tab} setTab={(next) => { setTab(next); if (next === "create") setStage(1); }} />}
+    {sheet && <Sheet kind={sheet} onClose={() => setSheet(null)} onContinue={continueGeneration} onProgress={() => { setSheet(null); setTab("mine"); setMineTab("tasks"); }} onGallery={setGalleryMode} onVerify={setVerify} onTask={setTaskState} onSample={() => { setFace(asset("images/v3/dongmen-main.jpg")); setVerify("passed"); setConsent(true); }} onPublish={() => { setPublished(true); setSheet(null); setToast("作品已公开展示"); }} onDelete={() => setSheet(null)} />}
+    {toast && <Toast text={toast} />}
   </div>;
 }
 
-function Gallery({ state, activeVideo, onActive, onOpen, onCreate, onDemo }: { state: GalleryState; activeVideo: string; onActive: (id: string) => void; onOpen: (work: Work) => void; onCreate: (work?: Work) => void; onDemo: () => void }) {
-  const gridRef = useRef<HTMLElement>(null);
+function Gallery({ mode, works: items, onOpen, onCreate, onMore }: { mode: GalleryMode; works: Work[]; onOpen: (work: Work) => void; onCreate: (work?: Work) => void; onMore: () => void }) {
+  const [index, setIndex] = useState(0);
+  const [motion, setMotion] = useState<Motion>("");
+  const start = useRef({ x: 0, y: 0, moved: false });
+  const safeIndex = items.length ? index % items.length : 0;
+  const active = items[safeIndex];
+
   useEffect(() => {
-    if (state !== "works" || !gridRef.current) return;
-    const scroller = gridRef.current.closest<HTMLElement>(".screen");
-    const updatePlayingWork = () => {
-      const center = scroller ? (scroller.getBoundingClientRect().top + scroller.getBoundingClientRect().bottom) / 2 : window.innerHeight / 2;
-      const nearest = [...gridRef.current!.querySelectorAll<HTMLElement>("[data-work-id]")]
-        .filter((item) => { const box = item.getBoundingClientRect(); return box.bottom > 0 && box.top < window.innerHeight; })
-        .sort((a, b) => Math.abs((a.getBoundingClientRect().top + a.getBoundingClientRect().bottom) / 2 - center) - Math.abs((b.getBoundingClientRect().top + b.getBoundingClientRect().bottom) / 2 - center))[0];
-      const id = nearest?.dataset.workId;
-      if (id) onActive(id);
-    };
-    updatePlayingWork();
-    scroller?.addEventListener("scroll", updatePlayingWork, { passive: true });
-    window.addEventListener("resize", updatePlayingWork);
-    return () => { scroller?.removeEventListener("scroll", updatePlayingWork); window.removeEventListener("resize", updatePlayingWork); };
-  }, [state, onActive]);
-  if (state === "loading") return <ScreenTop title="作品展示" right={<IconButton label="演示状态" onClick={onDemo}>⌁</IconButton>}><div className="gallery-empty"><i className="loader" /><b>正在汇集城市影像</b><p>请稍候，新的故事正在进入影像馆。</p></div></ScreenTop>;
-  if (state === "empty") return <ScreenTop title="作品展示" right={<IconButton label="演示状态" onClick={onDemo}>⌁</IconButton>}><div className="gallery-empty"><em>⌑</em><b>还没有公开作品</b><p>你的第一支城市影像，或许会从这里开始。</p><button className="primary-button" onClick={() => onCreate()}>开始生成 <span>↗</span></button></div></ScreenTop>;
-  return <ScreenTop title="AI影像馆" right={<IconButton label="演示状态" onClick={onDemo}>⌁</IconButton>}>
-    <section className="gallery-intro"><span className="eyebrow">CITY MEMORIES · PUBLIC WORKS</span><h1>每一段城市记忆，<br />都有新的主角。</h1><p>精选样片和用户公开作品在此相遇。视区中央的一支，会自动静音循环播放。</p></section>
-    <section ref={gridRef} className="work-waterfall" aria-label="公开作品瀑布流">
-      {works.map((work) => <article key={work.id} data-work-id={work.id} className={`work-tile ${work.tall ? "tall" : ""} ${activeVideo === work.id ? "playing" : ""}`} onClick={() => onOpen(work)}>
-        {activeVideo === work.id ? <video src="/media/demo-video-15s.mp4" poster={work.image} muted autoPlay loop playsInline onError={() => onActive("")} /> : <img src={work.image} alt="" />}
-        <div className="work-vignette" />
-        {activeVideo === work.id && <span className="play-badge"><i /> 静音播放</span>}
-        <div className="work-meta"><strong>{work.name}</strong><small>15 秒 · 公开作品</small></div>
-      </article>)}
-    </section>
-    {state === "failed" && <div className="gallery-warning">部分作品播放失败，已展示封面。<button onClick={() => onActive("dongmen")}>重试</button></div>}
-  </ScreenTop>;
+    if (index >= items.length && items.length) setIndex(0);
+  }, [index, items.length]);
+
+  const move = (direction: Motion) => {
+    if (!items.length || motion) return;
+    setMotion(direction);
+    window.setTimeout(() => {
+      setIndex((current) => direction === "down" || direction === "right" ? (current - 1 + items.length) % items.length : (current + 1) % items.length);
+      setMotion("");
+    }, 330);
+  };
+
+  const pointerDown = (event: ReactPointerEvent) => {
+    start.current = { x: event.clientX, y: event.clientY, moved: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const pointerUp = (event: ReactPointerEvent) => {
+    const dx = event.clientX - start.current.x;
+    const dy = event.clientY - start.current.y;
+    const distance = Math.max(Math.abs(dx), Math.abs(dy));
+    if (distance < 36) {
+      if (active) onOpen(active);
+      return;
+    }
+    start.current.moved = true;
+    if (Math.abs(dy) > Math.abs(dx)) move(dy < 0 ? "up" : "down");
+    else move(dx < 0 ? "left" : "right");
+  };
+
+  if (mode === "loading") return <section className="gallery-page"><GalleryHeader onMore={onMore} /><StateCard><span className="spinner" /><h2>正在载入作品…</h2></StateCard></section>;
+  if (mode === "empty" || !active) return <section className="gallery-page"><GalleryHeader onMore={onMore} /><StateCard><div className="state-symbol"><Icon name="gallery" size={28} /></div><h2>还没有作品</h2><button className="solid-button" onClick={() => onCreate()}>生成第一支视频</button></StateCard></section>;
+  if (mode === "failed") return <section className="gallery-page"><GalleryHeader onMore={onMore} /><StateCard><div className="state-symbol"><Icon name="retry" size={28} /></div><h2>作品载入失败</h2><button className="solid-button" onClick={() => window.location.reload()}>重新载入</button></StateCard></section>;
+
+  const back1 = items[(safeIndex + 1) % items.length];
+  const back2 = items[(safeIndex + 2) % items.length];
+  return <section className="gallery-page">
+    <GalleryHeader onMore={onMore} />
+    <div className="deck-wrap">
+      <div className="deck-stage" role="button" tabIndex={0} aria-label={`查看作品：${active.title}`} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") onOpen(active); if (event.key === "ArrowUp" || event.key === "ArrowRight") move("up"); if (event.key === "ArrowDown" || event.key === "ArrowLeft") move("down"); }} onPointerDown={pointerDown} onPointerUp={pointerUp} onWheel={(event) => { if (Math.abs(event.deltaY) > 18) move(event.deltaY > 0 ? "up" : "down"); }}>
+        <article className="poster-card deck-back deck-back-two" aria-hidden="true"><img src={back2.image} width="941" height="1672" alt="" /></article>
+        <article className="poster-card deck-back deck-back-one" aria-hidden="true"><img src={back1.image} width="941" height="1672" alt="" /></article>
+        <article className={`poster-card deck-front ${motion ? `motion-${motion}` : ""}`}>
+          <CinematicLoop key={active.id} work={active} />
+          <div className="poster-shade" />
+          <div className="poster-top"><span>{active.scene}</span><span>{active.duration}</span></div>
+          <div className="poster-copy"><div className="tag-row">{active.tags.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}</div><h2>{active.title}</h2><p>{active.line}</p></div>
+          <span className="tap-hint"><Icon name="play" size={16} /> 点击观看</span>
+        </article>
+      </div>
+      <p className="gesture-hint"><span /> 上下浏览 · 左右翻牌</p>
+      <button className="same-style" onClick={() => onCreate(active)}>生成同款视频 <Icon name="create" size={18} /></button>
+    </div>
+  </section>;
 }
 
-function Create(props: CreateProps) {
-  const { stage, title, onStage } = props;
-  return <div className="screen create-screen">
-    <header className="topbar"><div className="top-slot">{stage > 1 && <IconButton label="上一步" onClick={() => onStage((stage - 1) as Stage)}>←</IconButton>}</div><div className="brand">视频生成</div><div className="top-slot" /></header>
-    <div className="create-heading"><span className="eyebrow">THREE-STEP CREATION</span><h1>{title}</h1><p>{stage === 1 ? "授权、素材、本人核验与人物形象，在同一页完成。" : stage === 2 ? "大场景、小场景与预设台词联动选择，不开放自由输入。" : "生成申请、管理员确认、进度与成品都在此处切换。"}</p></div>
-    <div className="three-stepper">{["上传素材", "选择场景和台词", "视频生成"].map((item, index) => <button key={item} disabled={index + 1 > stage} className={index + 1 === stage ? "active" : index + 1 < stage ? "done" : ""} onClick={() => onStage((index + 1) as Stage)}><i>{index + 1 < stage ? "✓" : index + 1}</i><span>{item}</span></button>)}</div>
-    {stage === 1 ? <MaterialStep {...props} /> : stage === 2 ? <SceneStep {...props} /> : <GenerationStep {...props} />}
+function GalleryHeader({ onMore }: { onMore: () => void }) {
+  return <header className="gallery-header"><div><small>深圳AI影像馆</small><h1>作品展示</h1></div><IconButton name="more" label="更多状态" onClick={onMore} /></header>;
+}
+
+function StateCard({ children }: { children: ReactNode }) {
+  return <div className="state-card">{children}</div>;
+}
+
+type CreateFlowProps = {
+  stage: Stage;
+  setStage: (stage: Stage) => void;
+  scene: Scene;
+  shot: Shot;
+  line: string;
+  chooseScene: (scene: Scene) => void;
+  chooseShot: (shot: Shot) => void;
+  setLine: (line: string) => void;
+  consent: boolean;
+  setConsent: (value: boolean) => void;
+  face: string | null;
+  faceInput: React.RefObject<HTMLInputElement | null>;
+  addFile: (event: ChangeEvent<HTMLInputElement>, target: "face" | "appearance") => void;
+  verify: VerifyState;
+  setVerify: (state: VerifyState) => void;
+  appearance: "auto" | "upload";
+  setAppearance: (value: "auto" | "upload") => void;
+  appearanceImage: string | null;
+  appearanceInput: React.RefObject<HTMLInputElement | null>;
+  canNext: boolean;
+  taskState: TaskState | null;
+  published: boolean;
+  onSubmit: () => void;
+  onOpenResult: () => void;
+  onMine: () => void;
+  onPublish: () => void;
+  onDownload: () => void;
+  onShare: () => void;
+  onMore: () => void;
+};
+
+function CreateFlow(props: CreateFlowProps) {
+  return <section className="light-page create-page">
+    <Header title="视频生成" more={props.onMore} />
+    <StepBar stage={props.stage} />
+    {props.stage === 1 && <MaterialStep {...props} />}
+    {props.stage === 2 && <SceneStep {...props} />}
+    {props.stage === 3 && <GenerationStep {...props} />}
+  </section>;
+}
+
+function StepBar({ stage }: { stage: Stage }) {
+  const labels = ["上传素材", "场景台词", "视频生成"];
+  return <div className="step-bar">{labels.map((label, index) => <div key={label} className={index + 1 === stage ? "active" : index + 1 < stage ? "done" : ""}><i>{index + 1 < stage ? <Icon name="check" size={13} /> : index + 1}</i><span>{label}</span></div>)}</div>;
+}
+
+function MaterialStep(props: CreateFlowProps) {
+  const verifyCopy = props.verify === "checking" ? ["核验中", "请保持页面开启"] : props.verify === "passed" ? ["核验已通过", "可以继续下一步"] : props.verify === "failed" ? ["核验未通过", "请更换清晰照片"] : ["等待本人核验", "上传照片后自动开始"];
+  return <div className="flow-body material-flow">
+    <div className="flow-title"><span>第一步</span><h1>上传素材</h1></div>
+    <label className={`glass-card consent-card ${props.consent ? "selected" : ""}`}><input type="checkbox" name="material_authorization" checked={props.consent} onChange={(event) => props.setConsent(event.target.checked)} /><i>{props.consent && <Icon name="check" size={15} />}</i><div><strong>素材使用授权</strong><small>我拥有所提交素材的合法使用权</small></div></label>
+    <button className="glass-card upload-row" onClick={() => props.faceInput.current?.click()}>{props.face ? <img src={props.face} width="941" height="1672" alt="人脸照片" /> : <span className="upload-placeholder"><Icon name="upload" /></span>}<div><strong>{props.face ? "人脸照片已上传" : "上传人脸照片"}</strong><small>正脸 · 单人 · 清晰无遮挡</small></div><Icon name="upload" /></button>
+    <input ref={props.faceInput} className="hidden-input" type="file" name="face_photo" aria-label="选择人脸照片" autoComplete="off" accept="image/jpeg,image/png" onChange={(event) => props.addFile(event, "face")} />
+    <div className={`glass-card verify-row ${props.verify}`}><span>{props.verify === "checking" ? <i className="mini-spinner" /> : props.verify === "passed" ? <Icon name="check" size={17} /> : props.verify === "failed" ? "!" : "·"}</span><div><strong>{verifyCopy[0]}</strong><small>{verifyCopy[1]}</small></div>{props.verify === "failed" && <button onClick={() => props.faceInput.current?.click()}>重新上传</button>}</div>
+    <section className="glass-card appearance-card"><header><strong>人物形象</strong><small>选择一种生成方式</small></header><div className="choice-grid"><button className={props.appearance === "auto" ? "selected" : ""} onClick={() => props.setAppearance("auto")}><span className="spark">✦</span><strong>自动生成</strong><small>按场景匹配</small></button><button className={props.appearance === "upload" ? "selected" : ""} onClick={() => props.setAppearance("upload")}><Icon name="upload" /><strong>上传形象图</strong><small>服装或全身照</small></button></div>{props.appearance === "upload" && <button className="appearance-upload" onClick={() => props.appearanceInput.current?.click()}>{props.appearanceImage ? <img src={props.appearanceImage} width="941" height="1672" alt="已上传形象" /> : <Icon name="upload" />}<span>{props.appearanceImage ? "形象图已上传" : "选择形象图"}</span></button>}<input ref={props.appearanceInput} className="hidden-input" type="file" name="appearance_photo" aria-label="选择人物形象图" autoComplete="off" accept="image/jpeg,image/png" onChange={(event) => props.addFile(event, "appearance")} /></section>
+    <section className="reference-strip"><header><strong>案例参考</strong></header><div>{["dongmen-main.jpg", "huaqiangbei-main.jpg", "shekou-main.jpg"].map((name) => <img key={name} src={asset(`images/v3/${name}`)} width="941" height="1672" loading="lazy" alt="人物形象案例" />)}</div></section>
+    <div className="sticky-cta"><button className="primary-cta" disabled={!props.canNext} onClick={() => props.setStage(2)}>下一步</button></div>
   </div>;
 }
 
-function MaterialStep({ consent, setConsent, face, faceInput, onFace, verify, onVerify, appearance, setAppearance, appearanceImage, appearanceInput, onAppearance, canNext, onStage }: Pick<CreateProps, "consent" | "setConsent" | "face" | "faceInput" | "onFace" | "verify" | "onVerify" | "appearance" | "setAppearance" | "appearanceImage" | "appearanceInput" | "onAppearance" | "canNext" | "onStage">) {
-  const verifyText = verify === "passed" ? ["✓", "已通过", "Demo 状态：已完成人脸与本人核验"] : verify === "checking" ? ["◌", "核验中", "正在演示本人核验状态…"] : verify === "failed" ? ["!", "核验失败", "请更换清晰照片后重新尝试"] : ["◌", "未核验", "上传人脸照片后完成本人核验"];
-  return <>
-    <section className="glass-panel material-panel"><span className="eyebrow">MATERIALS IN ONE PLACE</span><h2>完成你的素材准备</h2><p>所有素材仅用于本次影像生成。Demo 不上传、不保存真实文件。</p>
-      <label className="check-row compact-check"><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /><span className="fake-check">{consent ? "✓" : ""}</span><span><b>我已确认素材使用授权</b><small>我拥有所提交素材的合法使用权。</small></span></label>
-      <button className="upload-card" onClick={() => faceInput.current?.click()}><img src={face || "/images/appearance-reference-v1.png"} alt="人脸照片案例参考" /><span><b>{face ? "人脸照片已添加" : "上传清晰人脸照片"}</b><small>JPG / PNG · 正脸、单人、无遮挡</small></span><em>＋</em></button><input className="visually-hidden" ref={faceInput} type="file" accept="image/jpeg,image/png" onChange={(event) => onFace(event, "face")} />
-      <div className={`verify-card ${verify}`}><i>{verifyText[0]}</i><span><b>{verifyText[1]}</b><small>{verifyText[2]}</small></span><button disabled={!face || verify === "checking"} onClick={onVerify}>{verify === "passed" ? "重新演示" : "开始核验"}</button></div>
-    </section>
-    <section className="glass-panel material-panel"><span className="eyebrow">APPEARANCE</span><h2>选择人物形象</h2><p>上传形象参考，或由系统依据场景自动生成。</p><div className="appearance-options"><button className={appearance === "system" ? "selected" : ""} onClick={() => setAppearance("system")}><i>✦</i><b>系统自动生成</b><small>依据场景匹配人物形象</small></button><button className={appearance === "upload" ? "selected" : ""} onClick={() => setAppearance("upload")}><i>↑</i><b>上传形象图</b><small>全身照或服装参考</small></button></div>{appearance === "upload" && <><button className="upload-card compact-upload" onClick={() => appearanceInput.current?.click()}><img src={appearanceImage || "/images/appearance-reference-v1.png"} alt="形象图案例参考" /><span><b>{appearanceImage ? "形象图已添加" : "上传形象参考图"}</b><small>JPG / PNG · Demo 不保存文件</small></span><em>＋</em></button><input className="visually-hidden" ref={appearanceInput} type="file" accept="image/jpeg,image/png" onChange={(event) => onAppearance(event, "appearance")} /></>}</section>
-    <div className="sticky-action"><button className="primary-button" disabled={!canNext} onClick={() => onStage(2)}>继续：选择场景和台词 <span>↗</span></button></div>
-  </>;
+function SceneStep(props: CreateFlowProps) {
+  return <div className="flow-body scene-flow">
+    <div className="flow-title"><span>第二步</span><h1>选择场景和台词</h1></div>
+    <div className="scene-tabs">{scenes.map((scene) => <button key={scene.id} className={scene.id === props.scene.id ? "selected" : ""} onClick={() => props.chooseScene(scene)}>{scene.name}</button>)}</div>
+    <div className="scene-hero"><img src={props.shot.image} width="941" height="1672" alt={props.shot.name} /><div><span>{props.scene.name}</span><h2>{props.shot.name}</h2></div></div>
+    <div className="shot-row">{props.scene.shots.map((shot) => <button key={shot.id} className={shot.id === props.shot.id ? "selected" : ""} onClick={() => props.chooseShot(shot)}><img src={shot.image} width="941" height="1672" loading="lazy" alt={shot.name} /><span>{shot.name}</span></button>)}</div>
+    <section className="line-card"><header><strong>选择台词</strong></header>{props.shot.lines.map((item) => <label key={item} className={props.line === item ? "selected" : ""}><input type="radio" name="preset_line" checked={props.line === item} onChange={() => props.setLine(item)} /><i>{props.line === item && <Icon name="check" size={14} />}</i><span>{item}</span></label>)}</section>
+    <div className="sticky-cta split"><button className="ghost-cta" onClick={() => props.setStage(1)}>上一步</button><button className="primary-cta" onClick={() => props.setStage(3)}>确认选择</button></div>
+  </div>;
 }
 
-function SceneStep({ currentScene, currentPlace, line, selectScene, setPlace, setLine, onStage }: Pick<CreateProps, "currentScene" | "currentPlace" | "line" | "selectScene" | "setPlace" | "setLine" | "onStage">) {
-  return <>
-    <section className="glass-panel scene-panel"><span className="eyebrow">SCENE & DIALOGUE</span><h2>一页选定故事</h2><div className="scene-tabs">{scenes.map((scene) => <button key={scene.id} className={scene.id === currentScene.id ? "selected" : ""} onClick={() => selectScene(scene)}>{scene.name}</button>)}</div><div className="scene-visual"><img src={currentScene.image} alt={currentScene.name} /><span>{currentScene.name} · 城市记忆</span></div><div className="place-list">{currentScene.places.map((place) => <button key={place.id} className={place.id === currentPlace.id ? "selected" : ""} onClick={() => setPlace(place.id)}><b>{place.name}</b><small>{place.tag}</small><i>{place.id === currentPlace.id ? "✓" : ""}</i></button>)}</div></section>
-    <section className="glass-panel line-panel"><span className="eyebrow">PRESET LINES</span><h2>选择一句台词</h2>{currentPlace.lines.map((item: string) => <label key={item} className={line === item ? "selected" : ""}><input type="radio" checked={line === item} onChange={() => setLine(item)} /><span>{item}</span><i>{line === item ? "✓" : ""}</i></label>)}</section>
-    <div className="sticky-action split"><button className="secondary-button" onClick={() => onStage(1)}>上一步</button><button className="primary-button" onClick={() => onStage(3)}>确认并生成 <span>↗</span></button></div>
-  </>;
+function GenerationStep(props: CreateFlowProps) {
+  if (!props.taskState) return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>确认生成</h1></div><div className="summary-poster"><img src={props.shot.image} width="941" height="1672" alt={props.shot.name} /><div><span>{props.scene.name}</span><h2>{props.shot.name}</h2></div></div><section className="summary-card"><div><span>台词</span><strong>{props.line}</strong></div><div><span>人物形象</span><strong>{props.appearance === "auto" ? "自动生成" : "已上传形象图"}</strong></div></section><div className="sticky-cta split"><button className="ghost-cta" onClick={() => props.setStage(2)}>返回修改</button><button className="primary-cta" onClick={props.onSubmit}>开始生成</button></div></div>;
+  if (props.taskState === "running") return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>视频生成中</h1></div><div className="status-visual"><img src={props.shot.image} width="941" height="1672" alt={props.shot.name} /><span className="render-ring"><i /></span><div><strong>正在合成场景</strong><small>68%</small></div></div><div className="progress-track"><i style={{ width: "68%" }} /></div><p className="status-note">预计还需 2 分钟</p><div className="sticky-cta"><button className="soft-cta" onClick={props.onMine}>查看我的创作</button></div></div>;
+  if (props.taskState === "failed") return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>生成未完成</h1></div><div className="result-status failed"><span>!</span><strong>画面合成中断</strong><small>素材清晰度不足，请调整后重试</small></div><div className="sticky-cta split"><button className="ghost-cta" onClick={() => props.setStage(2)}>修改素材</button><button className="primary-cta" onClick={props.onSubmit}>重新生成</button></div></div>;
+  return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>视频已完成</h1></div><button className="result-poster" onClick={props.onOpenResult}><img src={props.shot.image} width="941" height="1672" alt={props.shot.name} /><span><Icon name="play" size={24} /></span><div><strong>{props.shot.name}</strong><small>点击查看视频</small></div></button><div className="result-actions"><button onClick={props.onDownload}><Icon name="download" />下载</button><button onClick={props.onShare}><Icon name="share" />分享</button><button className={props.published ? "published" : ""} onClick={props.onPublish}><Icon name="gallery" />{props.published ? "已公开" : "发布"}</button></div></div>;
 }
 
-function GenerationStep({ currentScene, currentPlace, line, appearance, task, published, onSubmit, onAdmin, onRetry, onPublish, onStage, notify }: Pick<CreateProps, "currentScene" | "currentPlace" | "line" | "appearance" | "task" | "published" | "onSubmit" | "onAdmin" | "onRetry" | "onPublish" | "onStage" | "notify">) {
-  if (!task) return <><section className="glass-panel summary-panel"><span className="eyebrow">READY TO CREATE</span><h2>确认生成内容</h2><div><span>场景</span><b>{currentScene.name} · {currentPlace.name}</b></div><div><span>台词</span><b>{line}</b></div><div><span>人物形象</span><b>{appearance === "system" ? "系统自动生成" : "已上传形象图"}</b></div><div><span>生成规则</span><b>需 Mac 管理员确认</b></div></section><div className="sticky-action split"><button className="secondary-button" onClick={() => onStage(2)}>返回修改</button><button className="primary-button" onClick={onSubmit}>提交生成申请 <span>↗</span></button></div></>;
-  if (task === "review") return <TaskCard icon="⌘" title="等待 Mac 管理员确认" eyebrow="ADMIN APPROVAL REQUIRED" text="只有管理员在指定 Mac 上明确确认后，才会开始生成。本 Demo 不连接真实后台。"><button className="secondary-button" onClick={onAdmin}>演示：管理员已确认</button><button className="text-only" onClick={() => { onStage(2); notify("已返回场景选择"); }}>返回修改</button></TaskCard>;
-  if (task === "running") return <TaskCard icon="✦" title="正在生成城市影像" eyebrow="GENERATING" text="正在合成画面与场景节奏，请稍候。"><div className="progress-line"><i /></div><small>生成状态模拟中 · 不调用真实服务</small></TaskCard>;
-  if (task === "failed") return <TaskCard bad icon="!" title="这次生成没有完成" eyebrow="GENERATION FAILED" text="Demo 异常状态。真实产品会保留失败原因和可重试任务，但不会公开你的素材。"><button className="primary-button" onClick={onRetry}>重新提交生成 <span>↗</span></button><button className="text-only" onClick={() => onStage(2)}>返回调整场景</button></TaskCard>;
-  return <TaskCard good icon="✓" title="你的影像已生成" eyebrow="YOUR FILM IS READY" text="作品默认仅自己可见。公开前需要你的单独确认。"><div className="result-video"><video src="/media/demo-video-15s.mp4" poster="/images/demo-video-poster.jpg" muted autoPlay loop playsInline /><span>{currentScene.name} · {currentPlace.name}</span></div><button className="primary-button" onClick={() => notify("已打开成品预览（Demo）")}>预览成品 <span>↗</span></button><button className="secondary-button" onClick={onPublish}>{published ? "已发布到作品展示" : "单独确认公开发布"}</button></TaskCard>;
+function Mine({ mineTab, setMineTab, works: mineWorks, onOpenTask, onOpenWork, onCreate, onShare, onDownload, onDelete, onExit }: { mineTab: "tasks" | "works"; setMineTab: (tab: "tasks" | "works") => void; works: Work[]; onOpenTask: (task: TaskItem) => void; onOpenWork: (work: Work) => void; onCreate: () => void; onShare: () => void; onDownload: () => void; onDelete: (work: Work) => void; onExit: () => void }) {
+  return <section className="light-page mine-page"><Header title="我的" /><div className="profile"><div className="avatar">林</div><div><strong>林先生</strong><small>账号 138****6628 · 已登录</small></div><button onClick={onExit}>退出登录</button></div><div className="mine-tabs"><button className={mineTab === "tasks" ? "selected" : ""} onClick={() => setMineTab("tasks")}>创作任务</button><button className={mineTab === "works" ? "selected" : ""} onClick={() => setMineTab("works")}>我的作品</button></div>{mineTab === "tasks" ? <div className="task-list">{initialTasks.map((task) => <TaskRow key={task.id} task={task} onClick={() => onOpenTask(task)} />)}</div> : <div className="mine-work-list">{mineWorks.map((work) => <article key={work.id}><button className="work-main" onClick={() => onOpenWork(work)}><img src={work.image} width="941" height="1672" loading="lazy" alt={work.title} /><div><strong>{work.title}</strong><small>{work.scene} · {work.time}</small><span className={`visibility ${work.visibility === "公开展示" ? "public" : work.visibility === "发布中" ? "pending" : ""}`}>{work.visibility}</span></div></button><div className="work-quick"><IconButton name="download" label="下载" onClick={onDownload} /><IconButton name="share" label="分享" onClick={onShare} /><IconButton name="delete" label="删除" onClick={() => onDelete(work)} /></div></article>)}</div>}<button className="mine-create" onClick={onCreate}><Icon name="create" />生成新视频</button></section>;
 }
 
-function TaskCard({ icon, title, eyebrow, text, children, good, bad }: { icon: string; title: string; eyebrow: string; text: string; children: ReactNode; good?: boolean; bad?: boolean }) { return <section className={`task-card ${good ? "good" : ""} ${bad ? "bad" : ""}`}><i className="task-orb">{icon}</i><span className="eyebrow">{eyebrow}</span><h2>{title}</h2><p>{text}</p><div className="task-children">{children}</div></section>; }
+function TaskRow({ task, onClick }: { task: TaskItem; onClick: () => void }) {
+  const label = task.status === "running" ? "生成中" : task.status === "success" ? "已完成" : "生成失败";
+  return <button className="task-row" onClick={onClick}><img src={task.image} width="941" height="1672" loading="lazy" alt={task.title} /><div><strong>{task.title}</strong><small>{task.scene} · {task.time}</small>{task.status === "running" && <span className="row-progress"><i style={{ width: `${task.progress}%` }} /></span>}</div><em className={task.status}>{label}</em></button>;
+}
 
-function Mine({ task, published, onCreate, notify }: { task: TaskState | null; published: boolean; onCreate: () => void; notify: (value: string) => void }) { const taskText = task === "running" ? "生成中" : task === "review" ? "待确认" : task === "failed" ? "生成失败" : task === "succeeded" ? "已完成" : "暂无任务"; return <ScreenTop title="我的" right={<IconButton label="更多">···</IconButton>}><section className="profile-card"><div className="avatar">林</div><div><b>林先生</b><small>lin@example.com · 已登录</small></div><button onClick={() => notify("已退出登录（Demo）")}>退出登录</button></section><section className="mine-section"><header><h2>我的创作</h2><button onClick={onCreate}>新建视频 ↗</button></header><div className="creation-row"><img src="/images/city-03.jpg" alt="" /><span><b>蛇口 · 海港灯火</b><small>城市影像生成任务</small></span><em className={task === "failed" ? "bad" : task === "succeeded" ? "good" : ""}>{taskText}</em></div></section><section className="mine-section"><header><h2>我的作品</h2><button onClick={() => notify("全部作品（Demo）")}>查看全部</button></header><div className="creation-row"><img src="/images/city-01.jpg" alt="" /><span><b>华强北 · 创新的速度</b><small>{published ? "已公开展示" : "仅自己可见"}</small></span><button className="small-icon" onClick={() => notify("下载开始（Demo）")}>⇩</button><button className="small-icon" onClick={() => notify("分享链接已复制（Demo）")}>⌁</button><button className="small-icon" onClick={() => notify("删除确认（Demo）")}>⌫</button></div></section></ScreenTop>; }
+function TaskDetail({ item, onBack, onOpenWork, onRetry }: { item: TaskItem; onBack: () => void; onOpenWork: () => void; onRetry: () => void }) {
+  const label = item.status === "running" ? "生成中" : item.status === "success" ? "已完成" : "生成失败";
+  return <section className="light-page detail-page"><Header title="任务详情" back={onBack} /><div className="task-cover"><img src={item.image} width="941" height="1672" alt={item.title} /><span className={item.status}>{label}</span></div><section className="detail-info"><h1>{item.title}</h1><div><span>场景</span><strong>{item.scene}</strong></div><div><span>提交时间</span><strong>{item.time}</strong></div><div><span>当前状态</span><strong>{label}</strong></div></section>{item.status === "running" && <><div className="progress-track"><i style={{ width: `${item.progress}%` }} /></div><p className="status-note">正在合成场景 · {item.progress}%</p></>}{item.status === "failed" && <div className="failure-reason"><strong>画面合成中断</strong><small>素材清晰度不足，请调整后重试</small></div>}<div className="detail-bottom">{item.status === "success" ? <button className="primary-cta" onClick={onOpenWork}>查看视频</button> : item.status === "failed" ? <button className="primary-cta" onClick={onRetry}>重新生成</button> : <button className="soft-cta" onClick={onBack}>返回我的创作</button>}</div></section>;
+}
 
-function WorkDetail({ work, onBack, onCreate, notify }: { work: (typeof works)[number]; onBack: () => void; onCreate: () => void; notify: (value: string) => void }) { return <div className="dark-screen work-detail"><header className="topbar"><div className="top-slot"><IconButton label="返回" onClick={onBack}>←</IconButton></div><div className="brand">作品详情</div><div className="top-slot top-action"><IconButton label="分享" onClick={() => notify("分享链接已复制（Demo）")}>⌁</IconButton></div></header><section className="detail-film"><video src="/media/demo-video-15s.mp4" poster={work.image} muted autoPlay loop playsInline /><div /><article><span className="eyebrow">PUBLIC WORK · 15S</span><h1>{work.name}</h1><p>“{work.line}”</p></article></section><div className="detail-actions"><button className="secondary-button" onClick={() => notify("分享链接已复制（Demo）")}>⌁ 分享</button><button className="primary-button" onClick={onCreate}>生成同款视频 <span>↗</span></button></div></div>; }
+function WorkViewer({ work, mineMode, onBack, onCreate, onShare, onDownload, onDelete, isPublic, onPublish }: { work: Work; mineMode: boolean; onBack: () => void; onCreate: () => void; onShare: () => void; onDownload: () => void; onDelete: () => void; isPublic: boolean; onPublish: () => void }) {
+  const [playing, setPlaying] = useState(true);
+  const toggle = () => setPlaying((value) => !value);
+  return <section className="work-viewer"><button className="viewer-media" onClick={toggle} aria-label={playing ? "暂停视频" : "播放视频"}><CinematicLoop work={work} playing={playing} /></button><div className="viewer-shade" /><header><IconButton name="back" label="返回" onClick={onBack} /><strong>作品详情</strong><IconButton name="share" label="分享" onClick={onShare} /></header><button className="viewer-play" onClick={toggle} aria-label={playing ? "暂停" : "播放"}><Icon name={playing ? "pause" : "play"} size={26} /></button><div className="viewer-copy"><div className="tag-row">{work.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><h1>{work.title}</h1><p>{work.line}</p>{mineMode ? <div className="viewer-actions"><button onClick={onDownload}><Icon name="download" />下载</button><button onClick={onShare}><Icon name="share" />分享</button><button onClick={onPublish}><Icon name="gallery" />{isPublic ? "取消公开" : "公开"}</button><button onClick={onDelete}><Icon name="delete" />删除</button></div> : <button className="same-style viewer-cta" onClick={onCreate}>生成同款视频 <Icon name="create" size={18} /></button>}</div></section>;
+}
 
-function ScreenTop({ title, right, children }: { title: string; right?: ReactNode; children: ReactNode }) { return <div className="screen gallery-screen"><header className="topbar"><div className="top-slot" /><div className="brand">{title}</div><div className="top-slot top-action">{right}</div></header>{children}</div>; }
-function BottomNav({ tab, setTab, onCreate }: { tab: Tab; setTab: (tab: Tab) => void; onCreate: () => void }) { return <nav className="prototype-nav"><button className={tab === "gallery" ? "active" : ""} onClick={() => setTab("gallery")}><i>▦</i>作品展示</button><button className="create-tab" onClick={onCreate}><i>＋</i>视频生成</button><button className={tab === "mine" ? "active" : ""} onClick={() => setTab("mine")}><i>◉</i>我的</button></nav>; }
-function DemoPanel({ close, setGallery, forceFail }: { close: () => void; setGallery: (state: GalleryState) => void; forceFail: () => void }) { return <div className="demo-layer"><section><button className="sheet-close" onClick={close}>×</button><span className="eyebrow">DEMO STATES</span><h2>演示状态面板</h2><p>仅用于展示异常与空状态，不影响任何真实数据。</p><button onClick={() => { setGallery("works"); close(); }}>作品展示：正常</button><button onClick={() => { setGallery("loading"); close(); }}>作品展示：加载中</button><button onClick={() => { setGallery("empty"); close(); }}>作品展示：暂无作品</button><button onClick={() => { setGallery("failed"); close(); }}>作品播放失败</button><button onClick={forceFail}>视频生成失败</button></section></div>; }
+function BottomNav({ tab, setTab }: { tab: Tab; setTab: (tab: Tab) => void }) {
+  return <nav className="bottom-nav" aria-label="主菜单"><button className={tab === "gallery" ? "active" : ""} onClick={() => setTab("gallery")}><Icon name="gallery" /><span>作品展示</span></button><button className={`create-nav ${tab === "create" ? "active" : ""}`} onClick={() => setTab("create")}><i><Icon name="create" size={25} /></i><span>视频生成</span></button><button className={tab === "mine" ? "active" : ""} onClick={() => setTab("mine")}><Icon name="mine" /><span>我的</span></button></nav>;
+}
+
+function Sheet({ kind, onClose, onContinue, onProgress, onGallery, onVerify, onTask, onSample, onPublish, onDelete }: { kind: "states" | "busy" | "publish" | "unpublish" | "delete"; onClose: () => void; onContinue: () => void; onProgress: () => void; onGallery?: (mode: GalleryMode) => void; onVerify?: (state: VerifyState) => void; onTask?: (state: TaskState | null) => void; onSample?: () => void; onPublish: () => void; onDelete: () => void }) {
+  if (kind === "busy") return <div className="sheet-layer" role="dialog" aria-modal="true"><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon"><Icon name="retry" size={25} /></div><h2>已有视频正在生成中</h2><div className="sheet-actions"><button className="soft-cta" onClick={onProgress}>查看生成进度</button><button className="primary-cta" onClick={onContinue}>继续生成</button></div></section></div>;
+  if (kind === "publish") return <div className="sheet-layer" role="dialog" aria-modal="true"><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon"><Icon name="gallery" size={25} /></div><h2>公开到作品展示？</h2><p>公开后，其他用户可以观看和分享这支视频。</p><div className="sheet-actions"><button className="soft-cta" onClick={onClose}>暂不公开</button><button className="primary-cta" onClick={onPublish}>确认公开</button></div></section></div>;
+  if (kind === "unpublish") return <div className="sheet-layer" role="dialog" aria-modal="true"><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon"><Icon name="gallery" size={25} /></div><h2>取消公开展示？</h2><p>取消后，这支视频仅自己可见。</p><div className="sheet-actions"><button className="soft-cta" onClick={onClose}>保持公开</button><button className="primary-cta" onClick={onPublish}>确认取消</button></div></section></div>;
+  if (kind === "delete") return <div className="sheet-layer" role="dialog" aria-modal="true"><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon danger"><Icon name="delete" size={25} /></div><h2>删除这支作品？</h2><p>删除后无法恢复。</p><div className="sheet-actions"><button className="soft-cta" onClick={onClose}>取消</button><button className="danger-cta" onClick={onDelete}>确认删除</button></div></section></div>;
+  return <div className="sheet-layer" role="dialog" aria-modal="true"><section className="sheet state-sheet"><IconButton name="close" label="关闭" onClick={onClose} /><h2>状态预览</h2><strong>作品展示</strong><div className="state-options">{(["works", "loading", "empty", "failed"] as GalleryMode[]).map((mode, index) => <button key={mode} onClick={() => { onGallery?.(mode); onClose(); }}>{["正常", "加载中", "暂无作品", "载入失败"][index]}</button>)}</div><strong>上传素材</strong><div className="state-options"><button onClick={() => { onSample?.(); onClose(); }}>使用案例素材</button></div><strong>本人核验</strong><div className="state-options">{(["checking", "passed", "failed"] as VerifyState[]).map((state, index) => <button key={state} onClick={() => { onVerify?.(state); onClose(); }}>{["核验中", "已通过", "未通过"][index]}</button>)}</div><strong>视频生成</strong><div className="state-options">{(["running", "success", "failed"] as TaskState[]).map((state, index) => <button key={state} onClick={() => { onTask?.(state); onClose(); }}>{["生成中", "已完成", "生成失败"][index]}</button>)}</div></section></div>;
+}
+
+function Toast({ text }: { text: string }) {
+  return <div className="toast" role="status">{text}</div>;
+}
