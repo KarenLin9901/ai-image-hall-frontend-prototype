@@ -1,5 +1,6 @@
 import {
   type ChangeEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
   useEffect,
@@ -10,7 +11,7 @@ import {
 type Tab = "gallery" | "create" | "mine";
 type Stage = 1 | 2 | 3;
 type VerifyState = "idle" | "checking" | "passed" | "failed";
-type TaskState = "running" | "success" | "failed";
+type TaskState = "pending" | "running" | "success" | "failed" | "cancelled" | "retrying";
 type GalleryMode = "works" | "loading" | "empty" | "failed";
 type Motion = "" | "up" | "down" | "left" | "right";
 type IconName = "gallery" | "create" | "mine" | "back" | "share" | "download" | "delete" | "more" | "play" | "pause" | "check" | "upload" | "retry" | "close";
@@ -69,49 +70,49 @@ const scenes: Scene[] = [
         name: "福田",
         tag: "城市精英",
         image: asset("images/v4/live-futian.jpg"),
-        lines: ["人前是精英，人后累如狗。"],
+        lines: ["客户面前是精英；客户一走，腰先离职。"],
       },
       {
         id: "live-nanshan",
         name: "南山",
         tag: "科技夜班",
         image: asset("images/v4/live-nanshan.jpg"),
-        lines: ["粤海街道的夜，离不开高薪牛马的发际线。"],
+        lines: ["Bug一个没少，头发挺有执行力，说走就走。"],
       },
       {
         id: "live-longhua",
         name: "龙华",
         tag: "通勤日常",
         image: asset("images/v4/live-longhua.jpg"),
-        lines: ["每天往返的不是通勤路，是西天取经路。"],
+        lines: ["龙华到公司八站，脸型换八次，工伤不好定责。"],
       },
     ],
   },
   {
     id: "food",
-    name: "我最喜欢吃",
+    name: "我的续命补给",
     image: asset("images/v4/eat-muffin.jpg"),
     shots: [
       {
         id: "eat-muffin",
-        name: "M记猪柳蛋",
+        name: "猪柳蛋",
         tag: "早餐续航",
         image: asset("images/v4/eat-muffin.jpg"),
-        lines: ["一口猪柳蛋，是打工人最后的倔强。"],
+        lines: ["猪柳蛋差点替我刷闸，比我清醒，也比我像工牌。"],
       },
       {
         id: "eat-pork-rice",
         name: "隆江猪脚饭",
         tag: "打工人回血",
         image: asset("images/v4/eat-pork-rice.jpg"),
-        lines: ["深圳人的心理医生，是楼下剁猪脚的阿叔。"],
+        lines: ["不辣，余额有点刺眼。"],
       },
       {
         id: "eat-milk-tea",
         name: "续命奶茶",
         tag: "一口回魂",
         image: asset("images/v4/eat-milk-tea.jpg"),
-        lines: ["一口回魂，两口升仙，三口原谅周一。"],
+        lines: ["奶茶刚把命续上，老板顺手拔了电源。"],
       },
     ],
   },
@@ -125,21 +126,21 @@ const scenes: Scene[] = [
         name: "翻身站",
         tag: "深圳玄学",
         image: asset("images/v4/place-fanshen.jpg"),
-        lines: ["来了是深圳人，拜了就是翻身人。"],
+        lines: ["听说在翻身站转一圈，能转运。运还没转，车先走了。"],
       },
       {
         id: "place-restroom",
         name: "写字楼卫生间",
         tag: "短暂避风港",
         image: asset("images/v4/place-restroom.jpg"),
-        lines: ["忙里偷闲，是打工人的短暂避风港。"],
+        lines: ["卫生间，按分钟出租的深圳豪宅。下次假期一定出去玩。"],
       },
       {
         id: "place-shenzhen-bay",
         name: "深圳湾公园",
         tag: "晚风治愈",
         image: asset("images/v4/place-shenzhen-bay.jpg"),
-        lines: ["看到深圳湾的这一刻，还是原谅了全世界。"],
+        lines: ["老板消息秒回，Bug倒是一动不动。项目可以延期，晚霞不行。"],
       },
     ],
   },
@@ -150,17 +151,28 @@ const memoryById = (id: string) => scenes.flatMap((scene) => scene.shots).find((
 const works: Work[] = [
   { id: "work-futian-pork-bay", title: "我在深圳的生活", sceneId: "home", shotId: "live-futian", scene: "深圳记忆", duration: "30秒", image: asset("images/v4/live-futian.jpg"), line: "住在福田，靠猪脚饭回血，在深圳湾吹晚风。", tags: ["福田", "隆江猪脚饭", "深圳湾公园"], memoryIds: ["live-futian", "eat-pork-rice", "place-shenzhen-bay"], visibility: "公开展示", time: "8月4日" },
   { id: "work-nanshan-tea-rest", title: "南山续命日常", sceneId: "home", shotId: "live-nanshan", scene: "深圳记忆", duration: "30秒", image: asset("images/v4/live-nanshan.jpg"), line: "凌晨的南山，一杯奶茶和五分钟安静就能重新开机。", tags: ["南山", "续命奶茶", "写字楼卫生间"], memoryIds: ["live-nanshan", "eat-milk-tea", "place-restroom"], visibility: "仅自己可见", time: "8月3日" },
-  { id: "work-longhua-muffin-fanshen", title: "通勤人的翻身愿望", sceneId: "home", shotId: "live-longhua", scene: "深圳记忆", duration: "30秒", image: asset("images/v4/live-longhua.jpg"), line: "从龙华出发，带着猪柳蛋，在翻身站许一个愿望。", tags: ["龙华", "M记猪柳蛋", "翻身站"], memoryIds: ["live-longhua", "eat-muffin", "place-fanshen"], visibility: "发布中", time: "8月2日" },
+  { id: "work-longhua-muffin-fanshen", title: "通勤人的翻身愿望", sceneId: "home", shotId: "live-longhua", scene: "深圳记忆", duration: "30秒", image: asset("images/v4/live-longhua.jpg"), line: "从龙华出发，带着猪柳蛋，在翻身站许一个愿望。", tags: ["龙华", "猪柳蛋", "翻身站"], memoryIds: ["live-longhua", "eat-muffin", "place-fanshen"], visibility: "发布中", time: "8月2日" },
   { id: "work-futian-tea-bay", title: "精英下班以后", sceneId: "home", shotId: "live-futian", scene: "深圳记忆", duration: "30秒", image: asset("images/v4/place-shenzhen-bay.jpg"), line: "福田的白天很快，深圳湾的晚风刚刚好。", tags: ["福田", "续命奶茶", "深圳湾公园"], memoryIds: ["live-futian", "eat-milk-tea", "place-shenzhen-bay"], visibility: "公开展示", time: "8月1日" },
   { id: "work-nanshan-pork-fanshen", title: "南山翻身计划", sceneId: "home", shotId: "live-nanshan", scene: "深圳记忆", duration: "30秒", image: asset("images/v4/eat-pork-rice.jpg"), line: "代码没写完，猪脚饭吃完了，翻身的愿望还在。", tags: ["南山", "隆江猪脚饭", "翻身站"], memoryIds: ["live-nanshan", "eat-pork-rice", "place-fanshen"], visibility: "公开展示", time: "7月31日" },
-  { id: "work-longhua-muffin-bay", title: "从早高峰到晚霞", sceneId: "home", shotId: "live-longhua", scene: "深圳记忆", duration: "30秒", image: asset("images/v4/place-shenzhen-bay.jpg"), line: "挤过早高峰，也要赶上深圳湾的晚霞。", tags: ["龙华", "M记猪柳蛋", "深圳湾公园"], memoryIds: ["live-longhua", "eat-muffin", "place-shenzhen-bay"], visibility: "仅自己可见", time: "7月30日" },
+  { id: "work-longhua-muffin-bay", title: "从早高峰到晚霞", sceneId: "home", shotId: "live-longhua", scene: "深圳记忆", duration: "30秒", image: asset("images/v4/place-shenzhen-bay.jpg"), line: "挤过早高峰，也要赶上深圳湾的晚霞。", tags: ["龙华", "猪柳蛋", "深圳湾公园"], memoryIds: ["live-longhua", "eat-muffin", "place-shenzhen-bay"], visibility: "仅自己可见", time: "7月30日" },
 ];
 
 const initialTasks: TaskItem[] = [
+  { id: "task-pending", title: "等待管理员确认", scene: "福田 · 猪柳蛋 · 深圳湾公园", image: asset("images/v4/live-futian.jpg"), status: "pending", time: "今天 15:18" },
   { id: "task-running", title: "南山续命日常", scene: "南山 · 续命奶茶 · 写字楼卫生间", image: asset("images/v4/live-nanshan.jpg"), status: "running", time: "今天 14:20", progress: 68 },
   { id: "task-success", title: "我在深圳的生活", scene: "福田 · 隆江猪脚饭 · 深圳湾公园", image: asset("images/v4/live-futian.jpg"), status: "success", time: "8月3日 18:42", workId: "work-futian-pork-bay" },
-  { id: "task-failed", title: "通勤人的翻身愿望", scene: "龙华 · M记猪柳蛋 · 翻身站", image: asset("images/v4/live-longhua.jpg"), status: "failed", time: "8月2日 09:08" },
+  { id: "task-failed", title: "通勤人的翻身愿望", scene: "龙华 · 猪柳蛋 · 翻身站", image: asset("images/v4/live-longhua.jpg"), status: "failed", time: "8月2日 09:08" },
+  { id: "task-cancelled", title: "已取消的生成任务", scene: "南山 · 隆江猪脚饭 · 翻身站", image: asset("images/v4/live-nanshan.jpg"), status: "cancelled", time: "8月1日 16:30" },
 ];
+
+const taskStatusLabel: Record<TaskState, string> = {
+  pending: "待管理员确认",
+  running: "生成中",
+  success: "已完成",
+  failed: "生成失败",
+  cancelled: "已取消",
+  retrying: "重试中",
+};
 
 function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
   const common = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
@@ -223,12 +235,22 @@ export default function AiImageHall() {
   const [sheet, setSheet] = useState<"states" | "busy" | "publish" | "unpublish" | "delete" | null>(null);
   const [toast, setToast] = useState("");
   const [deleted, setDeleted] = useState<string[]>([]);
-  const [visibilityOverrides, setVisibilityOverrides] = useState<Record<string, boolean>>({});
+  const [visibilityOverrides] = useState<Record<string, boolean>>({});
   const faceInput = useRef<HTMLInputElement>(null);
   const appearanceInput = useRef<HTMLInputElement>(null);
 
   const selectedMemories = scenes.map((scene) => scene.shots.find((shot) => shot.id === memorySelections[scene.id])).filter((shot): shot is Shot => Boolean(shot));
   const visibleWorks = works.filter((work) => !deleted.includes(work.id));
+  const currentTask: TaskItem | null = taskState ? {
+    id: "task-current",
+    title: "我在深圳的生活",
+    scene: selectedMemories.map((memory) => memory.name).join(" · ") || "记忆组合待确认",
+    image: selectedMemories[0]?.image ?? asset("images/v4/live-futian.jpg"),
+    status: taskState,
+    time: "刚刚",
+    progress: taskState === "running" || taskState === "retrying" ? 68 : undefined,
+  } : null;
+  const taskItems = currentTask ? [currentTask, ...initialTasks] : initialTasks;
   const theme = tab === "gallery" || detailWork ? "dark" : "light";
   const canNext = Boolean(consent && face && verify === "passed" && (appearance === "auto" || appearanceImage));
   const canConfirmMemories = selectedMemories.length === scenes.length;
@@ -238,6 +260,14 @@ export default function AiImageHall() {
     const timer = window.setTimeout(() => setToast(""), 1800);
     return () => window.clearTimeout(timer);
   }, [toast]);
+
+  useEffect(() => () => {
+    if (face?.startsWith("blob:")) URL.revokeObjectURL(face);
+  }, [face]);
+
+  useEffect(() => () => {
+    if (appearanceImage?.startsWith("blob:")) URL.revokeObjectURL(appearanceImage);
+  }, [appearanceImage]);
 
   const chooseMemory = (layerId: string, shotId: string) => setMemorySelections((current) => ({ ...current, [layerId]: shotId }));
 
@@ -250,6 +280,13 @@ export default function AiImageHall() {
     }
     setDetailWork(null);
     setTaskDetail(null);
+    setTaskState(null);
+    setPublished(false);
+    setConsent(false);
+    setFace(null);
+    setVerify("idle");
+    setAppearance("auto");
+    setAppearanceImage(null);
     setTab("create");
     setStage(1);
   };
@@ -267,11 +304,14 @@ export default function AiImageHall() {
     }
   };
 
-  const submitGeneration = () => setSheet("busy");
+  const submitGeneration = () => {
+    setTaskState("pending");
+    setToast("已提交，等待 Mac 管理员确认");
+  };
   const continueGeneration = () => {
     setSheet(null);
     setTaskState("running");
-    setToast("已加入生成队列");
+    setToast("管理员已确认，任务进入生成中");
   };
   const share = () => setToast("分享链接已准备好");
   const download = () => setToast("开始下载视频");
@@ -287,7 +327,7 @@ export default function AiImageHall() {
 
   if (detailWork) {
     const isPublic = visibilityOverrides[detailWork.id] ?? detailWork.visibility === "公开展示";
-    return <div className="prototype-frame dark-frame"><WorkViewer work={detailWork} mineMode={tab === "mine"} onBack={() => setDetailWork(null)} onCreate={() => goCreate(detailWork)} onShare={share} onDownload={download} onDelete={() => setSheet("delete")} isPublic={isPublic} onPublish={() => setSheet(isPublic ? "unpublish" : "publish")} />{sheet && <Sheet kind={sheet} onClose={() => setSheet(null)} onContinue={continueGeneration} onProgress={() => {}} onPublish={() => { const next = sheet === "publish"; setVisibilityOverrides((items) => ({ ...items, [detailWork.id]: next })); setSheet(null); setToast(next ? "作品已公开展示" : "作品已取消公开"); }} onDelete={() => { setDeleted((items) => [...items, detailWork.id]); setDetailWork(null); setSheet(null); setToast("作品已删除"); }} />}{toast && <Toast text={toast} />}</div>;
+    return <div className="prototype-frame dark-frame"><WorkViewer work={detailWork} mineMode={tab === "mine"} onBack={() => setDetailWork(null)} onCreate={() => goCreate(detailWork)} onShare={share} onDownload={download} onDelete={() => setSheet("delete")} isPublic={isPublic} onPublish={() => setSheet(isPublic ? "unpublish" : "publish")} />{sheet && <Sheet kind={sheet} onClose={() => setSheet(null)} onContinue={continueGeneration} onProgress={() => {}} onPublish={() => { setSheet(null); setToast(sheet === "publish" ? "公开申请已提交后台审核" : "撤回申请已提交后台处理"); }} onDelete={() => { setDeleted((items) => [...items, detailWork.id]); setDetailWork(null); setSheet(null); setToast("已从我的作品中移除"); }} />}{toast && <Toast text={toast} />}</div>;
   }
 
   if (taskDetail) {
@@ -299,10 +339,10 @@ export default function AiImageHall() {
     <main id="main-content" className="app-main">
       {tab === "gallery" && <Gallery mode={galleryMode} works={visibleWorks} onOpen={setDetailWork} onCreate={goCreate} onMore={() => setSheet("states")} />}
       {tab === "create" && <CreateFlow stage={stage} setStage={setStage} memorySelections={memorySelections} selectedMemories={selectedMemories} chooseMemory={chooseMemory} canConfirmMemories={canConfirmMemories} consent={consent} setConsent={setConsent} face={face} faceInput={faceInput} addFile={addFile} verify={verify} setVerify={setVerify} appearance={appearance} setAppearance={setAppearance} appearanceImage={appearanceImage} appearanceInput={appearanceInput} canNext={canNext} taskState={taskState} published={published} onSubmit={submitGeneration} onOpenResult={() => setDetailWork(works.find((work) => work.memoryIds.every((id) => selectedMemories.some((memory) => memory.id === id))) ?? works[0])} onMine={() => { setTab("mine"); setMineTab("tasks"); }} onPublish={() => setSheet("publish")} onDownload={download} onShare={share} onMore={() => setSheet("states")} />}
-      {tab === "mine" && <Mine mineTab={mineTab} setMineTab={setMineTab} works={visibleWorks.slice(0, 4)} onOpenTask={setTaskDetail} onOpenWork={setDetailWork} onCreate={() => goCreate()} onShare={share} onDownload={download} onDelete={(work) => { setDetailWork(work); setSheet("delete"); }} onExit={() => setToast("已退出登录")} />}
+      {tab === "mine" && <Mine mineTab={mineTab} setMineTab={setMineTab} tasks={taskItems} works={visibleWorks.slice(0, 4)} onOpenTask={setTaskDetail} onOpenWork={setDetailWork} onCreate={() => goCreate()} onShare={share} onDownload={download} onDelete={(work) => { setDetailWork(work); setSheet("delete"); }} onExit={() => setToast("已退出登录")} />}
     </main>
     {!sheet && <BottomNav tab={tab} setTab={(next) => { setTab(next); if (next === "create") setStage(1); }} />}
-    {sheet && <Sheet kind={sheet} onClose={() => setSheet(null)} onContinue={continueGeneration} onProgress={() => { setSheet(null); setTab("mine"); setMineTab("tasks"); }} onGallery={setGalleryMode} onVerify={setVerify} onTask={setTaskState} onSample={() => { setFace(asset("images/v4/live-futian.jpg")); setVerify("passed"); setConsent(true); }} onPublish={() => { setPublished(true); setSheet(null); setToast("作品已公开展示"); }} onDelete={() => setSheet(null)} />}
+    {sheet && <Sheet kind={sheet} onClose={() => setSheet(null)} onContinue={continueGeneration} onProgress={() => { setSheet(null); setTab("mine"); setMineTab("tasks"); }} onGallery={setGalleryMode} onVerify={setVerify} onTask={setTaskState} onSample={() => { setFace(asset("images/v4/live-futian.jpg")); setVerify("passed"); setConsent(true); }} onPublish={() => { setPublished(true); setSheet(null); setToast("公开申请已提交后台审核"); }} onDelete={() => setSheet(null)} />}
     {toast && <Toast text={toast} />}
   </div>;
 }
@@ -410,7 +450,9 @@ type CreateFlowProps = {
 function CreateFlow(props: CreateFlowProps) {
   const pageRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    pageRef.current?.scrollTo({ top: 0, behavior: "auto" });
+    pageRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    pageRef.current?.closest<HTMLElement>(".prototype-frame")?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [props.stage]);
   return <section ref={pageRef} className="light-page create-page">
     <Header title="视频生成" more={props.onMore} />
@@ -440,7 +482,7 @@ function MaterialStep(props: CreateFlowProps) {
 
 function SceneStep(props: CreateFlowProps) {
   return <div className="flow-body scene-flow">
-    <div className="flow-title memory-title"><span>第二步</span><h1>选择记忆</h1><p>每一层选择一个场景，三个选择将组成视频的主要片段。</p></div>
+    <div className="flow-title memory-title"><span>第二步</span><h1>选择记忆</h1><p>居住、续命补给、精神打卡地各选一项，与固定开场组成完整30秒视频。</p></div>
     <div className="memory-layers">{scenes.map((scene, layerIndex) => <section className="glass-card memory-layer" key={scene.id}><header><div><i>0{layerIndex + 1}</i><strong>{scene.name}</strong></div><small>{props.memorySelections[scene.id] ? "已选择" : "三选一"}</small></header><div className="memory-options">{scene.shots.map((shot) => { const selected = props.memorySelections[scene.id] === shot.id; return <button type="button" key={shot.id} aria-pressed={selected} className={selected ? "selected" : ""} onClick={() => props.chooseMemory(scene.id, shot.id)}><img src={shot.image} width="941" height="1672" loading="lazy" alt={shot.name} /><span><strong>{shot.name}</strong><small>{shot.tag}</small></span>{selected && <i><Icon name="check" size={13} /></i>}</button>; })}</div></section>)}</div>
     <div className="sticky-cta split"><button className="ghost-cta" onClick={() => props.setStage(1)}>上一步</button><button className="primary-cta" disabled={!props.canConfirmMemories} onClick={() => props.setStage(3)}>完成选择</button></div>
   </div>;
@@ -449,24 +491,27 @@ function SceneStep(props: CreateFlowProps) {
 function GenerationStep(props: CreateFlowProps) {
   const primaryMemory = props.selectedMemories[0] ?? scenes[0].shots[0];
   const memoryNames = props.selectedMemories.map((memory) => memory.name).join(" · ");
-  if (!props.taskState) return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>确认生成</h1></div><div className="summary-memory-grid">{props.selectedMemories.map((memory, index) => <div key={memory.id}><img src={memory.image} width="941" height="1672" alt={memory.name} /><span><small>记忆 {index + 1}</small><strong>{memory.name}</strong></span></div>)}</div><section className="summary-card"><div><span>我的记忆</span><strong>{memoryNames}</strong></div><div><span>视频时长</span><strong>约 25–30 秒</strong></div><div><span>人物形象</span><strong>{props.appearance === "auto" ? "自动生成" : "已上传形象图"}</strong></div></section><div className="sticky-cta split"><button className="ghost-cta" onClick={() => props.setStage(2)}>返回修改</button><button className="primary-cta" onClick={props.onSubmit}>开始生成</button></div></div>;
+  if (!props.taskState) return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>确认提交</h1></div><div className="summary-memory-grid">{props.selectedMemories.map((memory, index) => <div key={memory.id}><img src={memory.image} width="941" height="1672" alt={memory.name} /><span><small>{["居住模块", "续命补给", "精神打卡地"][index]}</small><strong>{memory.name}</strong></span></div>)}</div><section className="summary-card"><div><span>固定开场</span><strong>稳定，稳定地搬家 · 6秒</strong></div><div><span>我的组合</span><strong>{memoryNames}</strong></div><div><span>视频时长</span><strong>30秒</strong></div><div><span>人物形象</span><strong>{props.appearance === "auto" ? "自动生成" : "已上传形象图"}</strong></div></section><p className="status-note">提交后先进入“待管理员确认”，Mac管理员核对素材、授权与本人核验后才会开始生成。</p><div className="sticky-cta split"><button className="ghost-cta" onClick={() => props.setStage(2)}>返回修改</button><button className="primary-cta" onClick={props.onSubmit}>提交生成申请</button></div></div>;
+  if (props.taskState === "pending") return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>等待管理员确认</h1></div><div className="result-status pending"><span>⌛</span><strong>生成申请已提交</strong><small>Mac管理员将核对素材、三层选择、授权与本人核验状态</small></div><section className="summary-card"><div><span>组合</span><strong>{memoryNames}</strong></div><div><span>当前状态</span><strong>待管理员确认</strong></div><div><span>真实生成</span><strong>尚未开始</strong></div></section><div className="sticky-cta"><button className="soft-cta" onClick={props.onMine}>查看我的任务</button></div></div>;
+  if (props.taskState === "cancelled") return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>任务已取消</h1></div><div className="result-status failed"><span>×</span><strong>本次申请未进入生成</strong><small>素材仍按Demo长期保存策略保留，可返回修改后重新提交</small></div><div className="sticky-cta"><button className="primary-cta" onClick={() => props.setStage(1)}>修改后重新提交</button></div></div>;
+  if (props.taskState === "retrying") return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>重试任务生成中</h1></div><div className="status-visual"><img src={primaryMemory.image} width="941" height="1672" alt={primaryMemory.name} /><span className="render-ring"><i /></span><div><strong>正在重新合成30秒组合</strong><small>68%</small></div></div><div className="progress-track"><i style={{ width: "68%" }} /></div><div className="sticky-cta"><button className="soft-cta" onClick={props.onMine}>查看我的任务</button></div></div>;
   if (props.taskState === "running") return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>视频生成中</h1></div><div className="status-visual"><img src={primaryMemory.image} width="941" height="1672" alt={primaryMemory.name} /><span className="render-ring"><i /></span><div><strong>正在合成记忆片段</strong><small>68%</small></div></div><div className="progress-track"><i style={{ width: "68%" }} /></div><p className="status-note">预计还需 2 分钟</p><div className="sticky-cta"><button className="soft-cta" onClick={props.onMine}>查看我的创作</button></div></div>;
   if (props.taskState === "failed") return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>生成未完成</h1></div><div className="result-status failed"><span>!</span><strong>画面合成中断</strong><small>素材清晰度不足，请调整后重试</small></div><div className="sticky-cta split"><button className="ghost-cta" onClick={() => props.setStage(1)}>修改素材</button><button className="primary-cta" onClick={props.onSubmit}>重新生成</button></div></div>;
-  return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>视频已完成</h1></div><button className="result-poster" onClick={props.onOpenResult}><img src={primaryMemory.image} width="941" height="1672" alt={primaryMemory.name} /><span><Icon name="play" size={24} /></span><div><strong>我在深圳的生活</strong><small>点击查看视频</small></div></button><div className="result-actions"><button onClick={props.onDownload}><Icon name="download" />下载</button><button onClick={props.onShare}><Icon name="share" />分享</button><button className={props.published ? "published" : ""} onClick={props.onPublish}><Icon name="gallery" />{props.published ? "已公开" : "发布"}</button></div></div>;
+  return <div className="flow-body generation-flow"><div className="flow-title"><span>第三步</span><h1>视频已完成</h1></div><button className="result-poster" onClick={props.onOpenResult}><img src={primaryMemory.image} width="941" height="1672" alt={primaryMemory.name} /><span><Icon name="play" size={24} /></span><div><strong>我在深圳的生活</strong><small>30秒 · 点击查看视频</small></div></button><div className="result-actions"><button onClick={props.onDownload}><Icon name="download" />下载</button><button onClick={props.onShare}><Icon name="share" />分享</button><button className={props.published ? "published" : ""} onClick={props.onPublish} disabled={props.published}><Icon name="gallery" />{props.published ? "审核中" : "申请公开"}</button></div></div>;
 }
 
-function Mine({ mineTab, setMineTab, works: mineWorks, onOpenTask, onOpenWork, onCreate, onShare, onDownload, onDelete, onExit }: { mineTab: "tasks" | "works"; setMineTab: (tab: "tasks" | "works") => void; works: Work[]; onOpenTask: (task: TaskItem) => void; onOpenWork: (work: Work) => void; onCreate: () => void; onShare: () => void; onDownload: () => void; onDelete: (work: Work) => void; onExit: () => void }) {
-  return <section className="light-page mine-page"><Header title="我的" /><div className="profile"><div className="avatar">林</div><div><strong>林先生</strong><small>账号 138****6628 · 已登录</small></div><button onClick={onExit}>退出登录</button></div><div className="mine-tabs"><button className={mineTab === "tasks" ? "selected" : ""} onClick={() => setMineTab("tasks")}>创作任务</button><button className={mineTab === "works" ? "selected" : ""} onClick={() => setMineTab("works")}>我的作品</button></div>{mineTab === "tasks" ? <div className="task-list">{initialTasks.map((task) => <TaskRow key={task.id} task={task} onClick={() => onOpenTask(task)} />)}</div> : <div className="mine-work-list">{mineWorks.map((work) => <article key={work.id}><button className="work-main" onClick={() => onOpenWork(work)}><img src={work.image} width="941" height="1672" loading="lazy" alt={work.title} /><div><strong>{work.title}</strong><small>{work.scene} · {work.time}</small><span className={`visibility ${work.visibility === "公开展示" ? "public" : work.visibility === "发布中" ? "pending" : ""}`}>{work.visibility}</span></div></button><div className="work-quick"><IconButton name="download" label="下载" onClick={onDownload} /><IconButton name="share" label="分享" onClick={onShare} /><IconButton name="delete" label="删除" onClick={() => onDelete(work)} /></div></article>)}</div>}<button className="mine-create" onClick={onCreate}><Icon name="create" />生成新视频</button></section>;
+function Mine({ mineTab, setMineTab, tasks, works: mineWorks, onOpenTask, onOpenWork, onCreate, onShare, onDownload, onDelete, onExit }: { mineTab: "tasks" | "works"; setMineTab: (tab: "tasks" | "works") => void; tasks: TaskItem[]; works: Work[]; onOpenTask: (task: TaskItem) => void; onOpenWork: (work: Work) => void; onCreate: () => void; onShare: () => void; onDownload: () => void; onDelete: (work: Work) => void; onExit: () => void }) {
+  return <section className="light-page mine-page"><Header title="我的" /><div className="profile"><div className="avatar">林</div><div><strong>林先生</strong><small>账号 138****6628 · 已登录</small></div><button onClick={onExit}>退出登录</button></div><div className="mine-tabs"><button className={mineTab === "tasks" ? "selected" : ""} onClick={() => setMineTab("tasks")}>创作任务</button><button className={mineTab === "works" ? "selected" : ""} onClick={() => setMineTab("works")}>我的作品</button></div>{mineTab === "tasks" ? <div className="task-list">{tasks.map((task) => <TaskRow key={task.id} task={task} onClick={() => onOpenTask(task)} />)}</div> : <div className="mine-work-list">{mineWorks.map((work) => <article key={work.id}><button className="work-main" onClick={() => onOpenWork(work)}><img src={work.image} width="941" height="1672" loading="lazy" alt={work.title} /><div><strong>{work.title}</strong><small>{work.scene} · {work.time}</small><span className={`visibility ${work.visibility === "公开展示" ? "public" : work.visibility === "发布中" ? "pending" : ""}`}>{work.visibility}</span></div></button><div className="work-quick"><IconButton name="download" label="下载" onClick={onDownload} /><IconButton name="share" label="分享" onClick={onShare} /><IconButton name="delete" label="删除" onClick={() => onDelete(work)} /></div></article>)}</div>}<button className="mine-create" onClick={onCreate}><Icon name="create" />生成新视频</button></section>;
 }
 
 function TaskRow({ task, onClick }: { task: TaskItem; onClick: () => void }) {
-  const label = task.status === "running" ? "生成中" : task.status === "success" ? "已完成" : "生成失败";
-  return <button className="task-row" onClick={onClick}><img src={task.image} width="941" height="1672" loading="lazy" alt={task.title} /><div><strong>{task.title}</strong><small>{task.scene} · {task.time}</small>{task.status === "running" && <span className="row-progress"><i style={{ width: `${task.progress}%` }} /></span>}</div><em className={task.status}>{label}</em></button>;
+  const label = taskStatusLabel[task.status];
+  return <button className="task-row" onClick={onClick}><img src={task.image} width="941" height="1672" loading="lazy" alt={task.title} /><div><strong>{task.title}</strong><small>{task.scene} · {task.time}</small>{(task.status === "running" || task.status === "retrying") && <span className="row-progress"><i style={{ width: `${task.progress}%` }} /></span>}</div><em className={task.status}>{label}</em></button>;
 }
 
 function TaskDetail({ item, onBack, onOpenWork, onRetry }: { item: TaskItem; onBack: () => void; onOpenWork: () => void; onRetry: () => void }) {
-  const label = item.status === "running" ? "生成中" : item.status === "success" ? "已完成" : "生成失败";
-  return <section className="light-page detail-page"><Header title="任务详情" back={onBack} /><div className="task-cover"><img src={item.image} width="941" height="1672" alt={item.title} /><span className={item.status}>{label}</span></div><section className="detail-info"><h1>{item.title}</h1><div><span>记忆组合</span><strong>{item.scene}</strong></div><div><span>提交时间</span><strong>{item.time}</strong></div><div><span>当前状态</span><strong>{label}</strong></div></section>{item.status === "running" && <><div className="progress-track"><i style={{ width: `${item.progress}%` }} /></div><p className="status-note">正在合成记忆片段 · {item.progress}%</p></>}{item.status === "failed" && <div className="failure-reason"><strong>画面合成中断</strong><small>素材清晰度不足，请调整后重试</small></div>}<div className="detail-bottom">{item.status === "success" ? <button className="primary-cta" onClick={onOpenWork}>查看视频</button> : item.status === "failed" ? <button className="primary-cta" onClick={onRetry}>重新生成</button> : <button className="soft-cta" onClick={onBack}>返回我的创作</button>}</div></section>;
+  const label = taskStatusLabel[item.status];
+  return <section className="light-page detail-page"><Header title="任务详情" back={onBack} /><div className="task-cover"><img src={item.image} width="941" height="1672" alt={item.title} /><span className={item.status}>{label}</span></div><section className="detail-info"><h1>{item.title}</h1><div><span>记忆组合</span><strong>{item.scene}</strong></div><div><span>视频结构</span><strong>固定开场＋三层选择 · 30秒</strong></div><div><span>提交时间</span><strong>{item.time}</strong></div><div><span>当前状态</span><strong>{label}</strong></div></section>{item.status === "pending" && <div className="failure-reason pending"><strong>等待 Mac 管理员确认</strong><small>确认前不会调用生成服务，也不会进入生成中。</small></div>}{(item.status === "running" || item.status === "retrying") && <><div className="progress-track"><i style={{ width: `${item.progress}%` }} /></div><p className="status-note">正在合成30秒记忆组合 · {item.progress}%</p></>}{item.status === "failed" && <div className="failure-reason"><strong>画面合成中断</strong><small>素材清晰度不足，请调整后重试</small></div>}{item.status === "cancelled" && <div className="failure-reason"><strong>管理员已取消本次申请</strong><small>你可以修改素材或组合后重新提交。</small></div>}<div className="detail-bottom">{item.status === "success" ? <button className="primary-cta" onClick={onOpenWork}>查看视频</button> : item.status === "failed" || item.status === "cancelled" ? <button className="primary-cta" onClick={onRetry}>修改后重新提交</button> : <button className="soft-cta" onClick={onBack}>返回我的创作</button>}</div></section>;
 }
 
 function WorkViewer({ work, mineMode, onBack, onCreate, onShare, onDownload, onDelete, isPublic, onPublish }: { work: Work; mineMode: boolean; onBack: () => void; onCreate: () => void; onShare: () => void; onDownload: () => void; onDelete: () => void; isPublic: boolean; onPublish: () => void }) {
@@ -480,11 +525,28 @@ function BottomNav({ tab, setTab }: { tab: Tab; setTab: (tab: Tab) => void }) {
 }
 
 function Sheet({ kind, onClose, onContinue, onProgress, onGallery, onVerify, onTask, onSample, onPublish, onDelete }: { kind: "states" | "busy" | "publish" | "unpublish" | "delete"; onClose: () => void; onContinue: () => void; onProgress: () => void; onGallery?: (mode: GalleryMode) => void; onVerify?: (state: VerifyState) => void; onTask?: (state: TaskState | null) => void; onSample?: () => void; onPublish: () => void; onDelete: () => void }) {
-  if (kind === "busy") return <div className="sheet-layer" role="dialog" aria-modal="true"><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon"><Icon name="retry" size={25} /></div><h2>已有视频正在生成中</h2><div className="sheet-actions"><button className="soft-cta" onClick={onProgress}>查看生成进度</button><button className="primary-cta" onClick={onContinue}>继续生成</button></div></section></div>;
-  if (kind === "publish") return <div className="sheet-layer" role="dialog" aria-modal="true"><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon"><Icon name="gallery" size={25} /></div><h2>公开到作品展示？</h2><p>公开后，其他用户可以观看和分享这支视频。</p><div className="sheet-actions"><button className="soft-cta" onClick={onClose}>暂不公开</button><button className="primary-cta" onClick={onPublish}>确认公开</button></div></section></div>;
-  if (kind === "unpublish") return <div className="sheet-layer" role="dialog" aria-modal="true"><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon"><Icon name="gallery" size={25} /></div><h2>取消公开展示？</h2><p>取消后，这支视频仅自己可见。</p><div className="sheet-actions"><button className="soft-cta" onClick={onClose}>保持公开</button><button className="primary-cta" onClick={onPublish}>确认取消</button></div></section></div>;
-  if (kind === "delete") return <div className="sheet-layer" role="dialog" aria-modal="true"><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon danger"><Icon name="delete" size={25} /></div><h2>删除这支作品？</h2><p>删除后无法恢复。</p><div className="sheet-actions"><button className="soft-cta" onClick={onClose}>取消</button><button className="danger-cta" onClick={onDelete}>确认删除</button></div></section></div>;
-  return <div className="sheet-layer" role="dialog" aria-modal="true"><section className="sheet state-sheet"><IconButton name="close" label="关闭" onClick={onClose} /><h2>状态预览</h2><strong>作品展示</strong><div className="state-options">{(["works", "loading", "empty", "failed"] as GalleryMode[]).map((mode, index) => <button key={mode} onClick={() => { onGallery?.(mode); onClose(); }}>{["正常", "加载中", "暂无作品", "载入失败"][index]}</button>)}</div><strong>上传素材</strong><div className="state-options"><button onClick={() => { onSample?.(); onClose(); }}>填充测试素材</button></div><strong>本人核验</strong><div className="state-options">{(["checking", "passed", "failed"] as VerifyState[]).map((state, index) => <button key={state} onClick={() => { onVerify?.(state); onClose(); }}>{["核验中", "已通过", "未通过"][index]}</button>)}</div><strong>视频生成</strong><div className="state-options">{(["running", "success", "failed"] as TaskState[]).map((state, index) => <button key={state} onClick={() => { onTask?.(state); onClose(); }}>{["生成中", "已完成", "生成失败"][index]}</button>)}</div></section></div>;
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    dialogRef.current?.focus();
+    return () => previous?.focus();
+  }, []);
+  const handleDialogKey = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") onClose();
+    if (event.key !== "Tab") return;
+    const focusable = [...(dialogRef.current?.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])") ?? [])];
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  };
+  const dialogProps = { ref: dialogRef, tabIndex: -1, className: "sheet-layer", role: "dialog", "aria-modal": true, "aria-label": "操作确认", onKeyDown: handleDialogKey } as const;
+  if (kind === "busy") return <div {...dialogProps}><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon"><Icon name="retry" size={25} /></div><h2>已有任务正在处理中</h2><p>同一账号一次只处理一支视频。</p><div className="sheet-actions"><button className="soft-cta" onClick={onProgress}>查看任务状态</button><button className="primary-cta" onClick={onContinue}>演示管理员确认</button></div></section></div>;
+  if (kind === "publish") return <div {...dialogProps}><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon"><Icon name="gallery" size={25} /></div><h2>申请公开展示？</h2><p>提交后由后台审核成品；审核通过才会出现在作品展示与分享入口。</p><div className="sheet-actions"><button className="soft-cta" onClick={onClose}>暂不申请</button><button className="primary-cta" onClick={onPublish}>提交公开申请</button></div></section></div>;
+  if (kind === "unpublish") return <div {...dialogProps}><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon"><Icon name="gallery" size={25} /></div><h2>申请取消公开？</h2><p>后台处理后将从作品展示与分享入口撤回，作品仍保留在“我的作品”。</p><div className="sheet-actions"><button className="soft-cta" onClick={onClose}>保持公开</button><button className="primary-cta" onClick={onPublish}>提交撤回申请</button></div></section></div>;
+  if (kind === "delete") return <div {...dialogProps}><section className="sheet"><IconButton name="close" label="关闭" onClick={onClose} /><div className="sheet-icon danger"><Icon name="delete" size={25} /></div><h2>从我的作品中移除？</h2><p>这里只移除前端作品记录；Mac中的原始资产仍由管理员按长期保存策略手动处理。</p><div className="sheet-actions"><button className="soft-cta" onClick={onClose}>取消</button><button className="danger-cta" onClick={onDelete}>确认移除</button></div></section></div>;
+  return <div {...dialogProps}><section className="sheet state-sheet"><IconButton name="close" label="关闭" onClick={onClose} /><h2>状态预览</h2><strong>作品展示</strong><div className="state-options">{(["works", "loading", "empty", "failed"] as GalleryMode[]).map((mode, index) => <button key={mode} onClick={() => { onGallery?.(mode); onClose(); }}>{["正常", "加载中", "暂无作品", "载入失败"][index]}</button>)}</div><strong>上传素材</strong><div className="state-options"><button onClick={() => { onSample?.(); onClose(); }}>填充测试素材</button></div><strong>本人核验</strong><div className="state-options">{(["checking", "passed", "failed"] as VerifyState[]).map((state, index) => <button key={state} onClick={() => { onVerify?.(state); onClose(); }}>{["核验中", "已通过", "未通过"][index]}</button>)}</div><strong>生成任务</strong><div className="state-options">{(["pending", "running", "success", "failed", "cancelled", "retrying"] as TaskState[]).map((state) => <button key={state} onClick={() => { onTask?.(state); onClose(); }}>{taskStatusLabel[state]}</button>)}</div></section></div>;
 }
 
 function Toast({ text }: { text: string }) {

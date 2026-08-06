@@ -1265,6 +1265,11 @@ h2 {
   place-items: center;
 }
 
+.result-status.pending > span {
+  color: #8a641a;
+  background: rgba(200, 151, 54, 0.12);
+}
+
 .result-status strong {
   font-size: 20px;
 }
@@ -1513,6 +1518,17 @@ h2 {
   background: rgba(70, 110, 217, 0.1);
 }
 
+.task-row em.pending,
+.task-row em.retrying {
+  color: #8a641a;
+  background: rgba(200, 151, 54, 0.12);
+}
+
+.task-row em.cancelled {
+  color: #687282;
+  background: rgba(104, 114, 130, 0.1);
+}
+
 .task-row em.success {
   color: #23806c;
   background: rgba(47, 151, 122, 0.1);
@@ -1676,6 +1692,15 @@ h2 {
   background: rgba(28, 112, 91, 0.62);
 }
 
+.task-cover > span.pending,
+.task-cover > span.retrying {
+  background: rgba(158, 111, 25, 0.72);
+}
+
+.task-cover > span.cancelled {
+  background: rgba(75, 82, 94, 0.7);
+}
+
 .detail-info {
   margin: 0 18px;
   padding: 16px;
@@ -1729,6 +1754,10 @@ h2 {
   margin-top: 5px;
   color: var(--muted);
   font-size: 11px;
+}
+
+.failure-reason.pending strong {
+  color: #8a641a;
 }
 
 .detail-bottom {
@@ -1946,6 +1975,7 @@ h2 {
   backdrop-filter: blur(9px);
   -webkit-backdrop-filter: blur(9px);
   animation: fade-in 180ms ease-out;
+  overscroll-behavior: contain;
 }
 
 .sheet {
