@@ -333,7 +333,7 @@ export default function AiImageHall() {
   };
 
   if (shareWork) {
-    return <div className="prototype-frame dark-frame"><SharePage work={shareWork} onBack={() => setShareWork(null)} onSave={() => setToast("宣传海报已保存到相册")} onCopy={copyShareLink} />{toast && <Toast text={toast} />}</div>;
+    return <div className="prototype-frame light-frame"><SharePage work={shareWork} onBack={() => setShareWork(null)} onShare={() => setToast("分享面板已打开")} onCopy={copyShareLink} />{toast && <Toast text={toast} />}</div>;
   }
 
   if (detailWork) {
@@ -517,35 +517,28 @@ function TaskDetail({ item, onBack, onOpenWork, onRetry }: { item: TaskItem; onB
   return <section className="light-page detail-page"><Header title="任务详情" back={onBack} /><div className="task-cover"><img src={item.image} width="941" height="1672" alt={item.title} /><span className={item.status}>{label}</span></div><section className="detail-info"><h1>{item.title}</h1><div><span>记忆组合</span><strong>{item.scene}</strong></div><div><span>视频结构</span><strong>固定开场＋三层选择 · 30秒</strong></div><div><span>提交时间</span><strong>{item.time}</strong></div><div><span>当前状态</span><strong>{label}</strong></div></section>{item.status === "pending" && <div className="failure-reason pending"><strong>等待 Mac 管理员确认</strong><small>确认前不会调用生成服务，也不会进入生成中。</small></div>}{(item.status === "running" || item.status === "retrying") && <><div className="progress-track"><i style={{ width: `${item.progress}%` }} /></div><p className="status-note">正在合成30秒记忆组合 · {item.progress}%</p></>}{item.status === "failed" && <div className="failure-reason"><strong>画面合成中断</strong><small>素材清晰度不足，请调整后重试</small></div>}{item.status === "cancelled" && <div className="failure-reason"><strong>管理员已取消本次申请</strong><small>你可以修改素材或组合后重新提交。</small></div>}<div className="detail-bottom">{item.status === "success" ? <button className="primary-cta" onClick={onOpenWork}>查看视频</button> : item.status === "failed" || item.status === "cancelled" ? <button className="primary-cta" onClick={onRetry}>修改后重新提交</button> : <button className="soft-cta" onClick={onBack}>返回我的创作</button>}</div></section>;
 }
 
-function SharePage({ work, onBack, onSave, onCopy }: { work: Work; onBack: () => void; onSave: () => void; onCopy: () => void }) {
+function SharePage({ work, onBack, onShare, onCopy }: { work: Work; onBack: () => void; onShare: () => void; onCopy: () => void }) {
   const [playing, setPlaying] = useState(true);
   const toggle = () => setPlaying((value) => !value);
   return <section className="share-page">
     <header className="share-header"><IconButton name="back" label="返回作品详情" onClick={onBack} /><h1>分享作品</h1><span /></header>
     <div className="share-scroll">
-      <div className="share-intro"><small>深圳AI影像馆</small><strong>把这段深圳记忆分享给朋友</strong><p>视频可直接预览，宣传海报适合保存后转发。</p></div>
-      <section className="share-video-section" aria-labelledby="share-video-title">
-        <div className="share-section-title"><div><small>分享内容</small><h2 id="share-video-title">视频</h2></div><span>{work.duration}</span></div>
-        <button className="share-video-card" type="button" onClick={toggle} aria-label={playing ? "暂停分享视频" : "播放分享视频"}>
+      <div className="share-preview-label"><div><small>动态海报预览</small><strong>视频已嵌入</strong></div><span><i /> 可直接播放</span></div>
+      <article className="dynamic-poster" aria-label={`${work.title}动态分享海报`}>
+        <header className="poster-brand"><div className="poster-brand-mark" aria-hidden="true">AI</div><div><strong>深圳AI影像馆</strong><small>城市记忆生成计划</small></div><span>动态影像</span></header>
+        <button className="poster-video" type="button" onClick={toggle} aria-label={playing ? "暂停海报视频" : "播放海报视频"}>
           <CinematicLoop work={work} playing={playing} />
-          <i className="share-video-shade" />
-          <span className="share-play"><Icon name={playing ? "pause" : "play"} size={24} /></span>
-          <div><strong>{work.title}</strong><small>{work.tags.join(" · ")}</small></div>
+          <i className="poster-video-shade" />
+          <span className="poster-video-status"><i />{playing ? "正在播放" : "已暂停"}</span>
+          <span className="poster-video-time">00:08 / {work.duration}</span>
+          <span className="poster-play"><Icon name={playing ? "pause" : "play"} size={22} /></span>
+          <div className="poster-video-copy"><div className="tag-row">{work.tags.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}</div><h2>{work.title}</h2><p>{work.line}</p></div>
         </button>
-      </section>
-      <section className="share-poster-section" aria-labelledby="share-poster-title">
-        <div className="share-section-title"><div><small>转发素材</small><h2 id="share-poster-title">宣传海报</h2></div><span>9:16</span></div>
-        <article className="campaign-poster" aria-label={`${work.title}宣传海报`}>
-          <img src={work.image} width="941" height="1672" alt="" />
-          <i className="campaign-shade" />
-          <div className="campaign-brand"><span>深圳AI影像馆</span><small>城市记忆计划</small></div>
-          <div className="campaign-copy"><div className="tag-row">{work.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><h3>{work.title}</h3><p>{work.line}</p></div>
-          <footer><div><strong>在深圳，生成你的城市记忆</strong><small>上传照片 · 选择记忆 · 生成视频</small></div><span className="poster-code" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /><i /></span></footer>
-        </article>
-      </section>
-      <p className="share-note">海报仅展示成品内容，不包含人脸原图、核验信息或其他个人素材。</p>
+        <footer className="poster-footer"><div><small>这是我的深圳记忆</small><strong>打开链接，观看完整动态海报</strong><p>也生成一支属于你的城市影像</p></div><span className="poster-code" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /><i /></span></footer>
+      </article>
+      <p className="share-note">分享内容仅包含成品影像，不展示上传素材与核验信息。</p>
     </div>
-    <div className="share-actions"><button className="soft-cta" type="button" onClick={onCopy}><Icon name="share" />复制分享链接</button><button className="primary-cta" type="button" onClick={onSave}><Icon name="download" />保存海报</button></div>
+    <div className="share-actions"><button className="soft-cta" type="button" onClick={onCopy}><Icon name="share" />复制链接</button><button className="primary-cta" type="button" onClick={onShare}><Icon name="share" />分享给朋友</button></div>
   </section>;
 }
 

@@ -13,7 +13,8 @@ test("GitHub Pages build includes home, fallback and deep routes", async () => {
 });
 
 test("share poster is product-facing and prototype state controls are removed", () => {
-  for (const phrase of ["分享作品", "视频", "宣传海报", "保存海报", "复制分享链接", "在深圳，生成你的城市记忆"]) assert.match(source, new RegExp(phrase));
+  for (const phrase of ["分享作品", "动态海报预览", "视频已嵌入", "动态影像", "这是我的深圳记忆", "复制链接", "分享给朋友"]) assert.match(source, new RegExp(phrase));
+  for (const staleShareControl of ["保存海报", "复制分享链接"]) assert.doesNotMatch(source, new RegExp(staleShareControl));
   for (const prototypeControl of ["更多状态", "状态预览", "填充测试素材"]) assert.doesNotMatch(source, new RegExp(prototypeControl));
 });
 
