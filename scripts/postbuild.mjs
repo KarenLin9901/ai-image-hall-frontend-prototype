@@ -9,6 +9,7 @@ const routes = [
   "task/demo-task",
   "result/demo-task",
   "work/demo-share",
+  "share/demo-share",
 ];
 
 async function rewriteAssets(directory) {

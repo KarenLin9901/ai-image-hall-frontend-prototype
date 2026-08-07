@@ -8,6 +8,7 @@ const cwd = fileURLToPath(new URL("../", import.meta.url));
 await mkdir(new URL("../outputs/", import.meta.url), { recursive: true });
 const server = spawn("npm", ["exec", "vite", "preview", "--", "--host", "127.0.0.1", "--port", "4174"], { cwd, stdio: "ignore" });
 const base = "http://127.0.0.1:4174/ai-image-hall-frontend-prototype/";
+const faceImage = fileURLToPath(new URL("../public/images/v4/live-futian.jpg", import.meta.url));
 for (let attempt = 0; attempt < 40; attempt += 1) {
   try { if ((await fetch(base)).ok) break; } catch {}
   await new Promise((resolve) => setTimeout(resolve, 150));
@@ -21,10 +22,24 @@ page.on("pageerror", (error) => errors.push(error.message));
 try {
   await page.goto(base, { waitUntil: "networkidle" });
   await page.getByRole("heading", { name: "作品展示" }).waitFor();
-  await page.getByRole("button", { name: "更多状态" }).click();
-  await page.getByRole("button", { name: "填充测试素材" }).click();
+  assert.equal(await page.getByRole("button", { name: "更多状态" }).count(), 0);
+  await page.getByRole("button", { name: /查看作品/ }).click();
+  await page.getByRole("button", { name: "分享" }).click();
+  await page.getByRole("heading", { name: "分享作品" }).waitFor();
+  await page.getByRole("heading", { name: "视频" }).waitFor();
+  await page.getByRole("heading", { name: "宣传海报" }).waitFor();
+  await page.screenshot({ path: fileURLToPath(new URL("../outputs/frontend-share-poster.png", import.meta.url)), fullPage: true });
+  await page.getByRole("button", { name: "保存海报" }).click();
+  await page.getByText("宣传海报已保存到相册").waitFor();
+  await page.getByRole("button", { name: "复制分享链接" }).click();
+  await page.getByText(/分享链接已/).waitFor();
+  await page.getByRole("button", { name: "返回作品详情" }).click();
+  await page.getByRole("button", { name: "返回" }).click();
   await page.getByRole("button", { name: "视频生成" }).click();
   await page.getByRole("heading", { name: "上传素材" }).waitFor();
+  await page.locator('input[name="face_photo"]').setInputFiles(faceImage);
+  await page.getByText("核验已通过").waitFor();
+  await page.getByRole("checkbox", { name: "确认素材授权" }).check();
   await page.getByRole("button", { name: "下一步" }).click();
   await page.getByRole("heading", { name: "选择记忆" }).waitFor();
   await page.getByRole("button", { name: /福田/ }).click();
@@ -41,20 +56,6 @@ try {
   assert.equal(await page.getByRole("heading", { name: "视频生成中" }).count(), 0);
   await page.getByRole("button", { name: "查看我的任务" }).click();
   await page.getByText("待管理员确认", { exact: true }).first().waitFor();
-
-  await page.getByRole("button", { name: "视频生成" }).click();
-  await page.getByRole("button", { name: "更多状态" }).click();
-  await page.getByRole("button", { name: "已完成" }).click();
-  await page.getByRole("button", { name: "下一步" }).click();
-  await page.getByRole("button", { name: "完成选择" }).click();
-  await page.getByRole("heading", { name: "视频已完成" }).waitFor();
-  await page.getByRole("button", { name: "申请公开" }).click();
-  await page.getByRole("heading", { name: "申请公开展示？" }).waitFor();
-  await page.keyboard.press("Escape");
-  assert.equal(await page.getByRole("heading", { name: "申请公开展示？" }).count(), 0);
-  await page.getByRole("button", { name: "申请公开" }).click();
-  await page.getByRole("button", { name: "提交公开申请" }).click();
-  await page.getByText("公开申请已提交后台审核").waitFor();
 
   assert.deepEqual(errors, []);
 } finally {

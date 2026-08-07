@@ -6,10 +6,15 @@ const root = new URL("../", import.meta.url);
 const source = await readFile(new URL("app/AiImageHall.tsx", root), "utf8");
 
 test("GitHub Pages build includes home, fallback and deep routes", async () => {
-  for (const path of ["docs/index.html", "docs/404.html", "docs/create/index.html", "docs/mine/index.html", "docs/task/demo-task/index.html", "docs/work/demo-share/index.html"]) await access(new URL(path, root));
+  for (const path of ["docs/index.html", "docs/404.html", "docs/create/index.html", "docs/mine/index.html", "docs/task/demo-task/index.html", "docs/work/demo-share/index.html", "docs/share/demo-share/index.html"]) await access(new URL(path, root));
   const html = await readFile(new URL("docs/index.html", root), "utf8");
   assert.match(html, /深圳AI影像馆/);
   assert.match(html, /\/ai-image-hall-frontend-prototype\/assets\//);
+});
+
+test("share poster is product-facing and prototype state controls are removed", () => {
+  for (const phrase of ["分享作品", "视频", "宣传海报", "保存海报", "复制分享链接", "在深圳，生成你的城市记忆"]) assert.match(source, new RegExp(phrase));
+  for (const prototypeControl of ["更多状态", "状态预览", "填充测试素材"]) assert.doesNotMatch(source, new RegExp(prototypeControl));
 });
 
 test("V6 script and admin gate are explicit", () => {

@@ -1765,6 +1765,346 @@ h2 {
   margin: 18px;
 }
 
+.share-page {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(circle at 80% 0%, rgba(65, 111, 145, 0.34), transparent 36%),
+    radial-gradient(circle at 0% 66%, rgba(92, 59, 88, 0.22), transparent 40%),
+    #080c12;
+}
+
+.share-header {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  min-height: calc(58px + var(--safe-top));
+  padding: var(--safe-top) 18px 8px;
+  background: linear-gradient(to bottom, rgba(8, 12, 18, 0.92), rgba(8, 12, 18, 0));
+}
+
+.share-header h1 {
+  font-size: 16px;
+  font-weight: 650;
+  text-align: center;
+}
+
+.share-scroll {
+  height: 100%;
+  padding: calc(72px + var(--safe-top)) 18px calc(112px + var(--safe-bottom));
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.share-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.share-intro {
+  padding: 8px 2px 20px;
+}
+
+.share-intro small,
+.share-intro strong {
+  display: block;
+}
+
+.share-intro small {
+  color: #87abc5;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+}
+
+.share-intro strong {
+  max-width: 300px;
+  margin-top: 8px;
+  font-size: 25px;
+  letter-spacing: -0.045em;
+}
+
+.share-intro p {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+}
+
+.share-video-section,
+.share-poster-section {
+  margin-bottom: 24px;
+}
+
+.share-section-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin: 0 2px 10px;
+}
+
+.share-section-title small,
+.share-section-title h2 {
+  display: block;
+}
+
+.share-section-title small {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.share-section-title h2 {
+  margin-top: 2px;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.share-section-title > span {
+  padding: 5px 8px;
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 9px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+.share-video-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 300px;
+  padding: 0;
+  overflow: hidden;
+  color: #fff;
+  text-align: left;
+  background: #101720;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 27px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+}
+
+.share-video-card .cinematic-loop {
+  position: absolute;
+  inset: 0;
+}
+
+.share-video-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(4, 7, 11, 0.88), transparent 58%);
+}
+
+.share-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 58px;
+  height: 58px;
+  background: rgba(8, 13, 19, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  place-items: center;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.share-video-card > div:last-child {
+  position: absolute;
+  right: 17px;
+  bottom: 16px;
+  left: 17px;
+}
+
+.share-video-card > div:last-child strong,
+.share-video-card > div:last-child small {
+  display: block;
+}
+
+.share-video-card > div:last-child strong {
+  font-size: 19px;
+}
+
+.share-video-card > div:last-child small {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 10px;
+}
+
+.campaign-poster {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  background: #111821;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 28px;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.5);
+}
+
+.campaign-poster > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.campaign-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(4, 8, 13, 0.58), transparent 35%),
+    linear-gradient(to top, rgba(3, 6, 10, 0.97) 0%, rgba(3, 6, 10, 0.28) 56%, transparent 75%);
+}
+
+.campaign-brand {
+  position: absolute;
+  top: 22px;
+  right: 21px;
+  left: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.campaign-brand span {
+  font-size: 12px;
+  font-weight: 680;
+  letter-spacing: 0.08em;
+}
+
+.campaign-brand small {
+  padding: 6px 9px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 8px;
+  background: rgba(8, 13, 19, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.campaign-copy {
+  position: absolute;
+  right: 22px;
+  bottom: 102px;
+  left: 22px;
+}
+
+.campaign-copy h3 {
+  max-width: 90%;
+  margin: 13px 0 0;
+  font-size: 34px;
+  line-height: 1.05;
+  letter-spacing: -0.06em;
+}
+
+.campaign-copy > p {
+  max-width: 88%;
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.campaign-poster > footer {
+  position: absolute;
+  right: 22px;
+  bottom: 23px;
+  left: 22px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.campaign-poster > footer strong,
+.campaign-poster > footer small {
+  display: block;
+}
+
+.campaign-poster > footer strong {
+  font-size: 10px;
+}
+
+.campaign-poster > footer small {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 7px;
+}
+
+.poster-code {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  padding: 6px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 9px;
+}
+
+.poster-code i {
+  background: #111820;
+  border-radius: 1px;
+}
+
+.poster-code i:nth-child(2),
+.poster-code i:nth-child(4),
+.poster-code i:nth-child(8) {
+  opacity: 0.2;
+}
+
+.share-note {
+  max-width: 310px;
+  margin: -7px auto 0;
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 9px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.share-actions {
+  position: absolute;
+  z-index: 12;
+  right: 14px;
+  bottom: var(--safe-bottom);
+  left: 14px;
+  display: grid;
+  padding: 8px;
+  grid-template-columns: 1fr 1.12fr;
+  gap: 8px;
+  background: rgba(14, 20, 28, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+}
+
+.share-actions button {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 16px;
+}
+
+.share-actions .soft-cta {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
 .work-viewer {
   position: absolute;
   inset: 0;
@@ -2037,38 +2377,6 @@ h2 {
   display: flex;
   gap: 8px;
   margin-top: 20px;
-}
-
-.state-sheet {
-  text-align: left;
-}
-
-.state-sheet h2 {
-  margin-bottom: 18px;
-}
-
-.state-sheet > strong {
-  display: block;
-  margin: 12px 2px 7px;
-  color: #798596;
-  font-size: 11px;
-}
-
-.state-options {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.state-options button {
-  min-height: 39px;
-  padding: 0 4px;
-  color: #4d5a6c;
-  font-size: 10px;
-  font-weight: 580;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(125, 142, 165, 0.1);
-  border-radius: 12px;
 }
 
 .toast {
