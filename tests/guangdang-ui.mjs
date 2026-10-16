@@ -23,7 +23,7 @@ try {
  await page.locator('main[data-route="/hall"] .category-card').first().waitFor();
  assert.equal(await page.locator('.category-card').count(),4);
  await page.getByRole('button',{name:'员工关怀',exact:true}).click();
- await page.getByRole('button',{name:'员工关怀',exact:true}).evaluate(e=>new Promise(r=>requestAnimationFrame(r))); 
+ await page.getByRole('button',{name:'员工关怀',exact:true}).evaluate(e=>new Promise(r=>requestAnimationFrame(r)));
  assert.equal(await page.locator('.category-card').count(),1);
  await page.getByRole('link',{name:'我的职场成长影像',exact:true}).click();
  await page.getByRole('heading',{name:'我的职场成长影像',exact:true}).waitFor();
