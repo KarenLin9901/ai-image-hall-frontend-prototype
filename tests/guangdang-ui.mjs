@@ -12,11 +12,14 @@ const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,
 const errors=[];const broken=[];
 page.on('pageerror',e=>errors.push(e.message));
 page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)broken.push(`${r.status()} ${r.url()}`);});
-const route=async path=>{await page.goto(`${base}#${path}`);await page.locator(`main[data-route="${path.split('?')[0]}"]`).waitFor();};
+const route=async path=>{await page.goto(`${base}#${path}`);await page.locator(`main[data-route="${path.split('?')[0]}"]`).waitFor();await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));};
 const noOverflow=async()=>assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'horizontal overflow');
 try {
  await route('/');
- await page.getByRole('heading',{name:/让真实故事/}).waitFor();
+ await page.getByRole('heading',{name:/属于你的AI片场/}).waitFor();
+ assert.equal(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),'rgb(8, 11, 20)');
+ await page.getByRole('img',{name:'咣当原品牌Logo',exact:true}).waitFor();
+ assert.equal(await page.getByRole('img',{name:'咣当原品牌Logo',exact:true}).getAttribute('src'),'/ai-image-hall-frontend-prototype/images/brand/guangdang-logo.png');
  await noOverflow();
  await page.screenshot({path:'outputs/guangdang-home-mobile.png',fullPage:true});
  await page.getByRole('link',{name:/INTERACTIVE EXPERIENCES/}).click();
@@ -67,6 +70,8 @@ try {
  await page.getByRole('button',{name:'布局示意',exact:true}).click();
  await noOverflow();
  await route('/mine');await page.getByRole('heading',{name:'欢迎来到咣当',exact:true}).waitFor();
+ for(const id of ['brand','event','team','campus','person','family','enterprise','city']){await route(`/category/${id}`);await page.getByRole('heading',{name:'产品亮点和优势',exact:true}).waitFor();assert.equal(await page.locator('.highlight-card').count(),4);await noOverflow();}
+ await route('/category/event');await page.screenshot({path:'outputs/guangdang-event-mobile.png',fullPage:true});
  await route('/category/not-found');await page.getByRole('heading',{name:'暂时没有这个页面',exact:true}).waitFor();
  for(const width of [375,390,430,768,1440]){
   await page.setViewportSize({width,height:width>700?1000:844});
@@ -77,8 +82,8 @@ try {
  await page.setViewportSize({width:390,height:844});await route('/hall');
  await page.screenshot({path:'outputs/guangdang-categories-mobile.png',fullPage:true});
  // Force a missing image response to verify that visitors see a readable fallback.
- await page.route('**/images/guangdang/ref-8.png',r=>r.abort());await route('/category/person');
+ await page.route('**/images/guangdang-v2/person-*.webp',r=>r.abort());await route('/category/person');
  await page.getByRole('img',{name:/图片暂时无法加载/}).waitFor();
  assert.deepEqual(errors,[],'browser errors');assert.deepEqual(broken,[],'broken local assets');
- console.log(JSON.stringify({result:'PASS',viewports:[375,390,430,768,1440],flows:['双业务分类与主题','模板必填守卫与预览','需求摘要未发送','作品筛选分页与空状态','个人页','无效链接','图片失败降级'],browserErrors:errors,brokenAssets:broken}));
+ console.log(JSON.stringify({result:'PASS',viewports:[375,390,430,768,1440],flows:['原品牌Logo与新口号','深色主题','八类详情32项亮点','双业务分类与主题','模板必填守卫与预览','需求摘要未发送','作品筛选分页与空状态','个人页','无效链接','图片失败降级'],browserErrors:errors,brokenAssets:broken}));
 } finally {await browser.close();server?.kill('SIGTERM');}

@@ -1,6 +1,14 @@
 # 咣当 AI影像 · 改版展示版
 
-依据2026年10月15日《咣当 AI影像小程序需求文档》更新。移动端优先，同时适配桌面，使用已有公开 GitHub Pages 渠道。
+依据2026年10月15日《咣当 AI影像小程序需求文档》及10月17日品牌与视觉反馈更新。移动端优先，同时适配桌面，使用已有公开 GitHub Pages 渠道。
+
+## 2026年10月17日更新
+
+- 沿用项目历史彩色咣当Logo，口号统一为“属于你的AI片场”。
+- 深色科技视觉、冷蓝与紫色光效，移除外部字体依赖。
+- 使用用户压缩包高清照片，提供800/1920双尺寸WebP，保留原始照片比例。
+- 八类详情各增加四项产品亮点和优势，分类卡片同时展示摘要。
+- 图片来源与Logo校验记录见 `ASSET_SOURCES_20261017.json`。
 
 ## 当前功能
 
@@ -27,6 +35,6 @@ npm test
 
 `npm test` 构建后自动启动4188端口测试服务，使用本机Google Chrome检查375、390、430、768、1440宽度与主要用户路径。Chrome路径可在 `tests/guangdang-ui.mjs` 调整。
 
-GitHub Pages从main分支 `/docs` 发布。源码入口为 `app/Guangdang.tsx`；数据配置为 `app/guangdang-data.ts`；样式为 `app/guangdang.css`。旧版 `app/AiImageHall.tsx` 与原样式保留用于历史参考，不再由当前入口加载。
+GitHub Pages从main分支 `/docs` 发布。源码入口为 `app/Guangdang.tsx`；数据配置为 `app/guangdang-data.ts`；样式为 `app/guangdang.css` 和 `app/cyber.css`。旧版 `app/AiImageHall.tsx` 与原样式保留用于历史参考，不再由当前入口加载。
 
 更多配置说明见 [GUANGDANG_HANDOFF.md](./GUANGDANG_HANDOFF.md)。

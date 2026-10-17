@@ -1,0 +1,113 @@
+{
+  "version": "2026-10-17",
+  "images": [
+    {
+      "id": "hero-interactive",
+      "source": "首页AI影像馆.jpg",
+      "sourceSize": [
+        6868,
+        3863
+      ],
+      "use": "场景配图，非案例成片"
+    },
+    {
+      "id": "hero-bespoke",
+      "source": "首页高定影像馆.jpg",
+      "sourceSize": [
+        5848,
+        3899
+      ],
+      "use": "场景配图，非案例成片"
+    },
+    {
+      "id": "brand",
+      "source": "品牌推广.jpg",
+      "sourceSize": [
+        8256,
+        4644
+      ],
+      "use": "场景配图，非案例成片"
+    },
+    {
+      "id": "event",
+      "source": "活动互动.jpg",
+      "sourceSize": [
+        2381,
+        3571
+      ],
+      "use": "场景配图，非案例成片"
+    },
+    {
+      "id": "team",
+      "source": "员工关怀.jpg",
+      "sourceSize": [
+        4016,
+        6016
+      ],
+      "use": "场景配图，非案例成片"
+    },
+    {
+      "id": "campus",
+      "source": "校园纪念.jpg",
+      "sourceSize": [
+        5414,
+        3609
+      ],
+      "use": "场景配图，非案例成片"
+    },
+    {
+      "id": "person",
+      "source": "人物故事.jpg",
+      "sourceSize": [
+        3900,
+        2236
+      ],
+      "use": "场景配图，非案例成片"
+    },
+    {
+      "id": "family",
+      "source": "家庭记忆.jpg",
+      "sourceSize": [
+        5040,
+        3360
+      ],
+      "use": "场景配图，非案例成片"
+    },
+    {
+      "id": "enterprise",
+      "source": "企业故事.jpg",
+      "sourceSize": [
+        6240,
+        4160
+      ],
+      "use": "场景配图，非案例成片"
+    },
+    {
+      "id": "craft",
+      "source": "pexels-gabby-k-5302938.jpg",
+      "sourceSize": [
+        6720,
+        4480
+      ],
+      "use": "场景配图，非案例成片"
+    },
+    {
+      "id": "city",
+      "source": "品牌推广.jpg",
+      "sourceSize": [
+        8256,
+        4644
+      ],
+      "use": "场景配图，非案例成片"
+    }
+  ],
+  "brand": {
+    "source": "项目历史素材 assets/guangdang-logo.png",
+    "copiedWithoutModification": true,
+    "sha256": "51009792dc4679c0530f2a9084804fb37b793b71800f2534bf25d714a52a9550"
+  },
+  "notes": [
+    "场景配图与真实案例、AI生成作品分开。",
+    "城市与历史使用压缩包内深圳城市高清原图；未使用媒资检索系统界面截图。"
+  ]
+}
