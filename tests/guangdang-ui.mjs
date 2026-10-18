@@ -71,6 +71,20 @@ try {
  await noOverflow();
  await route('/mine');await page.getByRole('heading',{name:'欢迎来到咣当',exact:true}).waitFor();
  for(const id of ['brand','event','team','campus','person','family','enterprise','city']){await route(`/category/${id}`);await page.getByRole('heading',{name:'产品亮点和优势',exact:true}).waitFor();assert.equal(await page.locator('.highlight-card').count(),4);await noOverflow();}
+ await route('/category/city');
+ assert.equal(await page.locator('.history-photo').count(),5);
+ assert.match(await page.locator('.detail-cover img').getAttribute('src'),/dongmen-history\/dongmen-pillars-1920\.webp$/);
+ await page.getByRole('button',{name:'放大查看东门街区标识',exact:true}).click();
+ await page.getByRole('dialog').getByRole('heading',{name:'东门街区标识',exact:true}).waitFor();
+ assert.equal(await page.getByRole('button',{name:'上一张',exact:true}).isDisabled(),true);
+ await page.getByRole('button',{name:'下一张',exact:true}).click();
+ await page.getByRole('dialog').getByRole('heading',{name:'东门街头钟景',exact:true}).waitFor();
+ await page.getByRole('button',{name:'上一张',exact:true}).click();
+ await page.getByRole('dialog').getByRole('heading',{name:'东门街区标识',exact:true}).waitFor();
+ await page.keyboard.press('Escape');
+ assert.equal(await page.getByRole('dialog').count(),0);
+ await page.locator('.history-section').scrollIntoViewIfNeeded();
+ await page.screenshot({path:'outputs/dongmen-history-mobile.png',fullPage:true});
  await route('/category/event');await page.screenshot({path:'outputs/guangdang-event-mobile.png',fullPage:true});
  await route('/category/not-found');await page.getByRole('heading',{name:'暂时没有这个页面',exact:true}).waitFor();
  for(const width of [375,390,430,768,1440]){
@@ -85,5 +99,5 @@ try {
  await page.route('**/images/guangdang-v2/person-*.webp',r=>r.abort());await route('/category/person');
  await page.getByRole('img',{name:/图片暂时无法加载/}).waitFor();
  assert.deepEqual(errors,[],'browser errors');assert.deepEqual(broken,[],'broken local assets');
- console.log(JSON.stringify({result:'PASS',viewports:[375,390,430,768,1440],flows:['原品牌Logo与新口号','深色主题','八类详情32项亮点','双业务分类与主题','模板必填守卫与预览','需求摘要未发送','作品筛选分页与空状态','个人页','无效链接','图片失败降级'],browserErrors:errors,brokenAssets:broken}));
+ console.log(JSON.stringify({result:'PASS',viewports:[375,390,430,768,1440],flows:['东门历史封面与5张资料图','历史照片放大与翻页','原品牌Logo与新口号','深色主题','八类详情32项亮点','双业务分类与主题','模板必填守卫与预览','需求摘要未发送','作品筛选分页与空状态','个人页','无效链接','图片失败降级'],browserErrors:errors,brokenAssets:broken}));
 } finally {await browser.close();server?.kill('SIGTERM');}

@@ -1,0 +1,164 @@
+{
+  "sourceArchive": "东门 媒资库(1).rar",
+  "sourceCount": 21,
+  "selectedCount": 5,
+  "use": "城市与历史分类、详情、关联预览；历史资料，非AI生成或客户成片案例",
+  "processing": "等比缩小与WebP编码；未裁切、未修复、未改写画面内容；原压缩包保留",
+  "photos": [
+    {
+      "id": "dongmen-pillars",
+      "sourceFile": "PixPin_2026-10-17_17-51-49.png",
+      "sourceSize": [
+        2528,
+        1987
+      ],
+      "sourceSha256": "2799df4ae9c6696e9666862ac28e0b6917303e1136abeb7f1ae4511753a3c8e3",
+      "title": "东门街区标识",
+      "description": "三根东门标识石柱与街边建筑。",
+      "selectionReason": "标识辨识度高，画面完整，适合分类封面。",
+      "captureDate": null,
+      "variants": [
+        {
+          "file": "dongmen-pillars-800.webp",
+          "size": [
+            800,
+            629
+          ],
+          "bytes": 65578
+        },
+        {
+          "file": "dongmen-pillars-1920.webp",
+          "size": [
+            1920,
+            1509
+          ],
+          "bytes": 175704
+        }
+      ]
+    },
+    {
+      "id": "dongmen-bell",
+      "sourceFile": "PixPin_2026-10-17_17-52-12.png",
+      "sourceSize": [
+        2518,
+        1977
+      ],
+      "sourceSha256": "752fb04896d7c655cc70c6dba6eca78240d890edd30fd4650b220eb73b02cd1f",
+      "title": "东门街头钟景",
+      "description": "街头钟景与周边店铺、行人。",
+      "selectionReason": "主体集中，保留街区地标细节。",
+      "captureDate": null,
+      "variants": [
+        {
+          "file": "dongmen-bell-800.webp",
+          "size": [
+            800,
+            628
+          ],
+          "bytes": 89200
+        },
+        {
+          "file": "dongmen-bell-1920.webp",
+          "size": [
+            1920,
+            1507
+          ],
+          "bytes": 236084
+        }
+      ]
+    },
+    {
+      "id": "dongmen-panorama",
+      "sourceFile": "PixPin_2026-10-17_17-52-44.png",
+      "sourceSize": [
+        3585,
+        1903
+      ],
+      "sourceSha256": "8eb2cc86c43ebdd1966484dcaffc1cd0e8bf3c418b9f161215e44dff62c6cafd",
+      "title": "东门街区全景",
+      "description": "从高处看到的街区屋顶、楼宇与人流。",
+      "selectionReason": "横向构图完整，兼顾传统建筑与城市街区。",
+      "captureDate": null,
+      "variants": [
+        {
+          "file": "dongmen-panorama-800.webp",
+          "size": [
+            800,
+            425
+          ],
+          "bytes": 92406
+        },
+        {
+          "file": "dongmen-panorama-1920.webp",
+          "size": [
+            1920,
+            1019
+          ],
+          "bytes": 250098
+        }
+      ]
+    },
+    {
+      "id": "dongmen-arch",
+      "sourceFile": "PixPin_2026-10-17_18-03-15.png",
+      "sourceSize": [
+        2430,
+        1973
+      ],
+      "sourceSha256": "3c52886938efdc00831c26f32ed85be7b6333cba6e3127a108afe1ecbd502993",
+      "title": "老东门步行街牌坊",
+      "description": "牌坊、街道车辆与行人。",
+      "selectionReason": "牌坊文字可辨，具有明确的地方识别特征。",
+      "captureDate": null,
+      "variants": [
+        {
+          "file": "dongmen-arch-800.webp",
+          "size": [
+            800,
+            650
+          ],
+          "bytes": 93784
+        },
+        {
+          "file": "dongmen-arch-1920.webp",
+          "size": [
+            1920,
+            1559
+          ],
+          "bytes": 247210
+        }
+      ]
+    },
+    {
+      "id": "dongmen-street",
+      "sourceFile": "PixPin_2026-10-17_18-04-31.png",
+      "sourceSize": [
+        3437,
+        1907
+      ],
+      "sourceSha256": "80136cc1490fd843b6c325171336d4442790c86b96d9e75a8ed4a6b2a43328d3",
+      "title": "东门步行街人流",
+      "description": "店铺之间往来的人群与街道。",
+      "selectionReason": "人流与商业街空间完整，补充市井生活视角。",
+      "captureDate": null,
+      "variants": [
+        {
+          "file": "dongmen-street-800.webp",
+          "size": [
+            800,
+            444
+          ],
+          "bytes": 76172
+        },
+        {
+          "file": "dongmen-street-1920.webp",
+          "size": [
+            1920,
+            1065
+          ],
+          "bytes": 199864
+        }
+      ]
+    }
+  ]
+}

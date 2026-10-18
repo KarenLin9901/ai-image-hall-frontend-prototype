@@ -84,6 +84,20 @@ body {
 .photo-caption { background:#0b1324db; color:#b8c9e8; border:1px solid #b1cdff26; z-index:1; }
 .detail-cover { border:1px solid #7c93ca30; height:405px; }
 .detail-cover img { filter:saturate(1.06); }
+.historical-cover img { filter:none; object-position:50% 48%; }
+.history-intro { font-size:12px; color:#a5b5d2; margin-bottom:22px; }
+.history-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.history-photo { padding:0; background:#111c30; border:1px solid #7996c434; border-radius:11px; overflow:hidden; text-align:left; }
+.history-photo:hover { border-color:#9dc5f57d; }
+.history-photo-image { aspect-ratio:4/3; position:relative; background:#0a101e; }
+.history-photo-image img { object-fit:contain; }
+.history-photo-copy { padding:17px 18px; }
+.history-photo h3 { font-size:14px; line-height:1.5; color:#dce9ff; }
+.history-photo-copy>span { display:flex; gap:8px; align-items:center; margin-top:10px; font-size:10px; color:#8fa9ce; }
+.history-source { font-size:10px; color:#8c9dbc; line-height:1.8; margin-top:17px; }
+.history-full-image { max-height:57vh; object-fit:contain; }
+.history-navigation { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; }
+.history-navigation>span { font-size:12px; color:#a7bedf; }
 .detail-intro h1 { color:#f1f6ff; }
 .status-tag { color:#9fdcf1; background:#163044; border-color:#4780a552; }
 .audience>p { color:#b4c5e7; }
@@ -164,6 +178,12 @@ dialog { background:#111b2e; border:1px solid #859dd442; box-shadow:0 25px 100px
   .category-highlights>span { font-size:8px; }
   .detail-cover { height:auto; aspect-ratio:1.42; }
   .detail-intro h1 { font-size:30px; }
+  .history-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+  .history-intro { font-size:11px; margin-bottom:17px; }
+  .history-photo-copy { padding:13px 12px; }
+  .history-photo h3 { font-size:12px; }
+  .history-photo-copy>span { font-size:9px; gap:5px; margin-top:9px; }
+  .history-source { font-size:9px; }
   .highlights-grid { gap:11px; }
   .highlight-card { padding:20px 16px; border-radius:10px; }
   .highlight-card h3 { font-size:13px; margin:18px 0 10px; }

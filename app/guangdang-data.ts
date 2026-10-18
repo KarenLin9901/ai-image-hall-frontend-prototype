@@ -6,7 +6,14 @@ export type PublishedWork = { id:string; title:string; categoryId:string; busine
 export type Category = { id: string; business: Business; title: string; short: string; intro: string; audience: string; image: number; themes: string[]; };
 export const asset = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
 const visualNames:Record<number,string>={2:'hero-interactive',3:'hero-bespoke',4:'brand',5:'event',6:'team',7:'campus',8:'person',9:'family',10:'enterprise',11:'city'};
-export const reference = (id: number) => asset(`images/guangdang-v2/${visualNames[id]}-1920.webp`);
+export const reference = (id: number) => id===11 ? asset('images/dongmen-history/dongmen-pillars-1920.webp') : asset(`images/guangdang-v2/${visualNames[id]}-1920.webp`);
+export const historicalPhotos = [
+ {id:'dongmen-pillars',title:'东门街区标识',description:'三根东门标识石柱与街边建筑。'},
+ {id:'dongmen-bell',title:'东门街头钟景',description:'街头钟景与周边店铺、行人。'},
+ {id:'dongmen-panorama',title:'东门街区全景',description:'从高处看到的街区屋顶、楼宇与人流。'},
+ {id:'dongmen-arch',title:'老东门步行街牌坊',description:'牌坊、街道车辆与行人。'},
+ {id:'dongmen-street',title:'东门步行街人流',description:'店铺之间往来的人群与街道。'},
+].map(photo=>({...photo,src:asset(`images/dongmen-history/${photo.id}-1920.webp`)}));
 export type Highlight = {title:string;description:string};
 export const highlights:Record<string,Highlight[]>={
  brand:[{title:'品牌故事，人人参与',description:'将品牌主张、城市主题与个人表达结合，让用户成为传播内容的一部分。'},{title:'主题表达更聚焦',description:'围绕一次传播目标组织模板、画面与内容选择，让体验始终服务于主题。'},{title:'适配多种传播场景',description:'可围绕产品推广、城市宣传与重大主题，策划相应的互动内容。'},{title:'从案例到体验',description:'先展示主题与效果，再引导进入已开放模板，帮助用户理解参与方式。'}],
