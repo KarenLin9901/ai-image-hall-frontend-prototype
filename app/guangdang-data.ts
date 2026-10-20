@@ -40,6 +40,20 @@ export const themes:ThemeRecord[] = categories.flatMap(c=>c.themes.map((title,i)
 export const cases:CaseRecord[]=[];
 export const publishedWorks:PublishedWork[]=[];
 export const businessName = (b: Business) => b === 'hall' ? 'AI影像馆' : '高定AI影像';
+export const businessProfiles:Record<Business,{positioning:string;advantages:string[];steps:string[]}>={
+ hall:{positioning:'选择主题、配置内容，体验属于自己的AI影像。',advantages:['让每个人参与故事','按活动主题选择内容','从模板开始，降低参与门槛'],steps:['选择主题','配置内容','生成个人影像']},
+ bespoke:{positioning:'从真实人物与故事出发，策划专属的精品AI影像。',advantages:['围绕真实故事专属策划','整合照片、影像与口述资料','用画面与声音表达情感'],steps:['提出需求','专属策划','创作制作','成片交付']},
+};
+export type ShowcaseSlide={id:string;title:string;image:string;to:string;action:string;media?:Media;pending?:boolean};
+export function getShowcaseSlides(business:Business):ShowcaseSlide[]{
+ if(business==='hall')return [
+  {id:'belike-preview',title:'我的深圳生活 belike',image:reference(4),to:'/experience/brand',action:'预览体验'},
+  ...categories.filter(c=>c.business==='hall').flatMap(c=>c.themes.map((title,i)=>({id:`${c.id}-${i}`,title,image:reference(c.image),to:`/theme/${c.id}/${i}`,action:'了解主题'}))),
+ ];
+ const ready=publishedWorks.filter(w=>w.business==='bespoke'&&w.displayAuthorized&&w.status==='published'&&w.media.type==='video');
+ if(ready.length)return ready.map(w=>({id:w.id,title:w.title,image:w.media.poster||reference(categoryById.get(w.categoryId)?.image||8),to:`/category/${w.categoryId}`,action:'观看样品',media:w.media}));
+ return categories.filter(c=>c.business==='bespoke').map(c=>({id:`pending-${c.id}`,title:c.title,image:reference(c.image),to:`/category/${c.id}`,action:'了解创作',pending:true}));
+}
 // These are explicitly illustrative layout entries, never published customer works.
 export const illustrativeWorks = categories.map((c,i) => ({ id:`layout-${c.id}`,categoryId:c.id,title:c.business==='hall'?c.themes[0]:c.title,business:c.business,image:c.image,ratio:[.78,1.1,.9,1.2,.76,1.1,.88,.8][i] }));
 export const templateEntries = [{ id:'shenzhen-belike',name:'我的深圳生活 belike',status:'coming-soon' as const,url:null,categoryId:'brand',description:'现有体验产品接入位。正式入口与身份衔接确认后开放。' }];
