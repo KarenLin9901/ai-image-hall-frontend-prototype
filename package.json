@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "vite build && node scripts/postbuild.mjs",
-    "test": "npm run build && node tests/guangdang-ui.mjs",
-    "test:ui": "node tests/guangdang-ui.mjs"
+    "test": "npm run build && node tests/guangdang-ui.mjs && node tests/mobile-navigation.mjs",
+    "test:ui": "node tests/guangdang-ui.mjs",
+    "test:mobile": "npm run build && node tests/mobile-navigation.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
