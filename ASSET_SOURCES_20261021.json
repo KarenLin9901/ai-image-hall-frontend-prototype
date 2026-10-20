@@ -1,0 +1,191 @@
+{
+  "date": "2026-10-21",
+  "images": [
+    {
+      "themeId": "brand-0",
+      "kind": "project-generated-concept",
+      "source": "AI影像馆新增主题封面_V1_20260903/01_未来深圳_源图_1672x941.png",
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "sourceSha256": "cec3694b8da5728d4a8de4ca1233d5b2a319ea3eb895adfee0da25d0a1afab98",
+      "variants": [
+        {
+          "file": "public/images/themes-v3/shenzhen-arrival-800.webp",
+          "size": [
+            800,
+            450
+          ],
+          "bytes": 75898
+        },
+        {
+          "file": "public/images/themes-v3/shenzhen-arrival-1920.webp",
+          "size": [
+            1672,
+            941
+          ],
+          "bytes": 242388
+        }
+      ],
+      "use": "主题概念/场景配图，非客户成片或生成效果证明"
+    },
+    {
+      "themeId": "brand-1",
+      "kind": "project-generated-concept",
+      "source": "AI影像馆新增主题封面_V1_20260903/05_人生电影_源图_1672x941.png",
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "sourceSha256": "7996562d131ce5b3d8de6d3c5abcd25a522693c74602e628358bb6165b1ed383",
+      "variants": [
+        {
+          "file": "public/images/themes-v3/brand-star-800.webp",
+          "size": [
+            800,
+            450
+          ],
+          "bytes": 54370
+        },
+        {
+          "file": "public/images/themes-v3/brand-star-1920.webp",
+          "size": [
+            1672,
+            941
+          ],
+          "bytes": 182428
+        }
+      ],
+      "use": "主题概念/场景配图，非客户成片或生成效果证明"
+    },
+    {
+      "themeId": "event-1",
+      "kind": "project-generated-concept",
+      "source": "AI影像馆新增主题封面_V1_20260903/03_粤潮新生_源图_1672x941.png",
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "sourceSha256": "20dcac0720cd399df9f4d20ecc767b4a5e262d3b32e6c4e5d5accc22e0ce9188",
+      "variants": [
+        {
+          "file": "public/images/themes-v3/festival-800.webp",
+          "size": [
+            800,
+            450
+          ],
+          "bytes": 75234
+        },
+        {
+          "file": "public/images/themes-v3/festival-1920.webp",
+          "size": [
+            1672,
+            941
+          ],
+          "bytes": 193254
+        }
+      ],
+      "use": "主题概念/场景配图，非客户成片或生成效果证明"
+    },
+    {
+      "themeId": "campus-1",
+      "kind": "pexels-stock-photo",
+      "source": "Pexels George Pak 7972653",
+      "sourceSize": [
+        6000,
+        4000
+      ],
+      "sourceSha256": "cb156b1b61c91377518a005173bb66018adf8c3346f4acd8a87800a696f83f85",
+      "variants": [
+        {
+          "file": "public/images/themes-v3/campus-memory-800.webp",
+          "size": [
+            800,
+            533
+          ],
+          "bytes": 87670
+        },
+        {
+          "file": "public/images/themes-v3/campus-memory-1920.webp",
+          "size": [
+            1920,
+            1280
+          ],
+          "bytes": 320064
+        }
+      ],
+      "use": "主题概念/场景配图，非客户成片或生成效果证明",
+      "sourcePage": "https://www.pexels.com/photo/students-walking-on-the-campus-7972653/",
+      "download": "https://images.pexels.com/photos/7972653/pexels-photo-7972653.jpeg?cs=srgb&dl=pexels-george-pak-7972653.jpg&fm=jpg",
+      "credit": "George Pak / Pexels",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "themeId": "belike-preview",
+      "kind": "user-supplied-photo",
+      "source": "public/images/guangdang-v2/brand-1920.webp",
+      "size": [
+        1920,
+        1080
+      ],
+      "sha256": "07d7a5c86be4506f18872841532ee5701dd4e1b0059666dedede82cd98d3d4ef",
+      "provenance": "ASSET_SOURCES_20261017.json",
+      "use": "主题场景配图，非客户成片"
+    },
+    {
+      "themeId": "event-0",
+      "kind": "user-supplied-photo",
+      "source": "public/images/guangdang-v2/event-1920.webp",
+      "size": [
+        1280,
+        1920
+      ],
+      "sha256": "3f2fa5a05ecb9cdba7a28fd53a9df93dabeafd5b4dffa04befbde0c3179be08a",
+      "provenance": "ASSET_SOURCES_20261017.json",
+      "use": "主题场景配图，非客户成片"
+    },
+    {
+      "themeId": "team-0",
+      "kind": "user-supplied-photo",
+      "source": "public/images/guangdang-v2/craft-1920.webp",
+      "size": [
+        1920,
+        1280
+      ],
+      "sha256": "cd3485561bf8dd5396b951ac00da2951d47b038c77a4e51639e93605ac2c87b8",
+      "provenance": "ASSET_SOURCES_20261017.json",
+      "use": "主题场景配图，非客户成片"
+    },
+    {
+      "themeId": "team-1",
+      "kind": "user-supplied-photo",
+      "source": "public/images/guangdang-v2/team-1920.webp",
+      "size": [
+        1282,
+        1920
+      ],
+      "sha256": "821877e700692f6c5d22c81ad73c69925a03f4a9ed4faea96a004b969ef7ba2c",
+      "provenance": "ASSET_SOURCES_20261017.json",
+      "use": "主题场景配图，非客户成片"
+    },
+    {
+      "themeId": "campus-0",
+      "kind": "user-supplied-photo",
+      "source": "public/images/guangdang-v2/campus-1920.webp",
+      "size": [
+        1920,
+        1280
+      ],
+      "sha256": "e3af0d815f8ea5a2fc495142eae1b51f5ca35e34c136bb63a04eab33192e05d3",
+      "provenance": "ASSET_SOURCES_20261017.json",
+      "use": "主题场景配图，非客户成片"
+    }
+  ],
+  "displayRules": {
+    "themeCover": "16:9 / object-fit:cover",
+    "workCover": "4:3 / object-fit:cover",
+    "fullImage": "按原比例显示，不预裁切文件"
+  },
+  "historicalMedia": "不再在产品页面引用东门历史资料；原文件与来源记录保留。"
+}

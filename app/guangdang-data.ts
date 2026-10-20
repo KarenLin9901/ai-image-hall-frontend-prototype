@@ -1,12 +1,12 @@
 export type Business = 'hall' | 'bespoke';
 export type Media = { type:'image'|'video'; src:string; poster?:string; width:number; height:number; alt:string };
 export type CaseRecord = { id:string; title:string; categoryId:string; themeId:string; background:string; objective:string; media:Media[]; status:'draft'|'published' };
-export type ThemeRecord = { id:string; categoryId:string; title:string; caseIds:string[]; templateId?:string; status:'example'|'published' };
+export type ThemeRecord = { id:string; categoryId:string; title:string; image:string; caseIds:string[]; templateId?:string; status:'example'|'published' };
 export type PublishedWork = { id:string; title:string; categoryId:string; business:Business; themeId?:string; caseId?:string; templateId?:string; media:Media; source:string; displayAuthorized:boolean; status:'draft'|'published'; sort:number; publishedAt:string };
 export type Category = { id: string; business: Business; title: string; short: string; intro: string; audience: string; image: number; themes: string[]; };
 export const asset = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
 const visualNames:Record<number,string>={2:'hero-interactive',3:'hero-bespoke',4:'brand',5:'event',6:'team',7:'campus',8:'person',9:'family',10:'enterprise',11:'city'};
-export const reference = (id: number) => id===11 ? asset('images/dongmen-history/dongmen-pillars-1920.webp') : asset(`images/guangdang-v2/${visualNames[id]}-1920.webp`);
+export const reference = (id: number) => asset(`images/guangdang-v2/${visualNames[id]}-1920.webp`);
 export const historicalPhotos = [
  {id:'dongmen-pillars',title:'东门街区标识',description:'三根东门标识石柱与街边建筑。'},
  {id:'dongmen-bell',title:'东门街头钟景',description:'街头钟景与周边店铺、行人。'},
@@ -36,26 +36,36 @@ export const categories: Category[] = [
   { id:'city',business:'bespoke',title:'城市与历史',short:'城市与历史',intro:'让城市的记忆，在今天继续被看见。',audience:'关注城市记忆、地方文化、历史叙事与文化传承的机构',image:11,themes:[] },
 ];
 export const categoryById = new Map(categories.map(c => [c.id,c]));
-export const themes:ThemeRecord[] = categories.flatMap(c=>c.themes.map((title,i)=>({id:`${c.id}-${i}`,categoryId:c.id,title,caseIds:[],status:'example'})));
+export const themeImages:Record<string,string>={
+ 'brand-0':asset('images/themes-v3/shenzhen-arrival-1920.webp'),
+ 'brand-1':asset('images/themes-v3/brand-star-1920.webp'),
+ 'event-0':reference(5),
+ 'event-1':asset('images/themes-v3/festival-1920.webp'),
+ 'team-0':asset('images/guangdang-v2/craft-1920.webp'),
+ 'team-1':reference(6),
+ 'campus-0':reference(7),
+ 'campus-1':asset('images/themes-v3/campus-memory-1920.webp'),
+};
+export const themes:ThemeRecord[] = categories.flatMap(c=>c.themes.map((title,i)=>({id:`${c.id}-${i}`,categoryId:c.id,title,image:themeImages[`${c.id}-${i}`],caseIds:[],status:'example'})));
 export const cases:CaseRecord[]=[];
 export const publishedWorks:PublishedWork[]=[];
 export const businessName = (b: Business) => b === 'hall' ? 'AI影像馆' : '高定AI影像';
-export const businessProfiles:Record<Business,{positioning:string;advantages:string[];steps:string[]}>={
- hall:{positioning:'选择主题、配置内容，体验属于自己的AI影像。',advantages:['让每个人参与故事','按活动主题选择内容','从模板开始，降低参与门槛'],steps:['选择主题','配置内容','生成个人影像']},
- bespoke:{positioning:'从真实人物与故事出发，策划专属的精品AI影像。',advantages:['围绕真实故事专属策划','整合照片、影像与口述资料','用画面与声音表达情感'],steps:['提出需求','专属策划','创作制作','成片交付']},
+export const businessProfiles:Record<Business,{positioning:string;advantages:string[]}>={
+ hall:{positioning:'选择主题、配置内容，体验属于自己的AI影像。',advantages:['让每个人参与故事','按活动主题选择内容','从模板开始，降低参与门槛']},
+ bespoke:{positioning:'从真实人物与故事出发，策划专属的精品AI影像。',advantages:['围绕真实故事专属策划','整合照片、影像与口述资料','用画面与声音表达情感']},
 };
 export type ShowcaseSlide={id:string;title:string;image:string;to:string;action:string;media?:Media;pending?:boolean};
 export function getShowcaseSlides(business:Business):ShowcaseSlide[]{
  if(business==='hall')return [
   {id:'belike-preview',title:'我的深圳生活 belike',image:reference(4),to:'/experience/brand',action:'预览体验'},
-  ...categories.filter(c=>c.business==='hall').flatMap(c=>c.themes.map((title,i)=>({id:`${c.id}-${i}`,title,image:reference(c.image),to:`/theme/${c.id}/${i}`,action:'了解主题'}))),
+  ...themes.map(theme=>({id:theme.id,title:theme.title,image:theme.image,to:`/theme/${theme.categoryId}/${theme.id.split('-').at(-1)}`,action:'了解主题'})),
  ];
  const ready=publishedWorks.filter(w=>w.business==='bespoke'&&w.displayAuthorized&&w.status==='published'&&w.media.type==='video');
  if(ready.length)return ready.map(w=>({id:w.id,title:w.title,image:w.media.poster||reference(categoryById.get(w.categoryId)?.image||8),to:`/category/${w.categoryId}`,action:'观看样品',media:w.media}));
  return categories.filter(c=>c.business==='bespoke').map(c=>({id:`pending-${c.id}`,title:c.title,image:reference(c.image),to:`/category/${c.id}`,action:'了解创作',pending:true}));
 }
 // These are explicitly illustrative layout entries, never published customer works.
-export const illustrativeWorks = categories.map((c,i) => ({ id:`layout-${c.id}`,categoryId:c.id,title:c.business==='hall'?c.themes[0]:c.title,business:c.business,image:c.image,ratio:[.78,1.1,.9,1.2,.76,1.1,.88,.8][i] }));
+export const illustrativeWorks = categories.map(c => ({ id:`layout-${c.id}`,categoryId:c.id,title:c.business==='hall'?c.themes[0]:c.title,business:c.business,image:c.business==='hall'?themeImages[`${c.id}-0`]:reference(c.image) }));
 export const templateEntries = [{ id:'shenzhen-belike',name:'我的深圳生活 belike',status:'coming-soon' as const,url:null,categoryId:'brand',description:'现有体验产品接入位。正式入口与身份衔接确认后开放。' }];
 export const exampleOptions = [
  {title:'工作地点',items:['福田CBD','蛇口园区','东门商圈']},

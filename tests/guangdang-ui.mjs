@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
@@ -10,12 +11,54 @@ await mkdir('outputs',{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
 page.setDefaultTimeout(12000);
-const errors=[];const broken=[];
+const errors=[];const broken=[];const historicalRequests=[];
 page.on('pageerror',e=>errors.push(e.message));
+page.on('request',r=>{if(r.url().includes('/images/dongmen-history/'))historicalRequests.push(r.url());});
 page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)broken.push(`${r.status()} ${r.url()}`);});
-const route=async path=>{await page.goto(`${base}#${path}`);await page.locator(`main[data-route="${path.split('?')[0]}"]`).waitFor();await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));};
+const normalizedRoute=path=>path.split('?')[0].replace(/^\/scenes\/(hall|bespoke)$/,'/$1');
+const route=async path=>{await page.goto(`${base}#${path}`);await page.locator(`main[data-route="${normalizedRoute(path)}"]`).waitFor();await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));};
 const noOverflow=async()=>assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'horizontal page overflow');
-const screenshot=async name=>{await page.locator('main img').first().evaluate(async img=>{if(!img.complete)await new Promise(r=>{img.onload=r;img.onerror=r;});});await page.screenshot({path:`outputs/${name}.png`});};
+const loadImages=async locator=>{
+ await locator.evaluateAll(async images=>Promise.all(images.map(async image=>{image.loading='eager';await image.decode();})));
+ const dimensions=await locator.evaluateAll(images=>images.map(image=>({src:image.currentSrc||image.src,width:image.naturalWidth,height:image.naturalHeight})));
+ assert.ok(dimensions.every(image=>image.width>0&&image.height>0),'all requested images should decode');
+ return dimensions;
+};
+const screenshot=async name=>{await loadImages(page.locator('main img'));await page.screenshot({path:`outputs/guangdang-20261021-${name}.png`});};
+const assertBusinessFolds=async()=>{
+ const folds=page.locator('.business-secondary details');
+ assert.equal(await folds.count(),2,'business page should contain exactly two disclosure rows');
+ assert.deepEqual(await folds.locator('summary').allTextContents(),['产品简介','产品优势']);
+ assert.equal(await page.locator('.business-secondary details[open]').count(),0,'both product sections start collapsed');
+ assert.equal(await page.getByRole('link',{name:'场景启发',exact:true}).count(),0);
+ assert.equal(await page.getByText(/^(体验链路|创作链路)$/).count(),0);
+ await folds.nth(0).locator('summary').click();
+ assert.ok(await folds.nth(0).locator('.fold-content').isVisible());
+ assert.ok((await folds.nth(0).locator('.fold-content').innerText()).trim().length>10);
+ await folds.nth(0).locator('summary').click();
+ await folds.nth(1).locator('summary').click();
+ assert.equal(await folds.nth(1).locator('li').count(),3);
+ assert.ok(await folds.nth(1).locator('.fold-content').isVisible());
+ await folds.nth(1).locator('summary').click();
+};
+const assertAspect=async(locator,ratio,label)=>{
+ const boxes=await locator.evaluateAll(elements=>elements.map(element=>{const r=element.getBoundingClientRect();return {width:r.width,height:r.height};}));
+ assert.ok(boxes.length>0,`${label}: missing media`);
+ for(const box of boxes)assert.ok(Math.abs(box.width/box.height-ratio)<.02,`${label}: ${JSON.stringify(box)}`);
+};
+const assertWorkGrid=async()=>{
+ await loadImages(page.locator('.work-image img'));
+ await assertAspect(page.locator('.work-image'),4/3,'work covers must be 4:3');
+ const grid=await page.locator('.masonry').evaluate(element=>({display:getComputedStyle(element).display,columns:getComputedStyle(element).gridTemplateColumns.split(' ').length}));
+ assert.equal(grid.display,'grid','works should use a regular grid');
+ assert.ok(grid.columns>=2,'works should have multiple columns at supported viewports');
+ const boxes=await page.locator('.work-card').evaluateAll(cards=>cards.map(card=>{const r=card.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};}));
+ assert.ok(Math.max(...boxes.map(b=>b.width))-Math.min(...boxes.map(b=>b.width))<2,'work cards should share a width');
+ assert.ok(Math.max(...boxes.map(b=>b.height))-Math.min(...boxes.map(b=>b.height))<2,'work cards should share a height');
+ const columns=new Map();
+ for(const box of boxes){const key=Math.round(box.x);const column=columns.get(key)||[];column.push(box);columns.set(key,column);}
+ for(const column of columns.values())for(let i=1;i<column.length;i++)assert.ok(column[i].y>=column[i-1].y+column[i-1].height,'grid cards should not overlap');
+};
 try {
  const homeSizes=[{width:360,height:640},{width:375,height:667},{width:390,height:844},{width:430,height:932}];
  for(const size of homeSizes){
@@ -31,11 +74,21 @@ try {
  await page.setViewportSize({width:390,height:844});await route('/');
  assert.equal(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),'rgb(8, 11, 20)');
  assert.equal(await page.getByRole('img',{name:'咣当原品牌Logo',exact:true}).getAttribute('src'),'/ai-image-hall-frontend-prototype/images/brand/guangdang-logo.png');
- await screenshot('guangdang-home-mobile');
+ await screenshot('home-mobile');
  await page.locator('.home-choice[href="#/hall"]').click();
  await page.locator('main[data-route="/hall"]').waitFor();
  assert.equal(await page.locator('.preview-slide').count(),9);
- assert.equal(await page.locator('.product-introduction').getAttribute('open'),null);
+ await assertBusinessFolds();
+ await assertAspect(page.locator('.slide-media'),16/9,'theme covers must be 16:9');
+ const covers=page.locator('.preview-slide .slide-media img');
+ assert.equal(await covers.count(),9);
+ const coverSources=await covers.evaluateAll(images=>images.map(image=>image.src));
+ assert.equal(new Set(coverSources).size,9,'each hall theme should have its own image URL');
+ const coverDimensions=await loadImages(covers);
+ assert.ok(coverDimensions.every(image=>Math.max(image.width,image.height)>=800&&Math.min(image.width,image.height)>=450),`theme images should have high resolution: ${JSON.stringify(coverDimensions)}`);
+ const pixels=await covers.evaluateAll(images=>images.map(image=>{const canvas=document.createElement('canvas');canvas.width=64;canvas.height=36;const context=canvas.getContext('2d');context.drawImage(image,0,0,64,36);return Array.from(context.getImageData(0,0,64,36).data);}));
+ const fingerprints=pixels.map(data=>createHash('sha256').update(Uint8Array.from(data)).digest('hex'));
+ assert.equal(new Set(fingerprints).size,9,'theme images should contain distinct decoded pixels');
  assert.equal(await page.locator('.carousel-count').textContent(),'1 / 9');
  await page.getByRole('button',{name:'下一个主题',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('.carousel-count').textContent==='2 / 9');
@@ -44,37 +97,18 @@ try {
  await page.locator('.experience-carousel').evaluate(e=>e.scrollTo({left:0,behavior:'instant'}));
  await page.waitForFunction(()=>document.querySelector('.carousel-count').textContent==='1 / 9');
  await page.waitForFunction(()=>document.querySelector('.experience-carousel').scrollLeft<1);
- // Exercise a touch gesture as well as the accessible arrow controls.
+ const touchBox=await page.locator('.preview-slide .slide-media').first().boundingBox();
+ const touchY=Math.round(touchBox.y+touchBox.height/2);
  const cdp=await page.context().newCDPSession(page);
- await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:300,y:320}]});
- for(let x=280;x>=70;x-=30){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:320}]});await new Promise(r=>setTimeout(r,20));}
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:300,y:touchY}]});
+ for(let x=280;x>=70;x-=30){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:touchY}]});await new Promise(r=>setTimeout(r,20));}
  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  await page.waitForFunction(()=>document.querySelector('.experience-carousel').scrollLeft>180);
- await page.waitForFunction(()=>{
-  const e=document.querySelector('.experience-carousel');
-  const width=e.firstElementChild.getBoundingClientRect().width+12;
-  return Math.abs(e.scrollLeft-Math.round(e.scrollLeft/width)*width)<1;
- });
+ await page.waitForFunction(()=>{const e=document.querySelector('.experience-carousel');const width=e.firstElementChild.getBoundingClientRect().width+12;return Math.abs(e.scrollLeft-Math.round(e.scrollLeft/width)*width)<1;});
  await cdp.detach();
- await route('/');await route('/hall');
- await screenshot('guangdang-hall-mobile');
- await page.locator('.product-introduction summary').click();
- await page.getByRole('heading',{name:'产品定位',exact:true}).waitFor();
- assert.equal(await page.locator('.product-introduction li').count(),6);
- await page.locator('.product-introduction summary').click();
- await page.getByRole('link',{name:'场景启发',exact:true}).click();
- await page.locator('main[data-route="/scenes/hall"]').waitFor();
- assert.equal(await page.locator('.simple-scene-card').count(),4);
- await screenshot('guangdang-scenes-mobile');
- await page.getByRole('link',{name:'活动互动与用户体验',exact:true}).click();
- await page.getByRole('heading',{name:'活动互动与用户体验',exact:true}).waitFor();
- assert.equal(await page.locator('.simple-fold[open]').count(),0);
- await page.locator('.simple-fold summary').filter({hasText:'产品亮点和优势'}).click();
- assert.equal(await page.locator('.scene-advantages>div').count(),4);
- await page.getByRole('button',{name:'返回场景分类',exact:true}).click();
- await page.getByRole('button',{name:'返回AI影像馆',exact:true}).click();
- await page.locator('main[data-route="/hall"]').waitFor();
- await page.getByRole('link',{name:'预览体验',exact:true}).click();
+ await route('/hall');await screenshot('hall-mobile');
+ // This checks the existing local interaction only, without treating it as a live generation service.
+ await page.locator('.preview-slide').first().getByRole('link',{name:/^(立即体验|预览体验)$/}).click();
  const next=page.getByRole('button',{name:/下一步：准备照片/});
  assert.equal(await next.isDisabled(),true);
  for(const x of ['福田CBD','科技研发','调酒师'])await page.getByRole('button',{name:x,exact:true}).click();
@@ -93,8 +127,9 @@ try {
  assert.equal(await page.locator('.preview-slide').count(),4);
  assert.equal(await page.locator('.sample-pending').count(),4);
  assert.equal(await page.locator('.preview-slide video').count(),0);
- assert.equal(await page.locator('.product-introduction').getAttribute('open'),null);
- await screenshot('guangdang-bespoke-mobile');
+ await assertBusinessFolds();
+ await assertAspect(page.locator('.slide-media'),16/9,'bespoke covers must be 16:9');
+ await screenshot('bespoke-mobile');
  await page.locator('.preview-slide').first().getByRole('link',{name:'了解创作',exact:true}).click();
  await page.getByRole('heading',{name:'人物故事',exact:true}).waitFor();
  await page.getByRole('link',{name:'咨询定制',exact:true}).click();
@@ -108,6 +143,7 @@ try {
  assert.equal(await page.evaluate(()=>localStorage.length),0);
  await route('/works');assert.equal(await page.locator('.work-card').count(),6);
  await page.getByRole('button',{name:'加载更多',exact:true}).click();assert.equal(await page.locator('.work-card').count(),8);
+ await assertWorkGrid();await screenshot('works-grid-mobile');
  await page.getByRole('button',{name:'高定AI影像',exact:true}).click();assert.equal(await page.locator('.work-card').count(),4);
  await page.getByLabel('作品分类',{exact:true}).selectOption('family');assert.equal(await page.locator('.work-card').count(),1);
  await page.locator('.work-card').click();await page.getByRole('dialog').waitFor();
@@ -115,30 +151,29 @@ try {
  await page.getByRole('button',{name:'已发布作品',exact:true}).click();await page.getByRole('heading',{name:'真实作品待上架',exact:true}).waitFor();
  for(const id of ['brand','event','team','campus','person','family','enterprise','city']){
   await route(`/category/${id}`);assert.equal(await page.locator('.simple-fold[open]').count(),0);
+  assert.equal(await page.getByText(/^(体验链路|创作链路)$/).count(),0);
   await page.locator('.simple-fold summary').filter({hasText:'产品亮点和优势'}).click();
-  assert.equal(await page.locator('.scene-advantages>div').count(),4);await noOverflow();
+  assert.equal(await page.locator('.scene-advantages>div').count(),4);await loadImages(page.locator('.detail-cover img'));await noOverflow();
  }
  await route('/category/city');
- assert.match(await page.locator('.detail-cover img').getAttribute('src'),/dongmen-history\/dongmen-pillars-1920\.webp$/);
- await page.locator('.history-disclosure summary').click();
- assert.equal(await page.locator('.history-photo').count(),5);
- await page.getByRole('button',{name:'放大查看东门街区标识',exact:true}).click();
- assert.equal(await page.getByRole('button',{name:'上一张',exact:true}).isDisabled(),true);
- await page.getByRole('button',{name:'下一张',exact:true}).click();
- await page.getByRole('dialog').getByRole('heading',{name:'东门街头钟景',exact:true}).waitFor();
- await page.getByRole('button',{name:'上一张',exact:true}).click();
- await page.getByRole('dialog').getByRole('heading',{name:'东门街区标识',exact:true}).waitFor();
- await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
- await route('/category/event');await screenshot('guangdang-event-mobile');
+ assert.match(await page.locator('.detail-cover img').getAttribute('src'),/guangdang-v2\/city-1920\.webp$/);
+ assert.equal(await page.locator('.history-disclosure,.history-photo').count(),0,'historical gallery should be removed from page references');
+ assert.equal(await page.locator('main img[src*="dongmen-history"], main img[srcset*="dongmen-history"]').count(),0);
+ await screenshot('city-mobile');
+ for(const business of ['hall','bespoke']){await route(`/scenes/${business}`);await assertBusinessFolds();assert.equal(await page.locator('.simple-scene-card').count(),0,'legacy scene URL should return to its business page');}
+ await route('/category/event');await screenshot('event-mobile');
  await route('/category/not-found');await page.getByRole('heading',{name:'暂时没有这个页面',exact:true}).waitFor();
  for(const width of [360,375,390,430,768,1440]){
   await page.setViewportSize({width,height:width>700?1000:844});
-  for(const p of ['/','/hall','/bespoke','/scenes/hall','/scenes/bespoke','/category/city','/works','/cooperate','/mine']){await route(p);await noOverflow();}
+  for(const path of ['/','/hall','/bespoke','/scenes/hall','/scenes/bespoke','/category/city','/works','/cooperate','/mine']){await route(path);await noOverflow();}
+  await route('/hall');await assertAspect(page.locator('.slide-media'),16/9,`theme covers at ${width}px`);
+  await route('/works');await page.getByRole('button',{name:'加载更多',exact:true}).click();await assertWorkGrid();
  }
- await page.setViewportSize({width:1440,height:1000});await route('/');await screenshot('guangdang-home-desktop');
+ await page.setViewportSize({width:1440,height:1000});await route('/');await screenshot('home-desktop');
+ await route('/works');await screenshot('works-grid-desktop');
  await page.setViewportSize({width:390,height:844});
  await page.route('**/images/guangdang-v2/person-*.webp',r=>r.abort());await route('/category/person');
  await page.getByRole('img',{name:/图片暂时无法加载/}).waitFor();
- assert.deepEqual(errors,[],'browser errors');assert.deepEqual(broken,[],'broken assets');
- console.log(JSON.stringify({result:'PASS',singleScreenHome:homeSizes,viewports:[360,375,390,430,768,1440],flows:['首页提问与双入口','原生触屏横滑、按钮与键盘切换','产品简介默认折叠','场景分类与详情下钻','高定样品待上架状态','模板必填与本机照片预览','摘要未发送','作品筛选分页与空状态','八类优势按需展开','东门5张资料图及放大翻页','无效链接和图片降级'],browserErrors:errors,brokenAssets:broken}));
+ assert.deepEqual(errors,[],'browser errors');assert.deepEqual(broken,[],'broken assets');assert.deepEqual(historicalRequests,[],'no historical photo should be requested by any page');
+ console.log(JSON.stringify({result:'PASS',singleScreenHome:homeSizes,viewports:[360,375,390,430,768,1440],uniqueThemeImages:{urls:new Set(coverSources).size,pixels:new Set(fingerprints).size},flows:['首页一屏双入口','轮播16:9、触屏横滑、按钮和键盘切换','简介与优势两项默认折叠','旧场景链接返回业务页','高定样品待上架','本机照片与授权校验','需求摘要未发送','作品4:3等高网格、筛选、分页与空态','八类优势按需展开','城市图恢复且历史资料请求为零','无效链接和图片降级'],browserErrors:errors,brokenAssets:broken,historicalRequests}));
 } finally {await browser.close();server?.kill('SIGTERM');}
