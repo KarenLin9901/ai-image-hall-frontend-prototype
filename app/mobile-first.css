@@ -103,6 +103,12 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex="0"]:focus-
 .experience-panel { font-size:15px; }
 .option { font-size:14px; min-height:44px; }
 .toast { font-size:14px; }
+.theme-config { max-width:760px; margin:auto; }
+.theme-config-heading { display:flex; flex-direction:column; align-items:flex-start; gap:10px; margin-bottom:22px; }
+.config-state { display:inline-flex; padding:6px 11px; font-size:14px; line-height:1.5; border:1px solid #8da7d63b; border-radius:7px; color:#c2d3ee; background:#142139; }
+.theme-config .experience-panel { padding:28px; }
+.theme-config .step-tabs { padding-bottom:20px; margin-bottom:22px; }
+.theme-config .summary-list>div { font-size:15px; gap:18px; }
 
 @media(max-width:700px) {
  :root { --header-height:64px; --nav-height:calc(72px + env(safe-area-inset-bottom,0px)); }
@@ -167,6 +173,9 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex="0"]:focus-
  .step-tabs>span { font-size:13px; gap:4px; }
  .step-tabs b { width:21px; height:21px; flex-shrink:0; }
  .experience-panel { padding:20px; }
+ .theme-config .experience-panel { padding:20px; }
+ .theme-config .experience-panel fieldset { margin:22px 0; }
+ .theme-config .experience-panel legend { font-size:16px; }
  .cooperate-grid .demand-form { padding:22px; }
  .gallery-controls { align-items:flex-start; flex-direction:column; }
  .masonry { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 12px; columns:unset; }

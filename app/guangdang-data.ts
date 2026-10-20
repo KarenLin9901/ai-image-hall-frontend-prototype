@@ -56,19 +56,71 @@ export const businessProfiles:Record<Business,{positioning:string;advantages:str
 };
 export type ShowcaseSlide={id:string;title:string;image:string;to:string;action:string;media?:Media;pending?:boolean};
 export function getShowcaseSlides(business:Business):ShowcaseSlide[]{
- if(business==='hall')return [
-  {id:'belike-preview',title:'我的深圳生活 belike',image:reference(4),to:'/experience/brand',action:'预览体验'},
-  ...themes.map(theme=>({id:theme.id,title:theme.title,image:theme.image,to:`/theme/${theme.categoryId}/${theme.id.split('-').at(-1)}`,action:'了解主题'})),
- ];
+ if(business==='hall')return themeConfigurations.map(theme=>({id:theme.id,title:theme.title,image:theme.image,to:experiencePath(theme.categoryId,theme.id),action:'立即体验'}));
  const ready=publishedWorks.filter(w=>w.business==='bespoke'&&w.displayAuthorized&&w.status==='published'&&w.media.type==='video');
  if(ready.length)return ready.map(w=>({id:w.id,title:w.title,image:w.media.poster||reference(categoryById.get(w.categoryId)?.image||8),to:`/category/${w.categoryId}`,action:'观看样品',media:w.media}));
  return categories.filter(c=>c.business==='bespoke').map(c=>({id:`pending-${c.id}`,title:c.title,image:reference(c.image),to:`/category/${c.id}`,action:'了解创作',pending:true}));
 }
 // These are explicitly illustrative layout entries, never published customer works.
 export const illustrativeWorks = categories.map(c => ({ id:`layout-${c.id}`,categoryId:c.id,title:c.business==='hall'?c.themes[0]:c.title,business:c.business,image:c.business==='hall'?themeImages[`${c.id}-0`]:reference(c.image) }));
-export const templateEntries = [{ id:'shenzhen-belike',name:'我的深圳生活 belike',status:'coming-soon' as const,url:null,categoryId:'brand',description:'现有体验产品接入位。正式入口与身份衔接确认后开放。' }];
-export const exampleOptions = [
+export const templateEntries = [{ id:'shenzhen-belike',name:'我的深圳生活 belike',status:'coming-soon' as const,url:null,categoryId:'brand',description:'真实生成尚未开放。' }];
+export type OptionGroup={title:string;items:string[]};
+export const exampleOptions:OptionGroup[] = [
  {title:'工作地点',items:['福田CBD','蛇口园区','东门商圈']},
  {title:'白天的我',items:['科技研发','职场法务','创意设计']},
  {title:'夜晚的我',items:['调酒师','驻唱歌手','运动爱好者']},
 ];
+export const configurationOptions:Record<string,OptionGroup[]>={
+ 'shenzhen-belike':exampleOptions,
+ 'brand-0':[
+  {title:'城市片场',items:['深圳湾','福田CBD','东门街区']},
+  {title:'你的身份',items:['新深圳人','追梦青年','城市探索者']},
+  {title:'影像风格',items:['都市电影','轻快纪实','未来科技']},
+ ],
+ 'brand-1':[
+  {title:'代言场景',items:['品牌发布','产品推广','城市推荐']},
+  {title:'主角身份',items:['品牌主理人','体验推荐官','员工代言人']},
+  {title:'表达风格',items:['专业自信','年轻活力','时尚电影']},
+ ],
+ 'event-0':[
+  {title:'活动类型',items:['品牌发布会','行业展会','城市庆典']},
+  {title:'高光瞬间',items:['精彩登场','现场互动','合影留念']},
+  {title:'活动氛围',items:['热烈动感','精致时尚','温暖纪念']},
+ ],
+ 'event-1':[
+  {title:'节日主题',items:['新春祝福','中秋团圆','生日纪念']},
+  {title:'祝福对象',items:['送给自己','家人朋友','团队伙伴']},
+  {title:'影像风格',items:['国潮喜庆','温暖治愈','梦幻派对']},
+ ],
+ 'team-0':[
+  {title:'成长节点',items:['入职启程','技能进阶','周年纪念']},
+  {title:'职业领域',items:['科技研发','创意设计','服务运营']},
+  {title:'人物气质',items:['专业自信','活力进取','温暖真实']},
+ ],
+ 'team-1':[
+  {title:'团队时刻',items:['项目完成','周年庆祝','团建出游']},
+  {title:'团队精神',items:['默契协作','创新突破','温暖陪伴']},
+  {title:'影像风格',items:['热血电影','轻快纪实','温暖纪念']},
+ ],
+ 'campus-0':[
+  {title:'毕业阶段',items:['大学毕业','高中毕业','社群结业']},
+  {title:'青春场景',items:['毕业礼堂','校园草坪','教室走廊']},
+  {title:'纪念气质',items:['青春热血','温暖怀旧','清新文艺']},
+ ],
+ 'campus-1':[
+  {title:'校园故事',items:['课堂日常','社团活动','校园漫游']},
+  {title:'记忆主角',items:['同窗好友','老师与我','社群伙伴']},
+  {title:'影像风格',items:['清新纪实','青春电影','温暖手账']},
+ ],
+};
+export type ThemeConfiguration={id:string;categoryId:string;title:string;image:string;options:OptionGroup[]};
+export const themeConfigurations:ThemeConfiguration[]=[
+ {id:'shenzhen-belike',categoryId:'brand',title:'我的深圳生活 belike',image:reference(4),options:exampleOptions},
+ ...themes.map(theme=>({id:theme.id,categoryId:theme.categoryId,title:theme.title,image:theme.image,options:configurationOptions[theme.id]})),
+];
+const defaultConfigurationIds:Record<string,string>={brand:'shenzhen-belike',event:'event-0',team:'team-0',campus:'campus-0'};
+export const getThemeConfiguration=(categoryId:string,themeId?:string)=>themeConfigurations.find(theme=>theme.categoryId===categoryId&&theme.id===(themeId||defaultConfigurationIds[categoryId]));
+export const experiencePath=(categoryId:string,themeId?:string)=>{
+ const theme=getThemeConfiguration(categoryId,themeId);
+ return theme?`/experience/${theme.categoryId}/${theme.id}`:'/hall';
+};

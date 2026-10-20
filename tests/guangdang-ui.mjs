@@ -59,6 +59,32 @@ const assertWorkGrid=async()=>{
  for(const box of boxes){const key=Math.round(box.x);const column=columns.get(key)||[];column.push(box);columns.set(key,column);}
  for(const column of columns.values())for(let i=1;i<column.length;i++)assert.ok(column[i].y>=column[i-1].y+column[i-1].height,'grid cards should not overlap');
 };
+const directThemes=[
+ {id:'shenzhen-belike',category:'brand',title:'我的深圳生活 belike'},
+ {id:'brand-0',category:'brand',title:'来了就是深圳人'},
+ {id:'brand-1',category:'brand',title:'我为品牌代言'},
+ {id:'event-0',category:'event',title:'我的活动高光时刻'},
+ {id:'event-1',category:'event',title:'专属节日影像'},
+ {id:'team-0',category:'team',title:'我的职场成长影像'},
+ {id:'team-1',category:'team',title:'我们团队的专属记忆'},
+ {id:'campus-0',category:'campus',title:'我的毕业纪念影像'},
+ {id:'campus-1',category:'campus',title:'我们的校园记忆'},
+];
+const themePath=theme=>`/experience/${theme.category}/${theme.id}`;
+const assertDirectConfig=async theme=>{
+ await page.locator(`main[data-route="${themePath(theme)}"]`).waitFor();
+ await page.locator('.theme-config').waitFor();
+ await page.getByRole('heading',{name:theme.title,exact:true}).waitFor();
+ assert.ok(await page.getByText('生成未开放',{exact:true}).isVisible(),'generation status must be visible on the configuration screen');
+ assert.equal(await page.locator('aside.template-info').count(),0,'no informational preview panel before configuration');
+ assert.equal(await page.getByRole('heading',{name:'看看，你的影像如何开始',exact:true}).count(),0,'no preview introduction before configuration');
+ assert.equal(await page.locator('.option-row').count(),3,'each theme needs its own three configuration groups');
+ assert.equal(await page.getByRole('button',{name:/下一步：准备照片/}).isDisabled(),true,'new theme configuration should start with no choices');
+ const firstOptions=await page.locator('.option-row').evaluateAll(rows=>rows.map(row=>row.querySelector('button')?.textContent?.trim()));
+ assert.ok(firstOptions.every(Boolean),'each configuration group has a selectable option');
+ await noOverflow();
+ return firstOptions;
+};
 try {
  const homeSizes=[{width:360,height:640},{width:375,height:667},{width:390,height:844},{width:430,height:932}];
  for(const size of homeSizes){
@@ -107,8 +133,47 @@ try {
  await page.waitForFunction(()=>{const e=document.querySelector('.experience-carousel');const width=e.firstElementChild.getBoundingClientRect().width+12;return Math.abs(e.scrollLeft-Math.round(e.scrollLeft/width)*width)<1;});
  await cdp.detach();
  await route('/hall');await screenshot('hall-mobile');
- // This checks the existing local interaction only, without treating it as a live generation service.
- await page.locator('.preview-slide').first().getByRole('link',{name:/^(立即体验|预览体验)$/}).click();
+ // Every card must enter its own configuration directly, without a theme-description intermediary.
+ const themeOptions=[];
+ for(const theme of directThemes){
+  await route('/hall');
+  const card=page.locator(`.preview-slide[data-slide="${theme.id}"]`);
+  await card.getByRole('heading',{name:theme.title,exact:true}).waitFor();
+  const experience=card.getByRole('link',{name:'立即体验',exact:true});
+  assert.equal(await experience.getAttribute('href'),`#${themePath(theme)}`);
+  await experience.click();
+  themeOptions.push(await assertDirectConfig(theme));
+  await page.locator('.back-button').filter({hasText:'返回AI影像馆'}).click();
+  await page.locator('main[data-route="/hall"]').waitFor();
+ }
+ assert.equal(new Set(themeOptions.map(options=>JSON.stringify(options))).size,9,'theme configuration options must differ rather than sharing the belike configuration');
+ // Legacy theme and category URLs remain usable, and their CTA skips the former preview.
+ for(const theme of directThemes.filter(theme=>theme.id!=='shenzhen-belike')){
+  await route(`/theme/${theme.category}/${theme.id.split('-').at(-1)}`);
+  await page.getByRole('heading',{name:theme.title,exact:true}).waitFor();
+  const experience=page.locator('.scene-cta').filter({hasText:'立即体验'});
+  assert.equal(await experience.getAttribute('href'),`#${themePath(theme)}`);
+  await experience.click();await assertDirectConfig(theme);
+ }
+ for(const [category,id] of [['brand','shenzhen-belike'],['event','event-0'],['team','team-0'],['campus','campus-0']]){
+  const theme=directThemes.find(theme=>theme.id===id);
+  await route(`/experience/${category}`);
+  await page.locator('.theme-config').waitFor();
+  await page.getByRole('heading',{name:theme.title,exact:true}).waitFor();
+  assert.ok(await page.getByText('生成未开放',{exact:true}).isVisible());
+  assert.equal(await page.locator('aside.template-info').count(),0);
+  await route(`/category/${category}`);
+  const experience=page.locator('.scene-cta').filter({hasText:'立即体验'});
+  assert.equal(await experience.getAttribute('href'),`#${themePath(theme)}`);
+  await experience.click();await assertDirectConfig(theme);
+ }
+ for(const invalidPath of ['/experience/brand/not-found','/experience/event/brand-0','/experience/person/shenzhen-belike','/experience/not-found']){
+  await route(invalidPath);
+  await page.getByRole('heading',{name:'暂时没有这个页面',exact:true}).waitFor();
+  assert.equal(await page.locator('.theme-config').count(),0,'invalid theme must not fall back to an unrelated configuration');
+ }
+ // The confirmed belike photo/authorization flow remains local and cannot generate a real task.
+ await route(themePath(directThemes[0]));await assertDirectConfig(directThemes[0]);
  const next=page.getByRole('button',{name:/下一步：准备照片/});
  assert.equal(await next.isDisabled(),true);
  for(const x of ['福田CBD','科技研发','调酒师'])await page.getByRole('button',{name:x,exact:true}).click();
@@ -119,10 +184,32 @@ try {
  await page.getByRole('button',{name:'女性',exact:true}).click();
  assert.equal(await photoNext.isDisabled(),true);
  await page.getByRole('checkbox',{name:'我确认已获得这张照片的使用授权',exact:true}).check();
+ assert.equal(await photoNext.isDisabled(),false);
+ await page.getByLabel('选择照片').setInputFiles('public/images/v4/live-longhua.jpg');
+ assert.equal(await page.getByRole('checkbox',{name:'我确认已获得这张照片的使用授权',exact:true}).isChecked(),false,'changing the selected photo must require new authorization');
+ assert.equal(await photoNext.isDisabled(),true,'a previous photo authorization must not enable the replacement photo');
+ await page.getByRole('checkbox',{name:'我确认已获得这张照片的使用授权',exact:true}).check();
+ assert.equal(await photoNext.isDisabled(),false);
  await photoNext.click();
  await page.getByRole('heading',{name:'确认你的选择',exact:true}).waitFor();
- assert.equal(await page.getByRole('button',{name:'即将开放生成',exact:true}).isDisabled(),true);
+ assert.equal(await page.getByRole('button',{name:'生成暂未开放',exact:true}).isDisabled(),true);
+ assert.match(await page.locator('.summary-photo').innerText(),/我的深圳生活 belike/);
  await noOverflow();
+ // A different theme must keep its own title and chosen content through the photo and confirmation steps.
+ const campusTheme=directThemes.find(theme=>theme.id==='campus-1');
+ await route(themePath(campusTheme));
+ const campusOptions=await assertDirectConfig(campusTheme);
+ await screenshot('theme-config-mobile');
+ for(const row of await page.locator('.option-row').all())await row.getByRole('button').first().click();
+ await page.getByRole('button',{name:/下一步：准备照片/}).click();
+ await page.getByLabel('选择照片').setInputFiles('public/images/v4/live-futian.jpg');
+ await page.getByRole('button',{name:'女性',exact:true}).click();
+ await page.getByRole('checkbox',{name:'我确认已获得这张照片的使用授权',exact:true}).check();
+ await page.getByRole('button',{name:'下一步：确认信息',exact:true}).click();
+ await page.getByRole('heading',{name:'确认你的选择',exact:true}).waitFor();
+ assert.equal(await page.locator('.summary-photo strong').textContent(),campusTheme.title);
+ assert.deepEqual(await page.locator('.summary-list dd').allTextContents(),campusOptions);
+ assert.equal(await page.getByRole('button',{name:'生成暂未开放',exact:true}).isDisabled(),true);
  await route('/bespoke');
  assert.equal(await page.locator('.preview-slide').count(),4);
  assert.equal(await page.locator('.sample-pending').count(),4);
@@ -175,5 +262,5 @@ try {
  await page.route('**/images/guangdang-v2/person-*.webp',r=>r.abort());await route('/category/person');
  await page.getByRole('img',{name:/图片暂时无法加载/}).waitFor();
  assert.deepEqual(errors,[],'browser errors');assert.deepEqual(broken,[],'broken assets');assert.deepEqual(historicalRequests,[],'no historical photo should be requested by any page');
- console.log(JSON.stringify({result:'PASS',singleScreenHome:homeSizes,viewports:[360,375,390,430,768,1440],uniqueThemeImages:{urls:new Set(coverSources).size,pixels:new Set(fingerprints).size},flows:['首页一屏双入口','轮播16:9、触屏横滑、按钮和键盘切换','简介与优势两项默认折叠','旧场景链接返回业务页','高定样品待上架','本机照片与授权校验','需求摘要未发送','作品4:3等高网格、筛选、分页与空态','八类优势按需展开','城市图恢复且历史资料请求为零','无效链接和图片降级'],browserErrors:errors,brokenAssets:broken,historicalRequests}));
+ console.log(JSON.stringify({result:'PASS',singleScreenHome:homeSizes,viewports:[360,375,390,430,768,1440],uniqueThemeImages:{urls:new Set(coverSources).size,pixels:new Set(fingerprints).size},directThemeConfigurations:directThemes.length,distinctThemeOptions:new Set(themeOptions.map(options=>JSON.stringify(options))).size,flows:['首页一屏双入口','轮播16:9、触屏横滑、按钮和键盘切换','九卡立即进入各自配置','旧主题与分类入口兼容、非法配置404','生成未开放且最终按钮禁用','简介与优势两项默认折叠','旧场景链接返回业务页','高定样品待上架','本机照片与授权校验','需求摘要未发送','作品4:3等高网格、筛选、分页与空态','八类优势按需展开','城市图恢复且历史资料请求为零','无效链接和图片降级'],browserErrors:errors,brokenAssets:broken,historicalRequests}));
 } finally {await browser.close();server?.kill('SIGTERM');}
