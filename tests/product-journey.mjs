@@ -71,11 +71,33 @@ try {
   assert.match(await page.locator('.home-choice[href="#/hall"]').innerText(), /选主题体验/);
   assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /专属故事定制/);
   const nav = page.getByRole('navigation', { name: '底部导航' });
-  assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '主题体验', '商务合作']);
+  assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '主题体验', '商务合作', '我']);
+  assert.deepEqual(await nav.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href'))), ['#/', '#/hall', '#/cooperate', '#/mine']);
   assert.equal(await nav.getByRole('link', { name: '我的', exact: true }).count(), 0);
   assert.equal(await nav.getByRole('link', { name: '影像作品', exact: true }).count(), 0);
+  for (const viewport of [{ width: 360, height: 640 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    const layout = await page.evaluate(() => ({
+      height: innerHeight,
+      scrollHeight: document.documentElement.scrollHeight,
+      navTop: document.querySelector('.mobile-nav').getBoundingClientRect().top,
+      choicesBottom: document.querySelector('.home-choice:last-child').getBoundingClientRect().bottom,
+    }));
+    assert.ok(layout.scrollHeight <= layout.height + 1, `Four-item navigation must preserve one-screen home: ${JSON.stringify({ viewport, ...layout })}`);
+    assert.ok(layout.choicesBottom <= layout.navTop, `Home actions must remain clear of four-item navigation: ${JSON.stringify({ viewport, ...layout })}`);
+    await assertNoOverflow(`Home ${viewport.width}x${viewport.height}`);
+  }
+  await nav.getByRole('link', { name: '我', exact: true }).tap();
+  await waitRoute('/mine');
+  await page.getByRole('heading', { name: '我的', exact: true }).waitFor();
+  assert.deepEqual(await nav.locator('a.active').allTextContents(), ['我']);
+  assert.equal(await nav.getByRole('link', { name: '我', exact: true }).getAttribute('aria-current'), 'page');
+  assert.equal(await page.locator('.mine-item').getByText('暂未开放', { exact: true }).count(), 2);
+  await page.getByRole('button', { name: '返回首页', exact: true }).tap();
+  await waitRoute('/');
+  assert.deepEqual(await nav.locator('a.active').allTextContents(), ['首页']);
   await screenshot('home');
-  report.checks.push('One-screen home identifies the two service actions and has three actionable primary destinations');
+  report.checks.push('Home remains one screen at 360x640 and 390x844; four primary links include the exact label 我, which opens the pending account page, highlights correctly, and returns home');
 
   // The overview exposes every theme in one place, and all nine still enter the correct direct configuration.
   for (const theme of themes) {
@@ -203,7 +225,7 @@ try {
 
   for (const path of ['/mine', '/works']) { await route(path); assert.equal(await page.getByRole('heading', { name: '暂时没有这个页面', exact: true }).count(), 0); }
   assert.deepEqual(await page.evaluate(() => ({ local: localStorage.length, session: sessionStorage.length })), { local: 0, session: 0 });
-  report.checks.push('Lower-priority Mine and Works routes remain compatible; no plan or personal information is persisted to browser storage');
+  report.checks.push('Mine and Works routes remain compatible; no plan or personal information is persisted to browser storage');
   // Cancelling browser Back must restore the history position without overwriting its original destination.
   // A query change forces a clean document so only these two theme entries participate in this check.
   const historyUrl = new URL(base);

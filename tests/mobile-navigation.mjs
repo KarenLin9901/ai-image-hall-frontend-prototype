@@ -169,9 +169,10 @@ try {
     result.checks.push('All step transitions reset scroll; previous choices, photo, and consent survive previous/modify actions');
     await screenshot('confirmation');
 
-    for (const destination of [{ title: '首页', path: '/' }, { title: '商务合作', path: '/cooperate' }]) {
+    for (const destination of [{ title: '首页', path: '/' }, { title: '商务合作', path: '/cooperate' }, { title: '我', path: '/mine' }]) {
       await page.getByRole('navigation', { name: '底部导航' }).getByRole('link', { name: destination.title, exact: true }).tap();
       await waitRoute(destination.path); await atTop(`bottom navigation to ${destination.path}`);
+      assert.deepEqual(await page.getByRole('navigation', { name: '底部导航' }).locator('a.active').allTextContents(), [destination.title]);
       await page.goBack(); await waitRoute(pathFor(theme));
       await atTop(`browser Back from ${destination.path}`);
       await assertConfirmation(theme, choices, secondPhoto);
@@ -179,7 +180,7 @@ try {
       assert.equal(await page.getByRole('checkbox').isChecked(), true);
       await bottomTap('下一步：确认信息', `confirm retained draft after ${destination.path}`);
     }
-    result.checks.push('Bottom navigation to Home and Cooperation followed by browser Back preserves the same complete draft');
+    result.checks.push('Bottom navigation to Home, Cooperation, and Mine followed by browser Back preserves the same complete draft');
     await page.getByRole('link', { name: '更换主题', exact: true }).tap(); await waitRoute('/hall');
     assert.equal(await page.locator('.carousel-count').textContent(), '9 / 9');
     await moveTo(themes[1].index);

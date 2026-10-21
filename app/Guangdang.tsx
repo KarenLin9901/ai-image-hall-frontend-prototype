@@ -60,8 +60,8 @@ function SampleCarousel({business,memory}:{business:Business;memory:BrowsingMemo
 function Catalogue({business,memory}:{business:Business;memory:BrowsingMemory}){
  const profile=businessProfiles[business];
  return <div className="business-page"><h1 className="business-title">{businessName(business)}</h1><SampleCarousel business={business} memory={memory}/><div className="business-secondary">
- <details className="simple-fold product-introduction"><summary>产品简介<Icon name="arrow" size={20}/></summary><div className="fold-content"><p>{profile.positioning}</p></div></details>
- <details className="simple-fold product-advantages"><summary>产品优势<Icon name="arrow" size={20}/></summary><div className="fold-content"><ul>{profile.advantages.map(item=><li key={item}>{item}</li>)}</ul></div></details>
+ <details className="simple-fold product-introduction"><summary>产品简介<Icon name="arrow" size={20}/></summary><div className="fold-content"><p>{profile.positioning}</p><ul>{profile.advantages.map(item=><li key={item}>{item}</li>)}</ul></div></details>
+ <details className="simple-fold product-advantages"><summary>产品优势<Icon name="arrow" size={20}/></summary><div className="fold-content scene-advantages">{profile.highlights.map(item=><div key={item.title}><h2>{item.title}</h2><p>{item.description}</p></div>)}</div></details>
  </div></div>;
 }
 
@@ -239,7 +239,7 @@ export default function Guangdang(){
  }
  const path=route.split('?')[0];const parts=path.split('/').filter(Boolean);const c=categoryById.get(parts[1]||'');
  const configuration=configurationForRoute(route);
- const active=path==='/'?'home':path==='/hall'||parts[0]==='experience'||c?.business==='hall'?'hall':path.startsWith('/cooperate')?'cooperate':'';
+ const active=path==='/'?'home':path==='/hall'||parts[0]==='experience'||c?.business==='hall'?'hall':path.startsWith('/cooperate')?'cooperate':path.startsWith('/mine')?'mine':'';
  let page:ReactNode;
  if(path==='/')page=<Home/>;
  else if(path==='/hall'||path==='/bespoke')page=<Catalogue key={path} business={path.slice(1) as Business} memory={memory.current}/>;
@@ -254,13 +254,13 @@ export default function Guangdang(){
   <a href="#main" className="skip-link" onClick={e=>{e.preventDefault();main.current?.focus();}}>跳到主要内容</a>
   <header className="topbar"><div className="topbar-inner">
    <a className="brand" href="#/" aria-label="咣当首页"><img className="brand-logo" src={asset('images/brand/guangdang-logo.png')} alt="咣当原品牌Logo"/><span>AI影像</span></a>
-   <nav className="desktop-nav" aria-label="主导航"><a href="#/" className={active==='home'?'active':''}>首页</a><a href="#/hall" className={active==='hall'?'active':''}>主题体验</a><a href="#/cooperate" className={active==='cooperate'?'active':''}>商务合作</a></nav>
+   <nav className="desktop-nav" aria-label="主导航"><a href="#/" className={active==='home'?'active':''}>首页</a><a href="#/hall" className={active==='hall'?'active':''}>主题体验</a><a href="#/cooperate" className={active==='cooperate'?'active':''}>商务合作</a><a href="#/mine" className={active==='mine'?'active':''}>我</a></nav>
    <div className="header-actions"><button className="icon-button about-button" onClick={()=>setAbout(true)} aria-label="关于原型"><Icon name="spark" size={18}/></button><button className="icon-button share-button" onClick={sharePage} aria-label="复制当前页面链接"><Icon name="copy" size={19}/></button></div>
   </div></header>
   <main id="main" data-route={path} ref={main} tabIndex={-1} key={path} className={'page-shell compact-shell '+(path==='/'?'is-home':'')+' '+(path==='/hall'||path==='/bespoke'?'is-business':'')}>
    {parts.length>0?<button className="back-button" onClick={()=>{if(parts[0]==='experience')go('/hall');else if(parts[0]==='theme')go('/category/'+c?.id);else if(parts[0]==='category')go(c?'/'+c.business:'/');else go('/');}}><Icon name="back" size={16}/>返回{parts[0]==='experience'?'AI影像馆':parts[0]==='category'?businessName(c?.business||'hall'):parts[0]==='theme'?'主题详情':'首页'}</button>:null}{page}
   </main>
-  <nav className="mobile-nav" aria-label="底部导航">{([{id:'home',title:'首页',to:'/'},{id:'hall',title:'主题体验',to:'/hall'},{id:'cooperate',title:'商务合作',to:'/cooperate'}] as const).map(item=><a key={item.id} href={'#'+item.to} className={active===item.id?'active':''} aria-current={active===item.id?'page':undefined}><Icon name={item.id==='hall'?'image':item.id}/><span>{item.title}</span></a>)}</nav>
+  <nav className="mobile-nav" aria-label="底部导航">{([{id:'home',title:'首页',to:'/'},{id:'hall',title:'主题体验',to:'/hall'},{id:'cooperate',title:'商务合作',to:'/cooperate'},{id:'mine',title:'我',to:'/mine'}] as const).map(item=><a key={item.id} href={'#'+item.to} className={active===item.id?'active':''} aria-current={active===item.id?'page':undefined}><Icon name={item.id==='hall'?'image':item.id}/><span>{item.title}</span></a>)}</nav>
   {share?<div className="toast" role="status">{share}</div>:null}
   {about?<Modal title="关于本次改版预览" onClose={()=>setAbout(false)}><p>AI影像馆可自行配置单人主题；高定AI影像围绕专属故事整理创作需求。</p><div className="about-links"><a className="button secondary" href="#/works" onClick={()=>setAbout(false)}>影像作品示意</a><a className="button secondary" href="#/mine" onClick={()=>setAbout(false)}>我的（待开放）</a></div><p>场景配图不代表真实案例，高定样品待上架。真实生成、咨询渠道和账户服务尚未开放。</p><p className="muted">配置只在本次浏览中临时保留；确认更换主题或刷新页面会清除，不会上传照片或提交需求。</p><button className="button wide" onClick={()=>setAbout(false)}>继续浏览</button></Modal>:null}
   {pendingRoute?<Modal title="更换主题？" onClose={()=>setPendingRoute(null)}><p>更换后，当前主题的选择和本机照片将被清空。复制的文字配置可继续留存。</p><div className="action-row"><button className="button secondary" onClick={()=>setPendingRoute(null)}>保留当前配置</button><button className="button" onClick={confirmThemeChange}>更换并清空</button></div></Modal>:null}

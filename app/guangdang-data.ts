@@ -50,9 +50,27 @@ export const themes:ThemeRecord[] = categories.flatMap(c=>c.themes.map((title,i)
 export const cases:CaseRecord[]=[];
 export const publishedWorks:PublishedWork[]=[];
 export const businessName = (b: Business) => b === 'hall' ? 'AI影像馆' : '高定AI影像';
-export const businessProfiles:Record<Business,{positioning:string;advantages:string[]}>={
- hall:{positioning:'选择单人主题，自行配置属于你的影像内容。',advantages:['以自己为主角参与故事','按主题选择内容设定','从模板开始，降低参与门槛']},
- bespoke:{positioning:'围绕真实人物与故事，整理需求并规划专属AI影像。',advantages:['围绕真实故事专属策划','整合照片、影像与口述资料','用画面与声音表达情感']},
+export const businessProfiles:Record<Business,{positioning:string;advantages:string[];highlights:Highlight[]}>={
+ hall:{
+  positioning:'选择单人主题，自行配置属于你的影像内容。',
+  advantages:['以自己为主角参与故事','按主题选择内容设定','从模板开始，降低参与门槛'],
+  highlights:[
+   {title:'以自己为主角参与故事',description:'从单人视角进入城市、活动、职场与校园主题，选择角色和内容设定，整理属于自己的影像想法。'},
+   {title:'围绕不同场景组织参与',description:'围绕品牌推广、节庆活动、员工关怀与校园纪念，规划相应的主题内容，让参与方式呼应活动目的。'},
+   {title:'从主题开始，选择更清楚',description:'先选感兴趣的主题，再按提示配置场景、身份与风格，把影像想法拆成清楚的选项，降低内容选择门槛。'},
+   {title:'共同主题，保留个人表达',description:'在统一主题下保留个人选择空间，用自己的身份、偏好和纪念心意，表达与城市、团队或校园的连接。'},
+  ],
+ },
+ bespoke:{
+  positioning:'围绕真实人物与故事，整理需求并规划专属AI影像。',
+  advantages:['围绕真实故事专属策划','整合照片、影像与口述资料','用画面与声音表达情感'],
+  highlights:[
+   {title:'真实故事，专属表达',description:'从人物经历、家庭关系、企业历程与城市记忆出发，梳理故事重点，讨论适合这段经历的叙事方向。'},
+   {title:'把零散资料整理成故事线',description:'结合照片、已有影像、文字与口述回忆，梳理时间、人物和重要节点，为后续策划建立清晰的资料线索。'},
+   {title:'为故事选择画面与声音',description:'围绕故事气质与表达重点，沟通画面、节奏、配音及声音氛围，让影像形式服务于人物和情感。'},
+   {title:'围绕纪念与传播需求策划',description:'依据个人纪念、家庭留存、企业传播或城市文化需求，沟通内容侧重、使用场景与合适的呈现形式。'},
+  ],
+ },
 };
 export type ShowcaseSlide={id:string;title:string;image:string;to:string;action:string;media?:Media;pending?:boolean};
 export function getShowcaseSlides(business:Business):ShowcaseSlide[]{
