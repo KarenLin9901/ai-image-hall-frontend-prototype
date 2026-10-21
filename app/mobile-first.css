@@ -6,6 +6,7 @@
 .back-button { font-size:14px; margin-top:8px; margin-bottom:8px; }
 .button { font-size:15px; }
 .icon-button:disabled { opacity:.3; cursor:default; }
+.header-actions .about-button { display:none; }
 a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex="0"]:focus-visible { outline:2px solid #9bcdff; outline-offset:4px; }
 
 /* One question and two choices, with no supporting copy to scan. */
