@@ -48,11 +48,11 @@ try {
     const atTop = async label => {
       await page.waitForFunction(() => window.scrollY === 0);
       const layout = await page.evaluate(() => {
-        const box = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right }; };
+        const box = selector => { const element = document.querySelector(selector); if (!element) return null; const r = element.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right }; };
         return { scrollY, header: box('.topbar'), back: box('.back-button'), heading: box('main h1'), tabs: document.querySelector('.step-tabs') ? box('.step-tabs') : null, nav: box('.mobile-nav'), overflow: document.documentElement.scrollWidth > innerWidth + 1 };
       });
       assert.equal(layout.scrollY, 0, `${label}: step/route must reset vertical scroll`);
-      assert.ok(layout.back.top >= layout.header.bottom - 1, `${label}: return button covered by sticky header ${JSON.stringify(layout)}`);
+      if (layout.back) assert.ok(layout.back.top >= layout.header.bottom - 1, `${label}: return button covered by sticky header ${JSON.stringify(layout)}`);
       assert.ok(layout.heading.top >= layout.header.bottom - 1, `${label}: title covered by sticky header`);
       assert.ok(layout.heading.bottom < layout.nav.top, `${label}: title covered by bottom navigation`);
       if (layout.tabs) {
@@ -97,8 +97,8 @@ try {
         const r = element.getBoundingClientRect(); const nav = document.querySelector('.mobile-nav').getBoundingClientRect();
         if (r.bottom > nav.top - 8) window.scrollBy({ top: r.bottom - nav.top + 16, behavior: 'instant' });
       });
-      const before = await page.evaluate(() => scrollY);
-      assert.ok(before > 0, `${label}: exercise transition after scrolling, not an already-top page`);
+      const before = await page.evaluate(() => ({ scrollY, scrollable: document.documentElement.scrollHeight > innerHeight + 1 }));
+      if (before.scrollable) assert.ok(before.scrollY > 0, `${label}: exercise transition after scrolling when the page is scrollable`);
       assert.equal(await button.isEnabled(), true, `${label}: control should be actionable`);
       await button.tap();
       await atTop(label);
@@ -106,13 +106,14 @@ try {
     const preparePhoto = async file => {
       await page.getByLabel('选择照片', { exact: true }).setInputFiles(file);
       const photo = await page.locator('.upload-box img').getAttribute('src');
-      await page.getByRole('button', { name: '女性', exact: true }).tap();
       await page.getByRole('checkbox', { name: '我确认已获得这张照片的使用授权', exact: true }).check();
       return photo;
     };
     const assertConfirmation = async (theme, expectedChoices, photo) => {
       assert.equal(await page.locator('.step-tabs .current').textContent(), '3确认信息');
-      assert.equal(await page.locator('.summary-photo strong').textContent(), theme.title);
+      assert.equal(await page.locator('main h1').textContent(), theme.title);
+      assert.equal(await page.locator('.summary-photo strong').textContent(), '已选择单人照片');
+      assert.match(await page.locator('.summary-photo').innerText(), /仅在当前浏览器中临时预览/);
       assert.deepEqual(await page.locator('.summary-list dd').allTextContents(), expectedChoices);
       assert.equal(await page.locator('.summary-photo img').getAttribute('src'), photo);
       await page.locator('.summary-photo img').evaluate(image => image.decode());
@@ -122,7 +123,7 @@ try {
     };
 
     await page.goto(base);
-    await page.getByRole('link', { name: 'AI影像馆', exact: true }).tap();
+    await page.locator('.home-choice[href="#/hall"]').tap();
     await waitRoute('/hall');
     for (const theme of themes) {
       await enter(theme);
@@ -155,7 +156,6 @@ try {
     assert.deepEqual(await page.locator('.option.selected').allTextContents(), choices);
     await bottomTap('下一步：准备照片', 'content to retained photo');
     assert.equal(await page.getByRole('checkbox').isChecked(), true);
-    assert.equal(await page.getByRole('button', { name: '女性', exact: true }).getAttribute('aria-pressed'), 'true');
     await page.getByLabel('选择照片', { exact: true }).setInputFiles('public/images/v4/live-longhua.jpg');
     const secondPhoto = await page.locator('.upload-box img').getAttribute('src');
     assert.notEqual(secondPhoto, firstPhoto);
@@ -166,10 +166,10 @@ try {
     await page.getByRole('checkbox').check();
     await bottomTap('下一步：确认信息', 'replacement photo to confirmation');
     await assertConfirmation(theme, choices, secondPhoto);
-    result.checks.push('All step transitions reset scroll; previous choices, photo, gender, and consent survive previous/modify actions');
+    result.checks.push('All step transitions reset scroll; previous choices, photo, and consent survive previous/modify actions');
     await screenshot('confirmation');
 
-    for (const destination of [{ title: '我的', path: '/mine' }, { title: '影像作品', path: '/works' }]) {
+    for (const destination of [{ title: '首页', path: '/' }, { title: '商务合作', path: '/cooperate' }]) {
       await page.getByRole('navigation', { name: '底部导航' }).getByRole('link', { name: destination.title, exact: true }).tap();
       await waitRoute(destination.path); await atTop(`bottom navigation to ${destination.path}`);
       await page.goBack(); await waitRoute(pathFor(theme));
@@ -177,13 +177,22 @@ try {
       await assertConfirmation(theme, choices, secondPhoto);
       await bottomTap('修改照片', `check retained consent after ${destination.path}`);
       assert.equal(await page.getByRole('checkbox').isChecked(), true);
-      assert.equal(await page.getByRole('button', { name: '女性', exact: true }).getAttribute('aria-pressed'), 'true');
       await bottomTap('下一步：确认信息', `confirm retained draft after ${destination.path}`);
     }
-    result.checks.push('Bottom navigation to Mine and Works followed by browser Back preserves the same complete draft');
+    result.checks.push('Bottom navigation to Home and Cooperation followed by browser Back preserves the same complete draft');
     await page.getByRole('link', { name: '更换主题', exact: true }).tap(); await waitRoute('/hall');
     assert.equal(await page.locator('.carousel-count').textContent(), '9 / 9');
-    await enter(themes[1]);
+    await moveTo(themes[1].index);
+    await page.locator(`.preview-slide[data-slide="${themes[1].id}"]`).getByRole('link', { name: '立即体验', exact: true }).tap();
+    await page.getByRole('dialog').getByRole('heading', { name: '更换主题？', exact: true }).waitFor();
+    assert.equal(await page.evaluate(url => window.__revokedObjectUrls.includes(url), secondPhoto), false, 'Opening the change-theme confirmation must preserve the old photo');
+    await page.getByRole('button', { name: '保留当前配置', exact: true }).tap();
+    await waitRoute('/hall');
+    assert.equal(await page.evaluate(url => window.__revokedObjectUrls.includes(url), secondPhoto), false, 'Cancelling theme change must preserve the old photo');
+    await page.locator(`.preview-slide[data-slide="${themes[1].id}"]`).getByRole('link', { name: '立即体验', exact: true }).tap();
+    await page.getByRole('button', { name: '更换并清空', exact: true }).tap();
+    await waitRoute(pathFor(themes[1]));
+    await atTop(`enter ${themes[1].id} after confirmed change`);
     assert.equal(await page.locator('.option.selected').count(), 0, 'A new theme must not inherit selected options');
     assert.equal(await page.getByRole('button', { name: '下一步：准备照片', exact: true }).isDisabled(), true);
     assert.equal(await page.locator('img[src^="blob:"]').count(), 0);

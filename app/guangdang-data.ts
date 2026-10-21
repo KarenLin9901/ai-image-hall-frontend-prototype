@@ -16,10 +16,10 @@ export const historicalPhotos = [
 ].map(photo=>({...photo,src:asset(`images/dongmen-history/${photo.id}-1920.webp`)}));
 export type Highlight = {title:string;description:string};
 export const highlights:Record<string,Highlight[]>={
- brand:[{title:'品牌故事，人人参与',description:'将品牌主张、城市主题与个人表达结合，让用户成为传播内容的一部分。'},{title:'主题表达更聚焦',description:'围绕一次传播目标组织模板、画面与内容选择，让体验始终服务于主题。'},{title:'适配多种传播场景',description:'可围绕产品推广、城市宣传与重大主题，策划相应的互动内容。'},{title:'从案例到体验',description:'先展示主题与效果，再引导进入已开放模板，帮助用户理解参与方式。'}],
- event:[{title:'让参与有画面',description:'围绕发布会、展会、节庆等活动，设计与现场主题呼应的个人影像体验。'},{title:'把高光时刻带走',description:'让活动记忆延伸为一份属于参与者自己的影像表达。'},{title:'玩法围绕活动定制',description:'根据活动主题、参与对象与展示场景，规划相应模板和内容选项。'},{title:'体验路径清楚',description:'通过主题介绍、效果展示和体验入口，说明如何参与；具体玩法以开放配置为准。'}],
+ brand:[{title:'品牌故事，人人参与',description:'将品牌主张、城市主题与个人表达结合，让用户成为传播内容的一部分。'},{title:'主题表达更聚焦',description:'围绕一次传播目标组织模板、画面与内容选择，让体验始终服务于主题。'},{title:'适配多种传播场景',description:'可围绕产品推广、城市宣传与重大主题，策划相应的互动内容。'},{title:'直接选择主题',description:'选好主题后直接配置单人角色与内容设定，真实品牌素材可另行整理定制需求。'}],
+ event:[{title:'让参与有画面',description:'围绕发布会、展会、节庆等活动，设计与现场主题呼应的个人影像体验。'},{title:'把高光时刻带走',description:'让活动记忆延伸为一份属于参与者自己的影像表达。'},{title:'玩法围绕活动定制',description:'根据活动主题、参与对象与展示场景，规划相应模板和内容选项。'},{title:'体验路径清楚',description:'选择活动主题后直接进入配置，以个人视角整理活动与节日设定。'}],
  team:[{title:'让每一位员工被看见',description:'从个人经历、职业身份与团队生活出发，呈现员工与企业共同成长的故事。'},{title:'文化落在具体故事里',description:'以迎新、周年纪念、团队活动等内容，表达企业文化与价值认同。'},{title:'共同记忆，也有个人表达',description:'在统一活动主题下，保留个人选择与专属影像的表达空间。'},{title:'覆盖重要团队时刻',description:'围绕入职、成长、庆祝与纪念等节点，持续规划适合团队的影像内容。'}],
- campus:[{title:'把青春留在画面里',description:'以毕业季、校庆与校园活动为线索，记录同学与伙伴共同走过的日子。'},{title:'共同主题，专属记忆',description:'让集体纪念拥有一致的视觉方向，也容纳每个人的表达。'},{title:'适合校园与社群',description:'围绕班级、学校与兴趣社群，组织相应的主题内容与参与方式。'},{title:'让纪念有情感',description:'从具体的人、地点与经历出发，让影像承载共同记忆。'}],
+ campus:[{title:'把青春留在画面里',description:'以毕业季、校庆与校园活动为主题，从个人视角表达校园记忆。'},{title:'共同主题，专属记忆',description:'让集体纪念拥有一致的视觉方向，也容纳每个人的表达。'},{title:'适合校园与社群',description:'围绕班级、学校与兴趣社群，组织相应的主题内容与参与方式。'},{title:'让纪念有情感',description:'从个人经历与情谊主题出发，让校园影像表达纪念心意。'}],
  person:[{title:'以人物为叙事中心',description:'关注一个人的经历、选择与热爱，找到值得被讲述的故事线。'},{title:'真实资料成为创作起点',description:'结合访谈、照片、文字与已有视频，梳理人物经历与表达重点。'},{title:'为故事选择影像语言',description:'根据人物气质与创作目标，讨论合适的画面、节奏和声音表达。'},{title:'专属策划贯穿创作',description:'从需求沟通到方案、制作与交付，围绕同一表达目标推进。'}],
  family:[{title:'从家庭关系出发',description:'把亲情、陪伴与共同经历放在故事中心，记录家人之间的连接。'},{title:'让旧照片重新被讲述',description:'将家庭照片、口述回忆与文字资料整理为可以延续的影像线索。'},{title:'连接不同代际的记忆',description:'围绕成长、团聚与重要人生节点，让家人共同参与故事整理。'},{title:'为珍贵时刻专属创作',description:'依据家庭资料与纪念需求，沟通适合的内容形式与交付方式。'}],
  enterprise:[{title:'从历程中找到故事',description:'梳理发展节点、重要项目与关键选择，让企业历史形成清晰叙事。'},{title:'用人物表达企业精神',description:'通过创始人、员工与团队的真实经历，呈现企业的价值理念。'},{title:'整合多种历史资料',description:'将照片、影像、文字与口述资料组织为统一的创作依据。'},{title:'围绕使用场景策划',description:'根据品牌传播、企业纪念或内部文化需求，确定内容侧重与呈现方式。'}],
@@ -51,8 +51,8 @@ export const cases:CaseRecord[]=[];
 export const publishedWorks:PublishedWork[]=[];
 export const businessName = (b: Business) => b === 'hall' ? 'AI影像馆' : '高定AI影像';
 export const businessProfiles:Record<Business,{positioning:string;advantages:string[]}>={
- hall:{positioning:'选择主题、配置内容，体验属于自己的AI影像。',advantages:['让每个人参与故事','按活动主题选择内容','从模板开始，降低参与门槛']},
- bespoke:{positioning:'从真实人物与故事出发，策划专属的精品AI影像。',advantages:['围绕真实故事专属策划','整合照片、影像与口述资料','用画面与声音表达情感']},
+ hall:{positioning:'选择单人主题，自行配置属于你的影像内容。',advantages:['以自己为主角参与故事','按主题选择内容设定','从模板开始，降低参与门槛']},
+ bespoke:{positioning:'围绕真实人物与故事，整理需求并规划专属AI影像。',advantages:['围绕真实故事专属策划','整合照片、影像与口述资料','用画面与声音表达情感']},
 };
 export type ShowcaseSlide={id:string;title:string;image:string;to:string;action:string;media?:Media;pending?:boolean};
 export function getShowcaseSlides(business:Business):ShowcaseSlide[]{
@@ -84,7 +84,7 @@ export const configurationOptions:Record<string,OptionGroup[]>={
  ],
  'event-0':[
   {title:'活动类型',items:['品牌发布会','行业展会','城市庆典']},
-  {title:'高光瞬间',items:['精彩登场','现场互动','合影留念']},
+  {title:'我的高光',items:['精彩登场','现场互动','定格留念']},
   {title:'活动氛围',items:['热烈动感','精致时尚','温暖纪念']},
  ],
  'event-1':[
@@ -98,8 +98,8 @@ export const configurationOptions:Record<string,OptionGroup[]>={
   {title:'人物气质',items:['专业自信','活力进取','温暖真实']},
  ],
  'team-1':[
-  {title:'团队时刻',items:['项目完成','周年庆祝','团建出游']},
-  {title:'团队精神',items:['默契协作','创新突破','温暖陪伴']},
+  {title:'我参与的时刻',items:['项目完成','周年庆祝','团建出游']},
+  {title:'我心中的团队',items:['默契协作','创新突破','温暖陪伴']},
   {title:'影像风格',items:['热血电影','轻快纪实','温暖纪念']},
  ],
  'campus-0':[
@@ -108,15 +108,26 @@ export const configurationOptions:Record<string,OptionGroup[]>={
   {title:'纪念气质',items:['青春热血','温暖怀旧','清新文艺']},
  ],
  'campus-1':[
-  {title:'校园故事',items:['课堂日常','社团活动','校园漫游']},
-  {title:'记忆主角',items:['同窗好友','老师与我','社群伙伴']},
+  {title:'我的校园故事',items:['课堂日常','社团活动','校园漫游']},
+  {title:'纪念主题',items:['同窗情谊','师恩难忘','社群归属']},
   {title:'影像风格',items:['清新纪实','青春电影','温暖手账']},
  ],
 };
-export type ThemeConfiguration={id:string;categoryId:string;title:string;image:string;options:OptionGroup[]};
+const configurationMaterialHints:Record<string,string>={
+ 'shenzhen-belike':'以你为单人主角，城市与职业为主题设定。',
+ 'brand-0':'以你为单人主角，选择自己的深圳城市印象。',
+ 'brand-1':'以你为单人代言主角；真实品牌内容与素材可整理高定需求。',
+ 'event-0':'以你为单人主角，活动场景为主题设定。',
+ 'event-1':'以你为单人祝福主角，选择想要表达的节日心意。',
+ 'team-0':'以你为单人主角，选择个人职业成长主题。',
+ 'team-1':'以你为单人主角，团队记忆为主题背景；真实多人故事可整理高定需求。',
+ 'campus-0':'以你为单人主角，选择个人毕业纪念主题。',
+ 'campus-1':'以你为单人主角，校园情谊为主题背景；真实多人故事可整理高定需求。',
+};
+export type ThemeConfiguration={id:string;categoryId:string;title:string;image:string;options:OptionGroup[];participation:'单人主角';materialHint:string};
 export const themeConfigurations:ThemeConfiguration[]=[
- {id:'shenzhen-belike',categoryId:'brand',title:'我的深圳生活 belike',image:reference(4),options:exampleOptions},
- ...themes.map(theme=>({id:theme.id,categoryId:theme.categoryId,title:theme.title,image:theme.image,options:configurationOptions[theme.id]})),
+ {id:'shenzhen-belike',categoryId:'brand',title:'我的深圳生活 belike',image:reference(4),options:exampleOptions,participation:'单人主角',materialHint:configurationMaterialHints['shenzhen-belike']},
+ ...themes.map(theme=>({id:theme.id,categoryId:theme.categoryId,title:theme.title,image:theme.image,options:configurationOptions[theme.id],participation:'单人主角' as const,materialHint:configurationMaterialHints[theme.id]})),
 ];
 const defaultConfigurationIds:Record<string,string>={brand:'shenzhen-belike',event:'event-0',team:'team-0',campus:'campus-0'};
 export const getThemeConfiguration=(categoryId:string,themeId?:string)=>themeConfigurations.find(theme=>theme.categoryId===categoryId&&theme.id===(themeId||defaultConfigurationIds[categoryId]));
