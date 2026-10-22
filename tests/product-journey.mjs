@@ -17,6 +17,15 @@ const themes = [
   { id: 'campus-1', category: 'campus', title: '我们的校园记忆' },
 ];
 const themePath = theme => `/experience/${theme.category}/${theme.id}`;
+const assertCooperationLink=async(locator,expected)=>{
+ const href=await locator.getAttribute('href');
+ assert.ok(href?.startsWith('#/cooperate?'),'project action must lead to the cooperation form with context');
+ const parsed=new URL(href.slice(1),'https://prototype.invalid');
+ assert.equal(parsed.pathname,'/cooperate');
+ for(const [key,value] of Object.entries(expected))assert.equal(parsed.searchParams.get(key),value,`cooperation link must carry ${key}`);
+ assert.doesNotMatch(decodeURIComponent(href),/blob:|data:image|ObjectURL/,'a project link must not contain a browser photo');
+ return href;
+};
 const report = { base, status: 'running', checks: [], errors: [], mutationRequests: [], screenshots: [] };
 let browser;
 let page;
@@ -57,6 +66,19 @@ try {
   const assertNoOverflow = async label => {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${label}: horizontal overflow`);
   };
+  const categoryTitles = {
+    hall: ['品牌推广与主题传播', '活动互动与用户体验', '企业文化与员工关怀', '校园与社群纪念'],
+    bespoke: ['人物故事', '家庭记忆', '企业故事', '城市与历史'],
+  };
+  const assertDirections = async business => {
+    const labels = await page.locator('select[name="direction"] option').allTextContents();
+    for (const title of categoryTitles[business]) assert.ok(labels.includes(title), `${business} offers ${title}`);
+    for (const title of categoryTitles[business === 'hall' ? 'bespoke' : 'hall']) assert.ok(!labels.includes(title), `${business} must not mix in ${title}`);
+  };
+  const selectedDirection = async () => page.locator('select[name="direction"]').evaluate(select => select.selectedOptions[0].textContent);
+  const assertInquiryValues = async expected => {
+    for (const [name, value] of Object.entries(expected)) assert.equal(await page.locator(`.demand-form [name="${name}"]`).inputValue(), value, `${name} is retained in this project context`);
+  };
   const selectContent = async () => {
     const choices = [];
     for (const row of await page.locator('.option-row').all()) {
@@ -68,8 +90,9 @@ try {
 
   await route('/');
   assert.equal(await page.locator('.home-choice').count(), 2);
-  assert.match(await page.locator('.home-choice[href="#/hall"]').innerText(), /选主题体验/);
-  assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /专属故事定制/);
+  await page.getByRole('heading', { name: '你的项目，需要哪种影像？', exact: true }).waitFor();
+  assert.match(await page.locator('.home-choice[href="#/hall"]').innerText(), /体验主题互动/);
+  assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /了解专属制作/);
   const nav = page.getByRole('navigation', { name: '底部导航' });
   assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '主题体验', '商务合作', '我']);
   assert.deepEqual(await nav.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href'))), ['#/', '#/hall?section=experience', '#/cooperate', '#/mine']);
@@ -141,6 +164,7 @@ try {
     assert.equal(await page.locator('.option-row').count(), 3);
     assert.match(await page.locator('.theme-config').innerText(), /单人主角|单人.*主角/);
     assert.ok(await page.getByText('生成未开放', { exact: true }).isVisible());
+    await assertCooperationLink(page.locator('a.theme-project-link'), { product: 'hall', direction: theme.category, theme: theme.id, source: 'theme' });
     await assertNoOverflow(theme.title);
   }
   report.checks.push('All nine whole-card catalogue entries open their own configuration directly, with generation status visible');
@@ -200,6 +224,54 @@ try {
   await copyDialog.getByRole('button', { name: '关闭', exact: true }).tap();
   report.checks.push('Configuration can be copied with truthful state; a blocked clipboard provides selectable text instead of a dead end');
 
+  // A buyer can carry a chosen theme into a project without exposing the local participant photo.
+  await page.getByRole('button', { name: '修改照片', exact: true }).tap();
+  await page.getByLabel('选择照片', { exact: true }).setInputFiles('public/images/v4/live-futian.jpg');
+  const projectPhoto = await page.locator('.upload-box img').getAttribute('src');
+  assert.match(projectPhoto, /^blob:/);
+  await page.getByRole('checkbox', { name: '我确认已获得这张照片的使用授权', exact: true }).check();
+  await page.getByRole('button', { name: '下一步：确认信息', exact: true }).tap();
+  const bridge = page.locator('.project-bridge').getByRole('link', { name: '整理合作需求', exact: true });
+  await assertCooperationLink(bridge, { product: 'hall', direction: theme.category, theme: theme.id, source: 'theme' });
+  await bridge.tap(); await waitRoute('/cooperate');
+  await assertDirections('hall');
+  assert.equal(await selectedDirection(), '校园与社群纪念');
+  const projectContext = await page.locator('.inquiry-context').innerText();
+  assert.ok(projectContext.includes('AI影像馆') && projectContext.includes(theme.title));
+  for (const choice of choices) assert.ok(projectContext.includes(choice), `Project reference carries ${choice}`);
+  assert.doesNotMatch(await page.url(), /blob:|data:image/);
+  assert.equal(await page.locator('main img[src^="blob:"]').count(), 0, 'The cooperation page must not receive a participant photo');
+  for (const name of ['organization', 'timing', 'scope', 'name', 'contact']) assert.equal(await page.locator(`.demand-form [name="${name}"]`).getAttribute('required'), null, `${name} remains optional`);
+  const buyerFields = { description: '回归测试：为毕业纪念项目规划主题互动。', organization: '测试项目组', timing: '计划于毕业季开展', scope: '主题互动与一份项目交付方案' };
+  for (const [name, value] of Object.entries(buyerFields)) await page.locator(`.demand-form [name="${name}"]`).fill(value);
+  await page.getByRole('button', { name: '整理需求摘要', exact: true }).tap();
+  let buyerSummary = page.getByRole('dialog', { name: '你的需求摘要', exact: true });
+  await buyerSummary.waitFor();
+  const projectSummary = await buyerSummary.getByLabel('需求摘要', { exact: true }).inputValue();
+  for (const value of ['AI影像馆', theme.title, ...choices, ...Object.values(buyerFields)]) assert.ok(projectSummary.includes(value), `Project summary includes ${value}`);
+  assert.match(projectSummary, /尚未发送/);
+  assert.doesNotMatch(projectSummary, /blob:|data:image/);
+  assert.equal(await page.locator('input[name="name"]').inputValue(), '');
+  assert.equal(await page.locator('input[name="contact"]').inputValue(), '');
+  await page.evaluate(() => { window.__rejectClipboard = false; });
+  await buyerSummary.getByRole('button', { name: '复制需求摘要', exact: true }).tap();
+  assert.equal(await page.evaluate(() => window.__copiedConfig), projectSummary);
+  await page.evaluate(() => { window.__rejectClipboard = true; });
+  await buyerSummary.locator('.action-row button').first().tap();
+  assert.equal(await buyerSummary.getByLabel('需求摘要', { exact: true }).inputValue(), projectSummary);
+  assert.equal(await buyerSummary.getByLabel('需求摘要', { exact: true }).getAttribute('readonly'), '', 'Blocked copying must leave manually selectable summary text');
+  await buyerSummary.getByRole('button', { name: '返回修改', exact: true }).tap();
+  await assertInquiryValues(buyerFields);
+  await page.locator('.back-button').tap(); await waitRoute(themePath(theme));
+  await page.getByRole('heading', { name: '确认你的选择', exact: true }).waitFor();
+  assert.deepEqual(await page.locator('.summary-list dd').allTextContents(), choices);
+  assert.equal(await page.locator('.summary-photo img').getAttribute('src'), projectPhoto, 'Returning to participant configuration preserves its local photo');
+  await page.locator('.project-bridge').getByRole('link', { name: '整理合作需求', exact: true }).tap();
+  await waitRoute('/cooperate'); await assertInquiryValues(buyerFields);
+  await screenshot('theme-project-context');
+  await page.locator('.back-button').tap(); await waitRoute(themePath(theme));
+  report.checks.push('Theme-to-project handoff carries the product, theme, and selected words; contact details stay optional, the photo stays in participant memory, copying has a fallback, and source return/re-entry retains both drafts');
+
   // A dirty theme change is reversible until the user explicitly confirms discarding the plan.
   await page.getByRole('link', { name: '更换主题', exact: true }).tap();
   await waitRoute('/hall');
@@ -231,18 +303,19 @@ try {
   for (const [id, title] of bespokeDirections) {
     const card = page.locator('article.sample-card').filter({ hasText: title });
     assert.equal(await card.count(), 1);
-    assert.equal(await card.getByRole('link', { name: '定制这一类', exact: true }).getAttribute('href'), `#/cooperate?direction=${id}`);
+    await assertCooperationLink(card.getByRole('link', { name: '规划此类项目', exact: true }), { product: 'bespoke', direction: id, source: 'product', section: 'experience' });
   }
-  await page.locator('article.sample-card').first().getByRole('link', { name: '定制这一类', exact: true }).tap();
+  await page.locator('article.sample-card').first().getByRole('link', { name: '规划此类项目', exact: true }).tap();
   await waitRoute('/cooperate');
-  await page.getByRole('heading', { name: '创作需求', exact: true }).waitFor();
-  assert.equal(await page.locator('.page-intro p').textContent(), '你想讲述怎样的故事？');
-  assert.equal(await page.locator('.consultation-state').textContent(), '咨询待开放，可先整理需求。');
-  assert.equal(await page.locator('.demand-form .field-hint').textContent(), '仅本机整理，不上传。');
+  await page.getByRole('heading', { name: '合作需求', exact: true }).waitFor();
+  assert.equal(await page.locator('.page-intro p').textContent(), '明确项目目标，整理合作范围。');
+  assert.equal(await page.locator('.consultation-state').textContent(), '可先整理并复制需求，正式咨询待开放。');
+  assert.equal(await page.locator('.demand-form .field-hint').textContent(), '仅本机临时保留，刷新后清空。不会上传或发送。');
   assert.equal(await page.locator('input[name="name"]').getAttribute('required'), null);
   assert.equal(await page.locator('input[name="contact"]').getAttribute('required'), null);
-  assert.equal(await page.locator('select[name="direction"]').inputValue(), '人物故事');
-  const description = '产品回归测试：希望梳理一段人物故事，尚未发送。';
+  assert.equal(await selectedDirection(), '企业故事');
+  await assertDirections('bespoke');
+  const description = '产品回归测试：希望梳理一段企业故事，尚未发送。';
   await page.locator('textarea[name="description"]').fill(description);
   await page.locator('.demand-form button[type="submit"]').tap();
   const summary = page.getByRole('dialog');
@@ -257,6 +330,62 @@ try {
   assert.equal(await page.locator('input[name="name"]').inputValue(), '');
   assert.equal(await page.locator('input[name="contact"]').inputValue(), '');
   report.checks.push('Bespoke uses a clear planning action; an unsigned local demand summary needs no personal contact details and remains editable');
+
+  await page.locator('.back-button').tap(); await waitRoute('/bespoke');
+  assert.equal(await page.getByRole('tab', { name: '产品体验', exact: true }).getAttribute('aria-selected'), 'true');
+  await page.locator('article.sample-card').first().getByRole('link', { name: '规划此类项目', exact: true }).tap();
+  await waitRoute('/cooperate');
+  assert.equal(await page.locator('textarea[name="description"]').inputValue(), description, 'The same sample-direction context restores the buyer draft');
+
+  // A product introduction and a commercial application each return to their own source.
+  await route('/hall?section=introduction');
+  const productInquiry = page.getByRole('tabpanel').getByRole('link', { name: '整理合作需求', exact: true }).first();
+  await assertCooperationLink(productInquiry, { product: 'hall', source: 'product', section: 'introduction' });
+  await productInquiry.tap(); await waitRoute('/cooperate'); await assertDirections('hall');
+  assert.equal(await page.locator('textarea[name="description"]').inputValue(), '', 'A new hall product context must not inherit an unrelated bespoke inquiry');
+  const undecided = await page.locator('select[name="direction"]').evaluate(select => Array.from(select.options).find(option => option.textContent.includes('尚未确定')).value);
+  await page.locator('select[name="direction"]').selectOption(undecided);
+  const productDescription = '测试项目：希望了解主题互动合作范围。';
+  await page.locator('textarea[name="description"]').fill(productDescription);
+  await page.locator('.back-button').tap(); await waitRoute('/hall');
+  await page.waitForFunction(() => window.location.hash === '#/hall?section=introduction');
+  assert.equal(await page.getByRole('tab', { name: '产品介绍', exact: true }).getAttribute('aria-selected'), 'true');
+  await page.getByRole('tabpanel').getByRole('link', { name: '整理合作需求', exact: true }).first().tap();
+  await waitRoute('/cooperate');
+  assert.equal(await page.locator('textarea[name="description"]').inputValue(), productDescription);
+  assert.ok((await selectedDirection()).includes('尚未确定'));
+  await page.getByRole('button', { name: '整理需求摘要', exact: true }).tap();
+  buyerSummary = page.getByRole('dialog', { name: '你的需求摘要', exact: true }); await buyerSummary.waitFor();
+  assert.ok((await buyerSummary.getByLabel('需求摘要', { exact: true }).inputValue()).includes('AI影像馆'));
+  await buyerSummary.getByRole('button', { name: '返回修改', exact: true }).tap();
+
+  await route('/category/city');
+  const applicationInquiry = page.getByRole('link', { name: '整理合作需求', exact: true }).first();
+  await assertCooperationLink(applicationInquiry, { product: 'bespoke', direction: 'city', source: 'application' });
+  await applicationInquiry.tap(); await waitRoute('/cooperate'); await assertDirections('bespoke');
+  assert.equal(await selectedDirection(), '城市与历史');
+  const cityDescription = '测试项目：围绕街区历史策划一部城市记忆影片。';
+  await page.locator('textarea[name="description"]').fill(cityDescription);
+  await page.locator('.back-button').tap(); await waitRoute('/category/city');
+  await page.getByRole('link', { name: '整理合作需求', exact: true }).first().tap();
+  await waitRoute('/cooperate');
+  assert.equal(await page.locator('textarea[name="description"]').inputValue(), cityDescription);
+  await page.reload(); await waitRoute('/cooperate');
+  assert.equal(await selectedDirection(), '城市与历史', 'A shareable source context survives refresh');
+  for (const name of ['description', 'organization', 'timing', 'scope', 'name', 'contact']) assert.equal(await page.locator(`.demand-form [name="${name}"]`).inputValue(), '', 'Refresh clears local inquiry drafts');
+  report.checks.push('Product-introduction and application inquiries preserve their own source, direction, and temporary draft; a new context stays separate, and refresh retains only shareable source information');
+
+  // Existing links still work, while an explicitly chosen product cannot preselect the other product's direction.
+  await route('/cooperate?direction=family');
+  assert.equal(await selectedDirection(), '家庭记忆');
+  await page.locator('.back-button').tap(); await waitRoute('/category/family');
+  await route('/cooperate?product=hall&direction=family'); await assertDirections('hall');
+  assert.notEqual(await selectedDirection(), '家庭记忆', 'A hall inquiry must reject a bespoke category');
+  await route('/cooperate');
+  const genericDirections = await page.locator('select[name="direction"] option').allTextContents();
+  for (const title of [...categoryTitles.hall, ...categoryTitles.bespoke]) assert.ok(genericDirections.includes(title));
+  await page.locator('.back-button').tap(); await waitRoute('/');
+  report.checks.push('Legacy direction links return to the matching application; mismatched product directions are rejected; the generic cooperation entry keeps all eight directions and returns home');
 
   for (const path of ['/mine', '/works']) { await route(path); assert.equal(await page.getByRole('heading', { name: '暂时没有这个页面', exact: true }).count(), 0); }
   assert.deepEqual(await page.evaluate(() => ({ local: localStorage.length, session: sessionStorage.length })), { local: 0, session: 0 });

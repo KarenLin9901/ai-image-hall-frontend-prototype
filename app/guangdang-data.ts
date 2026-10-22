@@ -72,27 +72,53 @@ export const businessProfiles:Record<Business,{positioning:string;advantages:str
   ],
  },
 };
-export const productPresentations:Record<Business,{headline:string;definition:string;description:string;features:Highlight[];extension:string}>={
+export const productPresentations:Record<Business,{headline:string;definition:string;description:string;features:Highlight[];roles:Highlight[];workflow:Highlight[];preparation:string[];scopeNote:string;extension:string}>={
  hall:{
-  headline:'让每一位参与者，成为故事主角。',
-  definition:'面向品牌与机构活动的模板化AI影像互动产品。',
-  description:'围绕品牌与活动主题设计影像模板，将个人素材与可选内容结合，打造专属影像体验。',
+  headline:'让更多人参与品牌传播。',
+  definition:'为品牌与机构活动策划的模板化AI影像互动服务。',
+  description:'围绕品牌传播、活动互动与组织纪念，为品牌方、政企单位和活动主办方策划主题模板与参与入口。采购方确定主题、品牌呈现和参与规则，参与者通过个人素材与内容选择体验专属影像，让活动内容与个人表达结合。',
   features:[
-   {title:'主题化互动',description:'围绕品牌、节庆与纪念节点，让参与者进入同一个故事。'},
-   {title:'个人化表达',description:'将个人素材与场景、角色和风格结合，保留每个人的表达。'},
-   {title:'多场景承载',description:'围绕小程序、H5或活动现场，策划合适的参与入口。'},
+   {title:'主题与影像模板',description:'围绕传播目标设计故事主题、画面风格与品牌呈现，并确定参与者可以选择的场景、角色和内容组合。'},
+   {title:'活动入口与页面',description:'根据活动载体策划小程序或H5入口，组织主题展示、素材要求与参与步骤，让页面服务于活动的参与方式。'},
+   {title:'生成与活动配置',description:'按项目确定生成额度、开放时间、素材类型与内容选项，并约定活动支持范围，形成对应的服务配置。'},
+   {title:'影像成果与数据',description:'约定参与者的影像成果及使用方式，整理基础活动数据；生成数量、数据口径与成果范围在项目方案中确认。'},
   ],
+  roles:[
+   {title:'采购方',description:'品牌方、政企单位或活动主办方提出传播目标，确认活动主题、品牌素材、参与规则与服务范围。'},
+   {title:'参与者',description:'按活动要求提供个人素材与授权，在开放的内容选项中完成选择，参与主题影像体验。'},
+  ],
+  workflow:[
+   {title:'明确活动目标',description:'确认传播主题、参与对象、活动场景与影像的使用方式。'},
+   {title:'确认主题方案',description:'围绕主题设计模板、品牌呈现与内容组合，确认参与方式。'},
+   {title:'配置活动入口',description:'确认素材要求、开放选项和服务规模，再配置页面与入口。'},
+   {title:'活动支持与成果',description:'按约定提供生成与活动支持，整理影像成果及基础活动数据。'},
+  ],
+  preparation:['活动目标、举办时间与参与对象','品牌标识、主题内容与已有传播素材','预计参与规模、活动载体与影像使用要求'],
+  scopeNote:'模板数量、生成额度、开放时间、活动支持和数据范围，按项目方案确认。',
   extension:'从一个活动主题延展到系列互动内容，让品牌传播、组织文化与集体纪念拥有持续的参与方式。',
  },
  bespoke:{
-  headline:'让独特的故事，成为一部专属影片。',
-  definition:'围绕真实故事，提供从策划到成片的专属AI影像创作。',
-  description:'从人物经历、家庭回忆、企业历程与城市记忆出发，提供故事策划、AI制作与后期成片服务。',
+  headline:'让真实故事，成为专属影片。',
+  definition:'为企业与机构提供从故事策划到成片的专属AI影像创作。',
+  description:'面向企业、机构与文旅项目，围绕人物经历、家庭记忆、企业历程和城市故事提供专属影像创作。以照片、档案和口述资料为起点，完成故事策划、影像设计与后期成片，按阶段确认创作方向，服务纪念、品牌传播和文化表达。',
   features:[
-   {title:'故事策划',description:'从照片、影像与口述资料中，梳理人物、经历和故事线。'},
-   {title:'专属制作',description:'为故事设计角色、场景、镜头与声音，形成统一的影片表达。'},
-   {title:'完整成片',description:'融合AI生成、剪辑、配音与调色，将独特故事呈现为完整影片。'},
+   {title:'故事策划',description:'梳理人物经历、历史资料与传播目标，组织故事结构、人物关系和关键事件，形成供双方确认的剧本。'},
+   {title:'影像设计',description:'依据剧本设计人物形象、年代场景、镜头与声音，结合样段确认影像风格，为后续制作建立共同依据。'},
+   {title:'制作与后期',description:'按确认的剧本与资产开展AI影像制作，完成剪辑、调色、配音与声音整合，并结合阶段审片调整。'},
+   {title:'完整成片',description:'按约定交付完整影片及相应的画幅、版本、字幕与封面；源文件、其他资产和修改范围依项目约定。'},
   ],
+  roles:[
+   {title:'委托方',description:'企业、机构或项目负责人确定影片用途、表达重点与交付要求，并参与剧本、样段和成片确认。'},
+   {title:'故事素材',description:'人物经历、照片、已有影像、档案与口述资料构成创作起点；由委托方与相关人员核实内容和使用范围。'},
+  ],
+  workflow:[
+   {title:'资料与故事策划',description:'梳理人物、事件和资料，确认影片用途与故事结构。'},
+   {title:'设计与样段确认',description:'围绕剧本设计角色、场景与声音，确认影像风格和样段。'},
+   {title:'制作与阶段审片',description:'按确认的剧本和资产推进制作，结合阶段审片集中反馈。'},
+   {title:'后期与成片交付',description:'完成剪辑、声音与字幕整合，按约定版本交付完整影片。'},
+  ],
+  preparation:['影片用途、表达重点与希望讲述的故事','照片、档案、已有影像或可访谈的人物线索','期望片长、播放场景、交付版本与素材使用范围'],
+  scopeNote:'片长、画幅、版本、修改及素材使用范围按项目确认；源文件与其他资产依合同约定。',
   extension:'从一段人物经历到一个时代的记忆，围绕纪念、传播与文化表达，拓展不同题材、叙事与影像形式。',
  },
 };
@@ -126,13 +152,13 @@ export const businessApplications:Record<Business,BusinessApplication[]>={
  ],
  bespoke:[
   {
-   categoryId:'person',title:'人物故事',audience:'个人、人物所属机构与人物内容创作方',
+   categoryId:'person',title:'人物故事',audience:'企业品牌、文化与人力资源团队，人物所属机构',
    scenes:['个人经历','人物专访','成长历程','榜样人物','创业者故事'],
    value:'用经历、选择、精神与情感，呈现人物的独特故事。',
    extension:'可延展为人物志、人生阶段纪念片与职业故事，记录一个人的不同人生篇章。',
   },
   {
-   categoryId:'family',title:'家庭记忆',audience:'希望记录亲情与共同经历的个人和家庭',
+   categoryId:'family',title:'家庭记忆',audience:'工会、员工关怀团队、家庭服务机构及家庭委托方',
    scenes:['家庭故事','亲情纪念','成长记录','重要人生回忆'],
    value:'以真实家庭关系为主线，串联家人之间的情感与共同经历。',
    extension:'从一张老照片、一段口述回忆出发，延展长辈回忆录、家庭纪念片与跨代故事。',

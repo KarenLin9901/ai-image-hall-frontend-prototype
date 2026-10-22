@@ -4,7 +4,33 @@ import { asset, reference, categories, categoryById, businessName, illustrativeW
 type ThemeDraft={step:number;choices:string[];photo:string;authorized:boolean};
 type ProductSection='experience'|'introduction'|'applications';
 type ProductView={section:ProductSection;filter:string;scroll:Record<ProductSection,number>};
-type BrowsingMemory={carouselIndices:Record<Business,number>;productViews:Record<Business,ProductView>;draft:{themeId:string;value:ThemeDraft}|null};
+type InquiryDraft={direction:string;description:string;organization:string;timing:string;scope:string;name:string;contact:string};
+type BrowsingMemory={carouselIndices:Record<Business,number>;productViews:Record<Business,ProductView>;draft:{themeId:string;value:ThemeDraft}|null;inquiryDrafts:Record<string,InquiryDraft>};
+type InquirySource='product'|'application'|'theme';
+type InquiryOptions={source?:InquirySource;section?:ProductSection;direction?:string;theme?:string};
+function inquiryPath(business:Business,options:InquiryOptions={}){
+ const params=new URLSearchParams({product:business,source:options.source||'product'});
+ if(options.section)params.set('section',options.section);
+ if(options.direction)params.set('direction',options.direction);
+ if(options.theme)params.set('theme',options.theme);
+ return '/cooperate?'+params.toString();
+}
+function inquiryContext(route:string){
+ const params=new URLSearchParams(route.split('?')[1]||'');
+ const requested=params.get('product');
+ const rawCategory=categoryById.get(params.get('direction')||'');
+ const rawTheme=themeConfigurations.find(theme=>theme.id===params.get('theme'));
+ const business:Business|undefined=requested==='hall'||requested==='bespoke'?requested:rawCategory?.business||(rawTheme?'hall':undefined);
+ const category=rawCategory?.business===business?rawCategory:undefined;
+ const theme=business==='hall'&&rawTheme&&(!category||rawTheme.categoryId===category.id)?rawTheme:undefined;
+ const direction=category||(theme?categoryById.get(theme.categoryId):undefined);
+ const requestedSection=params.get('section');
+ const section:ProductSection=requestedSection==='introduction'||requestedSection==='applications'?requestedSection:'experience';
+ const source:InquirySource=params.get('source')==='theme'&&theme?'theme':params.get('source')==='application'&&direction?'application':params.has('source')||!direction?'product':'application';
+ const returnTo=source==='theme'&&theme?experiencePath(theme.categoryId,theme.id):source==='application'&&direction?'/category/'+direction.id:business?'/'+business+'?section='+section:'/';
+ const returnLabel=source==='theme'?'返回主题配置':source==='application'?'返回应用详情':business?'返回'+businessName(business):'返回首页';
+ return {business,direction,theme,section,source,returnTo,returnLabel,key:[business||'all',direction?.id||'',theme?.id||''].join(':')};
+}
 type IconName = 'home'|'works'|'cooperate'|'mine'|'arrow'|'back'|'close'|'play'|'check'|'spark'|'copy'|'image';
 function Icon({name,size=22}:{name:IconName;size?:number}) {
  const paths:Record<IconName,ReactNode> = {
@@ -39,14 +65,16 @@ function Eyebrow(_props:{children:ReactNode}) { return null; }
 function Empty({title,children}:{title:string;children:ReactNode}) { return <div className="empty"><div className="empty-icon"><Icon name="image" size={30}/></div><h3>{title}</h3><p>{children}</p></div>; }
 
 function Home(){return <section className="simple-home" aria-label="选择影像服务">
- <div className="home-question"><p>属于你的AI片场</p><h1>今天，想拍点什么？</h1></div>
+ <div className="home-question"><p>属于你的AI片场</p><h1>你的项目，需要哪种影像？</h1></div>
  <div className="home-choices">
-  <a className="home-choice" aria-label="AI影像馆" href="#/hall"><div><h2>AI影像馆</h2><span className="home-choice-action">选主题体验<Icon name="arrow" size={20}/></span></div><Picture src={reference(2)} alt="AI影像馆" eager/></a>
-  <a className="home-choice bespoke-choice" aria-label="高定AI影像" href="#/bespoke"><div><h2>高定AI影像</h2><span className="home-choice-action">专属故事定制<Icon name="arrow" size={20}/></span></div><Picture src={reference(3)} alt="高定AI影像" eager/></a>
+  <a className="home-choice" aria-label="AI影像馆" href="#/hall"><div><h2>AI影像馆</h2><span className="home-choice-action">体验主题互动<Icon name="arrow" size={20}/></span></div><Picture src={reference(2)} alt="AI影像馆" eager/></a>
+  <a className="home-choice bespoke-choice" aria-label="高定AI影像" href="#/bespoke"><div><h2>高定AI影像</h2><span className="home-choice-action">了解专属制作<Icon name="arrow" size={20}/></span></div><Picture src={reference(3)} alt="高定AI影像" eager/></a>
  </div>
 </section>;}
 
 const productSections=[{id:'experience',label:'产品体验'},{id:'introduction',label:'产品介绍'},{id:'applications',label:'商业应用'}] as const;
+const sampleOrder=['enterprise','city','person','family'];
+const sampleUses:Record<string,string>={person:'人物专访 · 员工故事',family:'亲情纪念 · 家庭服务',enterprise:'企业历程 · 品牌精神',city:'城市记忆 · 文旅文化'};
 const themeGroups=[{id:'all',label:'全部主题'},{id:'brand',label:'城市品牌'},{id:'event',label:'活动节庆'},{id:'team',label:'职场团队'},{id:'campus',label:'校园青春'}];
 
 function Catalogue({business,memory,route}:{business:Business;memory:BrowsingMemory;route:string}){
@@ -78,7 +106,7 @@ function Catalogue({business,memory,route}:{business:Business;memory:BrowsingMem
  function rememberPosition(){view.scroll[section]=window.scrollY;}
  const liveSamples=publishedWorks.filter(work=>work.business==='bespoke'&&work.displayAuthorized&&work.status==='published'&&work.media.type==='video');
  return <div className="product-page">
-  <header className="product-header"><h1 className="product-title">{businessName(business)}</h1><p className="product-definition">{profile.definition}</p></header>
+  <header className="product-header"><div className="product-heading-row"><h1 className="product-title">{businessName(business)}</h1><LinkButton to={inquiryPath(business,{section})} className="button secondary buyer-project-link">整理合作需求<Icon name="arrow" size={16}/></LinkButton></div><p className="product-definition">{profile.definition}</p></header>
   <nav ref={tabs} className="product-tabs" role="tablist" aria-label={businessName(business)+'内容'}>{productSections.map((item,index)=><button key={item.id} id={business+'-tab-'+item.id} role="tab" aria-selected={section===item.id} aria-controls={business+'-panel-'+item.id} tabIndex={section===item.id?0:-1} onClick={()=>selectSection(item.id)} onKeyDown={event=>{
    let next=index;
    if(event.key==='ArrowRight')next=(index+1)%productSections.length;
@@ -91,7 +119,7 @@ function Catalogue({business,memory,route}:{business:Business;memory:BrowsingMem
   }}>{item.label}</button>)}</nav>
   {productSections.map(part=><section key={part.id} hidden={section!==part.id} className="product-panel" role="tabpanel" id={business+'-panel-'+part.id} aria-labelledby={business+'-tab-'+part.id} tabIndex={0}>
    {part.id==='experience'&&business==='hall'?<div className="experience-library">
-    <div className="library-heading"><h2>选一个主题，开始你的片场</h2><span>{filteredThemes.length} 个主题</span></div>
+    <div className="library-heading"><h2>体验用户参与流程</h2><span>{filteredThemes.length} 个主题</span></div><p className="experience-context">先体验参与者的操作，再规划你的品牌活动。</p>
     <div className="experience-filters" aria-label="主题分类">{themeGroups.map(group=><button key={group.id} className={filter===group.id?'chip active':'chip'} aria-pressed={filter===group.id} onClick={()=>{setFilter(group.id);view.filter=group.id;view.scroll.experience=0;}}>{group.label}</button>)}</div>
     <div className="theme-grid">{filteredThemes.map(theme=>{
      const current=memory.draft?.themeId===theme.id;
@@ -103,16 +131,20 @@ function Catalogue({business,memory,route}:{business:Business;memory:BrowsingMem
     })}</div>
    </div>:null}
    {part.id==='experience'&&business==='bespoke'?<div className="sample-library">
-    <div className="library-heading"><h2>精品影像</h2><span>专属故事，专属表达</span></div>
-    <div className="sample-grid">{liveSamples.length?liveSamples.map(work=><article className="sample-card" key={work.id}><div className="sample-card-media"><MediaDisplay media={work.media}/></div><div className="sample-card-copy"><h3>{work.title}</h3><LinkButton to={'/cooperate?direction='+work.categoryId} className="button secondary">定制这一类<Icon name="arrow" size={17}/></LinkButton></div></article>):categories.filter(category=>category.business==='bespoke').map(category=><article className="sample-card" key={category.id} data-sample={category.id}>
+    <div className="library-heading"><h2>高定创作方向</h2><span>专属策划与成片</span></div>
+    <div className="sample-grid">{liveSamples.length?liveSamples.map(work=><article className="sample-card" key={work.id}><div className="sample-card-media"><MediaDisplay media={work.media}/></div><div className="sample-card-copy"><h3>{work.title}</h3><LinkButton to={inquiryPath('bespoke',{direction:work.categoryId,section})} className="button secondary">规划此类项目<Icon name="arrow" size={17}/></LinkButton></div></article>):categories.filter(category=>category.business==='bespoke').sort((a,b)=>sampleOrder.indexOf(a.id)-sampleOrder.indexOf(b.id)).map(category=><article className="sample-card" key={category.id} data-sample={category.id}>
      <div className="sample-card-media"><Picture src={reference(category.image)} alt={category.title+'创作方向'}/><span className="sample-status">样品待上架</span></div>
-     <div className="sample-card-copy"><h3>{category.title}</h3><p>{category.intro}</p><LinkButton to={'/cooperate?direction='+category.id} className="button secondary">定制这一类<Icon name="arrow" size={17}/></LinkButton></div>
+     <div className="sample-card-copy"><h3>{category.title}</h3><p>{sampleUses[category.id]}</p><LinkButton to={inquiryPath(business,{direction:category.id,section})} className="button secondary">规划此类项目<Icon name="arrow" size={17}/></LinkButton></div>
     </article>)}</div>
    </div>:null}
    {part.id==='introduction'?<>
     <div className="product-story"><h2 className="product-headline">{profile.headline}</h2><p className="product-description">{profile.description}</p></div>
-    <div className="product-features">{profile.features.map(feature=><article className="feature-card" key={feature.title}><h3>{feature.title}</h3><p>{feature.description}</p></article>)}</div>
-    <div className="product-next-action"><button className="button" onClick={()=>selectSection('experience')}>{business==='hall'?'选择体验主题':'浏览精品方向'}<Icon name="arrow" size={17}/></button><button className="text-link" onClick={()=>selectSection('applications')}>探索商业应用<Icon name="arrow" size={17}/></button></div>
+    <section className="buyer-roles"><h2>{business==='hall'?'谁来采购，谁来参与':'为谁创作，需要什么'}</h2><div className="buyer-role-grid">{profile.roles.map(role=><article key={role.title}><h3>{role.title}</h3><p>{role.description}</p></article>)}</div></section>
+    <section className="product-offering"><h2>项目合作内容</h2><div className="product-features">{profile.features.map(feature=><article className="feature-card" key={feature.title}><h3>{feature.title}</h3><p>{feature.description}</p></article>)}</div><p className="scope-note">{profile.scopeNote}</p></section>
+    <section className="product-workflow"><h2>项目如何开展</h2><ol className="workflow-list">{profile.workflow.map((item,index)=><li key={item.title}><b>{index+1}</b><div><h3>{item.title}</h3><p>{item.description}</p></div></li>)}</ol></section>
+    <details className="simple-fold project-preparation"><summary>项目开始前准备什么<Icon name="arrow" size={18}/></summary><div className="fold-content"><ul>{profile.preparation.map(item=><li key={item}>{item}</li>)}</ul></div></details>
+    <div className="product-next-action"><LinkButton to={inquiryPath(business,{section})}>整理合作需求<Icon name="arrow" size={17}/></LinkButton><button className="button secondary" onClick={()=>selectSection('experience')}>{business==='hall'?'选择体验主题':'浏览精品方向'}<Icon name="arrow" size={17}/></button><button className="text-link" onClick={()=>selectSection('applications')}>探索商业应用<Icon name="arrow" size={17}/></button></div>
+    <p className="product-alternative">{business==='hall'?'需要围绕一个故事专属创作？':'希望让更多用户参与同一主题？'}<LinkButton to={business==='hall'?'/bespoke?section=introduction':'/hall?section=introduction'} className="text-link">了解{businessName(business==='hall'?'bespoke':'hall')}<Icon name="arrow" size={16}/></LinkButton></p>
    </>:null}
    {part.id==='applications'?<>
     <div className="applications-heading"><h2>{business==='hall'?'让更多人参与传播':'把一个独特故事讲好'}</h2><p>{business==='hall'?'品牌、活动与集体纪念，都可以成为参与的起点。':'从一个人的经历，到一座城的记忆。'}</p></div>
@@ -123,7 +155,7 @@ function Catalogue({business,memory,route}:{business:Business;memory:BrowsingMem
       <div className="application-card-copy"><h3>{application.title}</h3><div className="application-tags">{application.scenes.slice(0,3).map(scene=><span key={scene}>{scene}</span>)}</div><p>{application.value}</p><span className="application-card-action">查看应用与拓展<Icon name="arrow" size={17}/></span></div>
      </a>;
     })}</div>
-    <section className="extension-panel"><h3>{business==='hall'?'从一次互动，到系列化主题':'从一段故事，到更多影像表达'}</h3><p>{profile.extension}</p><LinkButton to="/cooperate" className="text-link">整理创作需求<Icon name="arrow" size={17}/></LinkButton></section>
+    <section className="extension-panel"><h3>{business==='hall'?'从一次互动，到系列化主题':'从一段故事，到更多影像表达'}</h3><p>{profile.extension}</p><LinkButton to={inquiryPath(business,{section})} className="text-link">整理合作需求<Icon name="arrow" size={17}/></LinkButton></section>
    </>:null}
   </section>)}
  </div>;
@@ -139,7 +171,7 @@ function Detail({category:c,themeIndex}:{category:Category;themeIndex?:number}){
   <div className="application-cover detail-cover"><Picture src={themeIndex===undefined?reference(c.image):themeImages[c.id+'-'+themeIndex]} alt={(theme||c.title)+'创作方向'} eager/></div>
   <p className="application-audience">{application.audience}</p>
   <p className="application-value">{application.value}</p>
-  <LinkButton to={isHall?experiencePath(c.id,themeIndex===undefined?undefined:c.id+'-'+themeIndex):'/cooperate?direction='+c.id} className="button scene-cta">{isHall?'立即体验':'整理定制需求'}<Icon name="arrow" size={18}/></LinkButton>
+  <div className="application-actions"><LinkButton to={isHall?experiencePath(c.id,themeIndex===undefined?undefined:c.id+'-'+themeIndex):inquiryPath(c.business,{source:'application',direction:c.id})} className="button scene-cta">{isHall?'立即体验':'整理合作需求'}<Icon name="arrow" size={18}/></LinkButton>{isHall?<LinkButton to={inquiryPath(c.business,{source:'application',direction:c.id})} className="button secondary">整理合作需求<Icon name="arrow" size={18}/></LinkButton>:null}</div>
   <section className="application-detail-section"><h2>应用场景</h2><div className="application-tags">{application.scenes.map(scene=><span key={scene}>{scene}</span>)}</div></section>
   <section className="application-detail-section"><h2>可拓展方向</h2><p>{application.extension}</p></section>
   {isHall?<section className="application-detail-section"><h2>相关主题</h2><div className="related-theme-links">{relevantThemes.map(item=><LinkButton key={item.id} to={experiencePath(item.categoryId,item.id)} ariaLabel={'使用主题：'+item.title} className="button secondary">{item.title}<Icon name="arrow" size={16}/></LinkButton>)}</div></section>:null}
@@ -169,6 +201,7 @@ function Experience({theme,draft,onDraftChange}:{theme:ThemeConfiguration;draft?
  async function copy(){try{await navigator.clipboard.writeText(summary);setCopyState('配置已复制');}catch{setCopyFallback(true);}}
  return <section className="theme-config" aria-label={theme.title+'主题配置'}>
   <div className="config-theme-strip"><Picture src={theme.image} alt=""/><div><h1>{theme.title}</h1><div className="config-badges"><span className="config-state">生成未开放</span><span className="config-state">{theme.participation}</span></div></div></div>
+  <LinkButton to={inquiryPath('hall',{source:'theme',direction:theme.categoryId,theme:theme.id})} className="text-link theme-project-link">将主题用于项目<Icon name="arrow" size={17}/></LinkButton>
   <section className="experience-panel">
    <div className="step-tabs" aria-label="配置步骤">{['选择内容','准备照片','确认信息'].map((label,i)=><button key={label} className={i===step?'current':i<step?'complete':''} aria-current={i===step?'step':undefined} disabled={i===1?!contentReady:i===2?!contentReady||!photoReady:false} onClick={()=>edit(i)}><b>{i+1}</b>{label}</button>)}</div>
    {step===0?<>
@@ -195,6 +228,7 @@ function Experience({theme,draft,onDraftChange}:{theme:ThemeConfiguration;draft?
     <div className="summary-photo">{photo?<img src={photo} alt="已选照片"/>:<div className="summary-placeholder"><Icon name="mine" size={28}/></div>}<div><strong>{photo?'已选择单人照片':'未选择照片'}</strong><p>{photo?'仅本机预览':'照片选填'}</p></div></div>
     <div className="notice journey-result">故事设定已就绪。生成未开放，可先复制配置。</div>
     <div className="action-row"><button className="button" onClick={copy}><Icon name="copy" size={17}/>复制我的配置</button><button className="button secondary" disabled>生成暂未开放</button></div>
+    <section className="project-bridge"><h3>把这个主题用于你的项目</h3><p>围绕活动目标、品牌呈现和参与规模，规划合适的互动方式。</p><LinkButton to={inquiryPath('hall',{source:'theme',direction:theme.categoryId,theme:theme.id})}>整理合作需求<Icon name="arrow" size={17}/></LinkButton></section>
     <LinkButton to="/hall" className="text-link">更换主题 <Icon name="arrow" size={16}/></LinkButton>
    </>:null}
   </section>
@@ -210,29 +244,40 @@ function Gallery(){const [business,setBusiness]=useState('all');const [category,
  {liveWork?<Modal title={liveWork.title} onClose={()=>setActive(null)}><MediaDisplay media={liveWork.media}/><p>{businessName(liveWork.business)} · {categoryById.get(liveWork.categoryId)?.title}</p><LinkButton to={liveWork.business==='hall'?experiencePath(liveWork.categoryId,liveWork.themeId):`/category/${liveWork.categoryId}`}>{liveWork.business==='hall'?'立即体验':'咨询同类创作'}<Icon name="arrow" size={17}/></LinkButton></Modal>:null}{work?<Modal title="主题参考" onClose={()=>setActive(null)}><Picture src={work.image} alt={work.title} className="modal-image"/><h3>{work.title}</h3><p className="muted">主题参考图，非客户案例或生成成片。</p><LinkButton to={work.business==='hall'?experiencePath(work.categoryId,`${work.categoryId}-0`):`/category/${work.categoryId}`} className="button">{work.business==='hall'?'立即体验':'探索同类创作'} <Icon name="arrow" size={17}/></LinkButton></Modal>:null}</>;
 }
 
-function Cooperation({route}:{route:string}){
- const direction=new URLSearchParams(route.split('?')[1]||'').get('direction');
- const initial=categoryById.get(direction||'')?.title||'';
+function Cooperation({route,draft,themeChoices,onDraftChange}:{route:string;draft?:InquiryDraft;themeChoices?:string[];onDraftChange:(key:string,value:InquiryDraft)=>void}){
+ const context=inquiryContext(route);
+ const initial=draft||{direction:context.direction?.title||'',description:'',organization:'',timing:'',scope:'',name:'',contact:''};
  const [summary,setSummary]=useState('');
  const [copyState,setCopyState]=useState('复制需求摘要');
+ const directions=context.business?categories.filter(category=>category.business===context.business):categories;
+ const selections=context.theme?context.theme.options.flatMap((group,index)=>themeChoices?.[index]?[group.title+'：'+themeChoices[index]]:[]):[];
+ function values(form:HTMLFormElement):InquiryDraft{
+  const data=new FormData(form);const get=(key:string)=>String(data.get(key)||'').trim();
+  return {direction:get('direction'),description:get('description'),organization:get('organization'),timing:get('timing'),scope:get('scope'),name:get('name'),contact:get('contact')};
+ }
+ function remember(form:HTMLFormElement){onDraftChange(context.key,values(form));}
  async function copy(){try{await navigator.clipboard.writeText(summary);setCopyState('已复制');}catch{setCopyState('请长按下方摘要手动复制');}}
  function submit(e:FormEvent<HTMLFormElement>){
-  e.preventDefault();const form=e.currentTarget;const data=new FormData(form);const description=String(data.get('description')||'').trim();
-  if(!description){const field=form.elements.namedItem('description') as HTMLTextAreaElement;field.setCustomValidity('请简单描述你的创作需求。');field.reportValidity();return;}
-  const name=String(data.get('name')||'').trim();const contact=String(data.get('contact')||'').trim();
-  setSummary(['咣当 AI影像 · 创作需求','需求方向：'+data.get('direction'),'需求描述：'+description,...(name?['联系人：'+name]:[]),...(contact?['联系方式：'+contact]:[]),'','本摘要仅供复制留存，尚未发送。正式咨询渠道待开放。'].join('\n'));
+  e.preventDefault();const form=e.currentTarget;const data=values(form);
+  if(!data.description){const field=form.elements.namedItem('description') as HTMLTextAreaElement;field.setCustomValidity('请简单描述项目的目标和用途。');field.reportValidity();return;}
+  onDraftChange(context.key,data);
+  const business=categories.find(category=>category.title===data.direction)?.business||context.business;
+  setSummary(['咣当 AI影像 · 合作需求',...(business?['产品：'+businessName(business)]:[]),...(context.theme?['参考主题：'+context.theme.title,...selections]:[]),...(data.organization?['单位／项目：'+data.organization]:[]),'需求方向：'+data.direction,'需求描述：'+data.description,...(data.timing?['计划时间：'+data.timing]:[]),...(data.scope?['规模与交付要求：'+data.scope]:[]),...(data.name?['联系人：'+data.name]:[]),...(data.contact?['联系方式：'+data.contact]:[]),'','尚未发送，仅供复制留存。正式咨询渠道待开放。'].join('\n'));
   setCopyState('复制需求摘要');
  }
  return <>
-  <section className="page-intro compact"><h1>创作需求</h1><p>你想讲述怎样的故事？</p></section>
+  <section className="page-intro compact"><h1>合作需求</h1><p>明确项目目标，整理合作范围。</p></section>
+  {context.business?<section className="inquiry-context" aria-label="当前合作方向"><div><span>{businessName(context.business)}</span>{context.theme?<strong>参考主题：{context.theme.title}</strong>:context.direction?<strong>{context.direction.title}</strong>:null}</div>{selections.length?<ul className="inquiry-theme-options">{selections.map(item=><li key={item}>{item}</li>)}</ul>:null}</section>:null}
   <div className="cooperate-grid">
-   <p className="notice consultation-state">咨询待开放，可先整理需求。</p>
-   <form className="demand-form" onSubmit={submit}>
-    <div className="section-line"><h2>你的创作想法</h2></div>
-    <label>需求方向<select name="direction" required defaultValue={initial}><option value="" disabled>请选择需求方向</option><optgroup label="AI影像馆">{categories.filter(c=>c.business==='hall').map(c=><option key={c.id}>{c.title}</option>)}</optgroup><optgroup label="高定AI影像">{categories.filter(c=>c.business==='bespoke').map(c=><option key={c.id}>{c.title}</option>)}</optgroup><option>尚未确定，想先了解</option></select></label>
-    <label>需求描述<textarea name="description" required maxLength={2000} rows={4} placeholder="想讲述什么故事？用于什么场景？是否有预期交付时间？" onInput={e=>e.currentTarget.setCustomValidity('')}/></label>
-    <div className="form-pair"><label>联系人（选填）<input name="name" maxLength={50} autoComplete="name" placeholder="怎么称呼你"/></label><label>联系方式（选填）<input name="contact" maxLength={100} placeholder="手机、邮箱或微信" autoComplete="off"/></label></div>
-    <p className="field-hint">仅本机整理，不上传。</p>
+   <p className="notice consultation-state">可先整理并复制需求，正式咨询待开放。</p>
+   <form className="demand-form" onSubmit={submit} onChange={e=>remember(e.currentTarget)}>
+    <div className="section-line"><h2>你的项目计划</h2></div>
+    <label>需求方向<select name="direction" required defaultValue={initial.direction}><option value="" disabled>请选择需求方向</option>{(['hall','bespoke'] as Business[]).filter(business=>directions.some(category=>category.business===business)).map(business=><optgroup key={business} label={businessName(business)}>{directions.filter(category=>category.business===business).map(category=><option key={category.id}>{category.title}</option>)}</optgroup>)}<option>尚未确定，想先了解</option></select></label>
+    <label>单位／项目（选填）<input name="organization" maxLength={100} defaultValue={initial.organization} autoComplete="organization" placeholder="单位名称或项目名称"/></label>
+    <label>需求描述<textarea name="description" required maxLength={2000} defaultValue={initial.description} rows={4} placeholder={context.business==='hall'?'希望谁参与？传递什么主题？用于什么活动或传播场景？':'希望讲述什么故事？给谁观看？用于什么场景？有哪些现成资料？'} onInput={e=>e.currentTarget.setCustomValidity('')}/></label>
+    <div className="form-pair"><label>计划时间（选填）<input name="timing" maxLength={100} defaultValue={initial.timing} placeholder="活动或交付时间"/></label><label>规模与交付要求（选填）<input name="scope" maxLength={160} defaultValue={initial.scope} placeholder={context.business==='hall'?'人数、场次':'片长、画幅'}/></label></div>
+    <div className="form-pair"><label>联系人（选填）<input name="name" maxLength={50} defaultValue={initial.name} autoComplete="name" placeholder="怎么称呼你"/></label><label>联系方式（选填）<input name="contact" maxLength={100} defaultValue={initial.contact} placeholder="手机、邮箱或微信" autoComplete="off"/></label></div>
+    <p className="field-hint">仅本机临时保留，刷新后清空。不会上传或发送。</p>
     <button type="submit" className="button wide">整理需求摘要 <Icon name="arrow" size={18}/></button>
    </form>
   </div>
@@ -255,7 +300,7 @@ export default function Guangdang(){
  const [pendingRoute,setPendingRoute]=useState<string|null>(null);
  const main=useRef<HTMLElement>(null);
  const focusedPath=useRef('');
- const memory=useRef<BrowsingMemory>({carouselIndices:{hall:0,bespoke:0},productViews:{hall:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}},bespoke:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}}},draft:null});
+ const memory=useRef<BrowsingMemory>({carouselIndices:{hall:0,bespoke:0},productViews:{hall:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}},bespoke:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}}},draft:null,inquiryDrafts:{}});
  const rememberDraft=useCallback((themeId:string,value:ThemeDraft)=>{
   const previous=memory.current.draft;
   if(previous&&previous.themeId!==themeId&&previous.value.photo)URL.revokeObjectURL(previous.value.photo);
@@ -320,7 +365,7 @@ export default function Guangdang(){
  else if(parts[0]==='theme'&&c&&c.themes[Number(parts[2])])page=<Detail key={route} category={c} themeIndex={Number(parts[2])}/>;
  else if(parts[0]==='experience'&&configuration)page=<Experience key={configuration.id} theme={configuration} draft={memory.current.draft?.themeId===configuration.id?memory.current.draft.value:undefined} onDraftChange={rememberDraft}/>;
  else if(path==='/works')page=<Gallery/>;
- else if(path==='/cooperate')page=<Cooperation key={route} route={route}/>;
+ else if(path==='/cooperate'){const context=inquiryContext(route);page=<Cooperation key={route} route={route} draft={memory.current.inquiryDrafts[context.key]} themeChoices={context.theme&&memory.current.draft?.themeId===context.theme.id?memory.current.draft.value.choices:undefined} onDraftChange={(key,value)=>{memory.current.inquiryDrafts[key]=value;}}/>;}
  else if(path==='/mine')page=<Mine/>;
  else page=<><Empty title="暂时没有这个页面">这个入口可能已经更新，可以返回首页重新探索。</Empty><LinkButton to="/">返回首页</LinkButton></>;
  return <>
@@ -331,7 +376,7 @@ export default function Guangdang(){
    <div className="header-actions"><button className="icon-button about-button" onClick={()=>setAbout(true)} aria-label="关于原型"><Icon name="spark" size={18}/></button><button className="icon-button share-button" onClick={sharePage} aria-label="复制当前页面链接"><Icon name="copy" size={19}/></button></div>
   </div></header>
   <main id="main" data-route={path} ref={main} tabIndex={-1} key={path} className={'page-shell compact-shell '+(path==='/'?'is-home':'')+' '+(path==='/hall'||path==='/bespoke'?'is-business':'')}>
-   {parts.length>0?<button className="back-button" onClick={()=>{if(parts[0]==='experience')go('/hall');else if(parts[0]==='theme')go('/category/'+c?.id);else if(parts[0]==='category')go(c?'/'+c.business+'?section=applications':'/');else go('/');}}><Icon name="back" size={16}/>返回{parts[0]==='experience'?'AI影像馆':parts[0]==='category'?businessName(c?.business||'hall'):parts[0]==='theme'?'主题详情':'首页'}</button>:null}{page}
+   {parts.length>0?<button className="back-button" onClick={()=>{if(parts[0]==='experience')go('/hall');else if(parts[0]==='theme')go('/category/'+c?.id);else if(parts[0]==='category')go(c?'/'+c.business+'?section=applications':'/');else if(path==='/cooperate')go(inquiryContext(route).returnTo);else go('/');}}><Icon name="back" size={16}/>{path==='/cooperate'?inquiryContext(route).returnLabel:'返回'+(parts[0]==='experience'?'AI影像馆':parts[0]==='category'?businessName(c?.business||'hall'):parts[0]==='theme'?'主题详情':'首页')}</button>:null}{page}
   </main>
   <nav className="mobile-nav" aria-label="底部导航">{([{id:'home',title:'首页',to:'/'},{id:'hall',title:'主题体验',to:'/hall?section=experience'},{id:'cooperate',title:'商务合作',to:'/cooperate'},{id:'mine',title:'我',to:'/mine'}] as const).map(item=><a key={item.id} href={'#'+item.to} className={active===item.id?'active':''} aria-current={active===item.id?'page':undefined}><Icon name={item.id==='hall'?'image':item.id}/><span>{item.title}</span></a>)}</nav>
   {share?<div className="toast" role="status">{share}</div>:null}

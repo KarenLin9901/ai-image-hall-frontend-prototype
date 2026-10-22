@@ -25,6 +25,15 @@ const loadImages=async locator=>{
  return dimensions;
 };
 const screenshot=async name=>{await loadImages(page.locator('main img'));await page.screenshot({path:`outputs/guangdang-20261021-${name}.png`});};
+const assertCooperationLink=async(locator,expected)=>{
+ const href=await locator.getAttribute('href');
+ assert.ok(href?.startsWith('#/cooperate?'),'project action must lead to the cooperation form with context');
+ const parsed=new URL(href.slice(1),'https://prototype.invalid');
+ assert.equal(parsed.pathname,'/cooperate');
+ for(const [key,value] of Object.entries(expected))assert.equal(parsed.searchParams.get(key),value,`cooperation link must carry ${key}`);
+ assert.doesNotMatch(decodeURIComponent(href),/blob:|data:image|ObjectURL/,'a project link must not contain a browser photo');
+ return href;
+};
 const businessApplications={
  hall:[['brand','品牌推广与主题传播'],['event','活动互动与用户体验'],['team','企业文化与员工关怀'],['campus','校园与社群纪念']],
  bespoke:[['person','人物故事'],['family','家庭记忆'],['enterprise','企业故事'],['city','城市与历史']],
@@ -44,8 +53,16 @@ const assertBusinessSections=async business=>{
  assert.equal(await page.getByRole('tab',{name:'产品介绍',exact:true}).getAttribute('aria-selected'),'true');
  const introduction=page.getByRole('tabpanel');
  assert.ok((await introduction.innerText()).trim().length>50,'product introduction should explain the actual product');
- assert.equal(await introduction.locator('.product-features .feature-card').count(),3,'each product should express its three main features');
- assert.equal(await introduction.locator('details').count(),0,'the selected introduction should be readable directly');
+ assert.equal(await introduction.locator('.product-features .feature-card').count(),4,'each product should explain its four substantive cooperation contents');
+ assert.equal(await introduction.locator('.buyer-role-grid > article').count(),2,'the buyer and participant or creator roles should be distinct');
+ assert.equal(await introduction.locator('.product-workflow li').count(),4,'the project workflow should have four meaningful stages');
+ const preparation=introduction.locator('details.project-preparation');
+ assert.equal(await preparation.count(),1,'the supporting material checklist should be available as a compact disclosure');
+ assert.equal(await preparation.getAttribute('open'),null,'project preparation starts compact');
+ await preparation.locator('summary').click();
+ assert.ok((await preparation.innerText()).trim().length>20,'preparation should show actual material requirements');
+ await preparation.locator('summary').click();
+ await assertCooperationLink(introduction.getByRole('link',{name:'整理合作需求',exact:true}).first(),{product:business,source:'product',section:'introduction'});
  await page.getByRole('tab',{name:'商业应用',exact:true}).click();
  await page.waitForFunction(b=>window.location.hash===`#/${b}?section=applications`,business);
  await page.getByRole('tab',{name:'商业应用',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
@@ -170,7 +187,7 @@ try {
  const homeSizes=[{width:360,height:640},{width:375,height:667},{width:390,height:844},{width:430,height:932}];
  for(const size of homeSizes){
   await page.setViewportSize(size);await route('/');
-  await page.getByRole('heading',{name:'今天，想拍点什么？',exact:true}).waitFor();
+  await page.getByRole('heading',{name:'你的项目，需要哪种影像？',exact:true}).waitFor();
   await assertPrimaryNavigation('mobile','首页');
   assert.equal(await page.locator('.home-choice').count(),2);
   assert.equal(await page.locator('.home-question p').textContent(),'属于你的AI片场');
@@ -292,16 +309,21 @@ try {
  assert.equal(await page.getByRole('button',{name:'生成暂未开放',exact:true}).isDisabled(),true);
  await route('/bespoke');
  assert.equal(await page.locator('article.sample-card').count(),4);
+ assert.deepEqual(await page.locator('article.sample-card').evaluateAll(cards=>cards.map(card=>card.dataset.sample)),['enterprise','city','person','family'],'B2B project directions should be visible first without removing personal and family stories');
  assert.equal(await page.locator('.sample-status').count(),4);
  assert.equal(await page.locator('.sample-grid video').count(),0,'unconfirmed samples must not simulate playable video');
  await assertBusinessSections('bespoke');
  await assertAspect(page.locator('.sample-card-media'),16/9,'bespoke covers must be 16:9');
  await assertNativeSectionHistory('bespoke');
+ const sampleBoxes=await page.locator('article.sample-card').evaluateAll(cards=>cards.map(card=>{const r=card.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};}));
+ assert.ok(Math.abs(sampleBoxes[0].y-sampleBoxes[1].y)<2&&sampleBoxes[1].x>sampleBoxes[0].x,'mobile sample directions should share two columns');
+ assert.ok(Math.abs(sampleBoxes[2].y-sampleBoxes[3].y)<2&&sampleBoxes[2].y>=sampleBoxes[0].y+sampleBoxes[0].height,'all four sample directions should form two non-overlapping rows');
+ await page.getByRole('heading',{name:'高定创作方向',exact:true}).waitFor();
  await screenshot('bespoke-mobile');
- const customize=page.locator('article.sample-card').first().getByRole('link',{name:'定制这一类',exact:true});
- assert.equal(await customize.getAttribute('href'),'#/cooperate?direction=person');
+ const customize=page.locator('article.sample-card').first().getByRole('link',{name:'规划此类项目',exact:true});
+ await assertCooperationLink(customize,{product:'bespoke',direction:'enterprise',source:'product',section:'experience'});
  await customize.click();
- assert.equal(await page.locator('select[name="direction"]').inputValue(),'人物故事');
+ assert.equal(await page.locator('select[name="direction"]').evaluate(select=>select.selectedOptions[0].textContent),'企业故事');
  await page.locator('textarea[name="description"]').fill('用于改版验收的需求摘要测试。');
  await page.locator('input[name="name"]').fill('演示访客');
  await page.locator('input[name="contact"]').fill('示意联系方式');
@@ -331,7 +353,8 @@ try {
    const related=page.locator('a[href^="#/experience/"]');
    const ids=directThemes.filter(theme=>theme.category===id).map(theme=>theme.id);
    for(const themeId of ids)assert.ok(await related.evaluateAll((links,id)=>links.some(link=>link.getAttribute('href').endsWith('/'+id)),themeId),`${id} needs its own direct theme ${themeId}`);
-  }else assert.equal(await page.getByRole('link',{name:'整理定制需求',exact:true}).getAttribute('href'),`#/cooperate?direction=${id}`);
+  }
+  await assertCooperationLink(page.getByRole('link',{name:'整理合作需求',exact:true}).first(),{product:business,direction:id,source:'application'});
   const benefits=page.locator('.application-benefits');
   assert.equal(await benefits.getAttribute('open'),null,'category benefits remain available on demand');
   await benefits.locator('summary').click();
@@ -375,5 +398,5 @@ try {
  await page.route('**/images/guangdang-v2/person-*.webp',r=>r.abort());await route('/category/person');
  await page.getByRole('img',{name:/图片暂时无法加载/}).waitFor();
  assert.deepEqual(errors,[],'browser errors');assert.deepEqual(broken,[],'broken assets');assert.deepEqual(historicalRequests,[],'no historical photo should be requested by any page');
- console.log(JSON.stringify({result:'PASS',singleScreenHome:homeSizes,viewports:[360,375,390,430,768,1440],uniqueThemeImages:{urls:new Set(coverSources).size,pixels:new Set(fingerprints).size},directThemeConfigurations:directThemes.length,distinctThemeOptions:new Set(themeOptions.map(options=>JSON.stringify(options))).size,nativeSectionHistory,flows:['首页一屏双入口、桌面和手机四项主导航含我','桌面我入口、高亮和返回首页','三部分tab触摸和键盘切换、URL同步、浏览器后退前进恢复分区滚动、9主题筛选和16:9封面','九卡立即进入各自配置','旧主题与分类入口兼容、非法配置404','生成未开放且最终按钮禁用','双产品介绍定位与三项特性、商业四类直达详情','旧场景链接返回业务页','高定样品待上架','本机照片与授权校验','需求摘要未发送','作品4:3等高网格、筛选、分页与空态','八类客户场景价值拓展与主题/需求直达','城市图恢复且历史资料请求为零','无效链接和图片降级'],browserErrors:errors,brokenAssets:broken,historicalRequests}));
+ console.log(JSON.stringify({result:'PASS',singleScreenHome:homeSizes,viewports:[360,375,390,430,768,1440],uniqueThemeImages:{urls:new Set(coverSources).size,pixels:new Set(fingerprints).size},directThemeConfigurations:directThemes.length,distinctThemeOptions:new Set(themeOptions.map(options=>JSON.stringify(options))).size,nativeSectionHistory,flows:['首页一屏双入口、桌面和手机四项主导航含我','桌面我入口、高亮和返回首页','三部分tab触摸和键盘切换、URL同步、浏览器后退前进恢复分区滚动、9主题筛选和16:9封面','九卡立即进入各自配置','旧主题与分类入口兼容、非法配置404','生成未开放且最终按钮禁用','双产品介绍合作内容、双角色、四阶段链路与资料清单、商业四类直达详情','旧场景链接返回业务页','高定样品待上架','本机照片与授权校验','需求摘要未发送','作品4:3等高网格、筛选、分页与空态','八类客户场景价值拓展与主题/需求直达','城市图恢复且历史资料请求为零','无效链接和图片降级'],browserErrors:errors,brokenAssets:broken,historicalRequests}));
 } finally {await browser.close();server?.kill('SIGTERM');}
