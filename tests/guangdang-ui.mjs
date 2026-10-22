@@ -25,42 +25,100 @@ const loadImages=async locator=>{
  return dimensions;
 };
 const screenshot=async name=>{await loadImages(page.locator('main img'));await page.screenshot({path:`outputs/guangdang-20261021-${name}.png`});};
-const businessIntroductions={
- hall:{positioning:'选择单人主题，自行配置属于你的影像内容。',points:['以自己为主角参与故事','按主题选择内容设定','从模板开始，降低参与门槛'],highlights:['以自己为主角参与故事','围绕不同场景组织参与','从主题开始，选择更清楚','共同主题，保留个人表达']},
- bespoke:{positioning:'围绕真实人物与故事，整理需求并规划专属AI影像。',points:['围绕真实故事专属策划','整合照片、影像与口述资料','用画面与声音表达情感'],highlights:['真实故事，专属表达','把零散资料整理成故事线','为故事选择画面与声音','围绕纪念与传播需求策划']},
+const businessApplications={
+ hall:[['brand','品牌推广与主题传播'],['event','活动互动与用户体验'],['team','企业文化与员工关怀'],['campus','校园与社群纪念']],
+ bespoke:[['person','人物故事'],['family','家庭记忆'],['enterprise','企业故事'],['city','城市与历史']],
 };
-const assertBusinessFolds=async business=>{
- const expected=businessIntroductions[business];
- const folds=page.locator('.business-secondary details');
- assert.equal(await folds.count(),2,'business page should contain exactly two disclosure rows');
- assert.deepEqual(await folds.locator('summary').allTextContents(),['产品简介','产品优势']);
- assert.equal(await page.locator('.business-secondary details[open]').count(),0,'both product sections start collapsed');
- assert.equal(await page.getByRole('link',{name:'场景启发',exact:true}).count(),0);
- assert.equal(await page.getByText(/^(体验链路|创作链路)$/).count(),0);
- await folds.nth(0).locator('summary').click();
- assert.ok(await folds.nth(0).locator('.fold-content').isVisible());
- assert.equal(await folds.nth(0).locator('.fold-content>p').textContent(),expected.positioning);
- assert.deepEqual(await folds.nth(0).locator('.fold-content ul li').allTextContents(),expected.points,'the former three advantages should be retained in the introduction');
- await folds.nth(0).locator('summary').click();
- await folds.nth(1).locator('summary').click();
- assert.equal(await folds.nth(1).locator('li').count(),0,'the old three-point list must not repeat under product advantages');
- const advantages=folds.nth(1).locator('.fold-content.scene-advantages>div');
- assert.equal(await advantages.count(),4,'each business needs four detailed product advantages');
- const titles=await advantages.locator('h2').allTextContents();
- assert.deepEqual(titles,expected.highlights,'business advantages must explain the corresponding service');
- assert.equal(new Set(titles).size,4,'product advantage titles should be distinct');
- assert.ok(titles.every(title=>title.trim().length>1));
- const descriptions=await advantages.locator('p').allTextContents();
- assert.equal(descriptions.length,4);
- assert.ok(descriptions.every(description=>description.trim().length>10),'each advantage needs a meaningful explanation');
- assert.ok(await folds.nth(1).locator('.fold-content').isVisible());
- await folds.nth(1).locator('summary').click();
+const assertBusinessSections=async business=>{
+ const tabs=page.getByRole('tab');
+ assert.deepEqual(await tabs.allTextContents(),['产品体验','产品介绍','商业应用'],'each service has the same three user-facing sections');
+ assert.equal(await page.getByRole('tab',{name:'产品体验',exact:true}).getAttribute('aria-selected'),'true');
+ assert.equal(await page.getByRole('tabpanel').count(),1,'only the active section should be presented');
+ const activeTab=page.getByRole('tab',{name:'产品体验',exact:true});
+ assert.equal(await activeTab.getAttribute('aria-controls'),await page.getByRole('tabpanel').getAttribute('id'));
+ assert.equal(await page.getByRole('tabpanel').getAttribute('aria-labelledby'),await activeTab.getAttribute('id'));
+ assert.equal(await page.locator('.business-secondary').count(),0,'the former two-fold structure is replaced by three clear parts');
+ await page.getByRole('tab',{name:'产品介绍',exact:true}).click();
+ await page.waitForFunction(b=>window.location.hash===`#/${b}?section=introduction`,business);
+ await page.getByRole('tab',{name:'产品介绍',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+ assert.equal(await page.getByRole('tab',{name:'产品介绍',exact:true}).getAttribute('aria-selected'),'true');
+ const introduction=page.getByRole('tabpanel');
+ assert.ok((await introduction.innerText()).trim().length>50,'product introduction should explain the actual product');
+ assert.equal(await introduction.locator('.product-features .feature-card').count(),3,'each product should express its three main features');
+ assert.equal(await introduction.locator('details').count(),0,'the selected introduction should be readable directly');
+ await page.getByRole('tab',{name:'商业应用',exact:true}).click();
+ await page.waitForFunction(b=>window.location.hash===`#/${b}?section=applications`,business);
+ await page.getByRole('tab',{name:'商业应用',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+ const applications=page.getByRole('tabpanel').locator('a.application-card');
+ assert.equal(await applications.count(),4,'each service needs four distinct commercial applications');
+ assert.deepEqual(await applications.evaluateAll(links=>links.map(link=>link.getAttribute('href'))),businessApplications[business].map(([id])=>`#/category/${id}`));
+ for(const [id,title] of businessApplications[business]){
+  const card=applications.filter({hasText:title});
+  assert.equal(await card.count(),1,`${business} needs the application ${title}`);
+  assert.ok((await card.innerText()).trim().length>title.length,'an application card should give a useful reason to open it');
+ }
+ // The same controls work without touch: the selected tab and its content follow focus.
+ await page.getByRole('tab',{name:'商业应用',exact:true}).focus();
+ await page.keyboard.press('Home');
+ await page.getByRole('tab',{name:'产品体验',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+ assert.equal(await page.getByRole('tab',{name:'产品体验',exact:true}).getAttribute('aria-selected'),'true');
+ await page.keyboard.press('ArrowRight');
+ await page.getByRole('tab',{name:'产品介绍',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+ assert.equal(await page.getByRole('tab',{name:'产品介绍',exact:true}).getAttribute('aria-selected'),'true');
+ await page.keyboard.press('End');
+ await page.getByRole('tab',{name:'商业应用',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+ assert.equal(await page.getByRole('tab',{name:'商业应用',exact:true}).getAttribute('aria-selected'),'true');
+ await page.keyboard.press('ArrowRight');
+ await page.getByRole('tab',{name:'产品体验',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+ assert.equal(await page.getByRole('tab',{name:'产品体验',exact:true}).getAttribute('aria-selected'),'true');
+ await page.keyboard.press('ArrowLeft');
+ await page.getByRole('tab',{name:'商业应用',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+ await page.keyboard.press('Home');
+ await page.getByRole('tab',{name:'产品体验',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+ await noOverflow();
+};
+const nativeSectionHistory=[];
+const assertNativeSectionHistory=async business=>{
+ const waitSection=async section=>{
+  await page.waitForFunction(({business,section})=>window.location.hash===`#/${business}?section=${section}`,{business,section});
+  const labels={experience:'产品体验',introduction:'产品介绍',applications:'商业应用'};
+  await page.getByRole('tab',{name:labels[section],exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ };
+ const scrollPart=async amount=>{
+  await page.evaluate(top=>window.scrollTo({top,behavior:'instant'}),amount);
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  const top=await page.evaluate(()=>window.scrollY);
+  assert.ok(top>0,`${business}: test must actually scroll the section`);
+  return top;
+ };
+ const restored=async(section,top,method)=>{
+  await waitSection(section);
+  await page.waitForFunction(expected=>Math.abs(window.scrollY-expected)<=2,top);
+  nativeSectionHistory.push({business,section,method,scrollY:await page.evaluate(()=>window.scrollY)});
+ };
+ await route('/'+business+'?section=experience');
+ const experience=await scrollPart(360);
+ await page.getByRole('tab',{name:'产品介绍',exact:true}).click();await waitSection('introduction');
+ const introduction=await scrollPart(140);
+ await page.getByRole('tab',{name:'商业应用',exact:true}).click();await waitSection('applications');
+ const applications=await scrollPart(300);
+ await page.goBack();await restored('introduction',introduction,'Back');
+ await page.goBack();await restored('experience',experience,'Back');
+ await page.goForward();await restored('introduction',introduction,'Forward');
+ await page.goForward();await restored('applications',applications,'Forward');
+ if(business==='hall'){
+  await page.getByRole('navigation',{name:'底部导航',exact:true}).getByRole('link',{name:'主题体验',exact:true}).click();
+  await waitSection('experience');
+  assert.equal(await page.locator('a.theme-card').count(),9,'the primary theme navigation should open experience even after browsing business applications');
+ }
+ await route('/'+business+'?section=experience');
 };
 const assertPrimaryNavigation=async(kind,active)=>{
  const navigation=page.getByRole('navigation',{name:kind==='mobile'?'底部导航':'主导航',exact:true});
  assert.ok(await navigation.isVisible());
  assert.deepEqual(await navigation.getByRole('link').allTextContents(),['首页','主题体验','商务合作','我']);
- assert.deepEqual(await navigation.getByRole('link').evaluateAll(links=>links.map(link=>link.getAttribute('href'))),['#/','#/hall','#/cooperate','#/mine']);
+ assert.deepEqual(await navigation.getByRole('link').evaluateAll(links=>links.map(link=>link.getAttribute('href'))),['#/','#/hall?section=experience','#/cooperate','#/mine']);
  assert.deepEqual(await navigation.locator('a.active').allTextContents(),[active],'exactly the current primary destination should be active');
  return navigation;
 };
@@ -127,10 +185,10 @@ try {
  await screenshot('home-mobile');
  await page.locator('.home-choice[href="#/hall"]').click();
  await page.locator('main[data-route="/hall"]').waitFor();
- assert.equal(await page.locator('.preview-slide').count(),9);
- await assertBusinessFolds('hall');
- await assertAspect(page.locator('.slide-media'),16/9,'theme covers must be 16:9');
- const covers=page.locator('.preview-slide .slide-media img');
+ assert.equal(await page.locator('a.theme-card').count(),9);
+ await assertBusinessSections('hall');
+ await assertAspect(page.locator('.theme-card-media'),16/9,'theme covers must be 16:9');
+ const covers=page.locator('a.theme-card img');
  assert.equal(await covers.count(),9);
  const coverSources=await covers.evaluateAll(images=>images.map(image=>image.src));
  assert.equal(new Set(coverSources).size,9,'each hall theme should have its own image URL');
@@ -139,31 +197,21 @@ try {
  const pixels=await covers.evaluateAll(images=>images.map(image=>{const canvas=document.createElement('canvas');canvas.width=64;canvas.height=36;const context=canvas.getContext('2d');context.drawImage(image,0,0,64,36);return Array.from(context.getImageData(0,0,64,36).data);}));
  const fingerprints=pixels.map(data=>createHash('sha256').update(Uint8Array.from(data)).digest('hex'));
  assert.equal(new Set(fingerprints).size,9,'theme images should contain distinct decoded pixels');
- assert.equal(await page.locator('.carousel-count').textContent(),'1 / 9');
- await page.getByRole('button',{name:'下一个主题',exact:true}).click();
- await page.waitForFunction(()=>document.querySelector('.carousel-count').textContent==='2 / 9');
- await page.locator('.experience-carousel').focus();await page.keyboard.press('ArrowRight');
- await page.waitForFunction(()=>document.querySelector('.carousel-count').textContent==='3 / 9');
- await page.locator('.experience-carousel').evaluate(e=>e.scrollTo({left:0,behavior:'instant'}));
- await page.waitForFunction(()=>document.querySelector('.carousel-count').textContent==='1 / 9');
- await page.waitForFunction(()=>document.querySelector('.experience-carousel').scrollLeft<1);
- const touchBox=await page.locator('.preview-slide .slide-media').first().boundingBox();
- const touchY=Math.round(touchBox.y+touchBox.height/2);
- const cdp=await page.context().newCDPSession(page);
- await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:300,y:touchY}]});
- for(let x=280;x>=70;x-=30){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:touchY}]});await new Promise(r=>setTimeout(r,20));}
- await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
- await page.waitForFunction(()=>document.querySelector('.experience-carousel').scrollLeft>180);
- await page.waitForFunction(()=>{const e=document.querySelector('.experience-carousel');const width=e.firstElementChild.getBoundingClientRect().width+12;return Math.abs(e.scrollLeft-Math.round(e.scrollLeft/width)*width)<1;});
- await cdp.detach();
- await route('/hall');await screenshot('hall-mobile');
+ const filters=page.locator('.experience-filters');
+ assert.deepEqual(await filters.getByRole('button').allTextContents(),['全部主题','城市品牌','活动节庆','职场团队','校园青春']);
+ for(const [label,count] of [['城市品牌',3],['活动节庆',2],['职场团队',2],['校园青春',2],['全部主题',9]]){
+  await filters.getByRole('button',{name:label,exact:true}).click();
+  assert.equal(await page.locator('a.theme-card').count(),count,`${label} should show its own themes`);
+ }
+ await assertNativeSectionHistory('hall');
+ await screenshot('hall-mobile');
  // Every card must enter its own configuration directly, without a theme-description intermediary.
  const themeOptions=[];
  for(const theme of directThemes){
   await route('/hall');
-  const card=page.locator(`.preview-slide[data-slide="${theme.id}"]`);
+  const card=page.locator(`a.theme-card[data-theme="${theme.id}"]`);
   await card.getByRole('heading',{name:theme.title,exact:true}).waitFor();
-  const experience=card.getByRole('link',{name:'立即体验',exact:true});
+  const experience=page.getByRole('link',{name:'使用主题：'+theme.title,exact:true});
   assert.equal(await experience.getAttribute('href'),`#${themePath(theme)}`);
   await experience.click();
   themeOptions.push(await assertDirectConfig(theme));
@@ -221,7 +269,7 @@ try {
  assert.equal(await page.locator('.summary-photo strong').textContent(),'已选择单人照片');
  await page.locator('.summary-photo img').evaluate(image=>image.decode());
  assert.ok(await page.locator('.summary-photo img').evaluate(image=>image.complete&&image.naturalWidth>0),'selected photo should decode in confirmation');
- assert.match(await page.locator('.summary-photo').innerText(),/仅在当前浏览器中临时预览/);
+ assert.match(await page.locator('.summary-photo').innerText(),/本机|浏览器|临时/);
  await noOverflow();
  // A different theme must keep its own title and chosen content through the photo and confirmation steps.
  const campusTheme=directThemes.find(theme=>theme.id==='campus-1');
@@ -243,15 +291,16 @@ try {
  assert.deepEqual(await page.locator('.summary-list dd').allTextContents(),campusOptions);
  assert.equal(await page.getByRole('button',{name:'生成暂未开放',exact:true}).isDisabled(),true);
  await route('/bespoke');
- assert.equal(await page.locator('.preview-slide').count(),4);
- assert.equal(await page.locator('.sample-pending').count(),4);
- assert.equal(await page.locator('.preview-slide video').count(),0);
- await assertBusinessFolds('bespoke');
- await assertAspect(page.locator('.slide-media'),16/9,'bespoke covers must be 16:9');
+ assert.equal(await page.locator('article.sample-card').count(),4);
+ assert.equal(await page.locator('.sample-status').count(),4);
+ assert.equal(await page.locator('.sample-grid video').count(),0,'unconfirmed samples must not simulate playable video');
+ await assertBusinessSections('bespoke');
+ await assertAspect(page.locator('.sample-card-media'),16/9,'bespoke covers must be 16:9');
+ await assertNativeSectionHistory('bespoke');
  await screenshot('bespoke-mobile');
- await page.locator('.preview-slide').first().getByRole('link',{name:'了解创作',exact:true}).click();
- await page.getByRole('heading',{name:'人物故事',exact:true}).waitFor();
- await page.getByRole('link',{name:'整理定制需求',exact:true}).click();
+ const customize=page.locator('article.sample-card').first().getByRole('link',{name:'定制这一类',exact:true});
+ assert.equal(await customize.getAttribute('href'),'#/cooperate?direction=person');
+ await customize.click();
  assert.equal(await page.locator('select[name="direction"]').inputValue(),'人物故事');
  await page.locator('textarea[name="description"]').fill('用于改版验收的需求摘要测试。');
  await page.locator('input[name="name"]').fill('演示访客');
@@ -261,31 +310,47 @@ try {
  await page.getByRole('button',{name:'关闭',exact:true}).click();
  assert.equal(await page.evaluate(()=>localStorage.length),0);
  await route('/works');assert.equal(await page.locator('.work-card').count(),6);
+ assert.deepEqual(await page.locator('.gallery-controls .segmented button').allTextContents(),['主题灵感','真实作品']);
+ assert.equal(await page.locator('.gallery-controls .muted').textContent(),'主题参考图，非生成作品');
  await page.getByRole('button',{name:'加载更多',exact:true}).click();assert.equal(await page.locator('.work-card').count(),8);
  await assertWorkGrid();await screenshot('works-grid-mobile');
  await page.getByRole('button',{name:'高定AI影像',exact:true}).click();assert.equal(await page.locator('.work-card').count(),4);
  await page.getByLabel('作品分类',{exact:true}).selectOption('family');assert.equal(await page.locator('.work-card').count(),1);
- await page.locator('.work-card').click();await page.getByRole('dialog').waitFor();
+ await page.locator('.work-card').click();await page.getByRole('dialog',{name:'主题参考',exact:true}).waitFor();
+ assert.equal(await page.getByRole('dialog').locator('p.muted').textContent(),'主题参考图，非客户案例或生成成片。');
  await page.keyboard.press('Escape');
- await page.getByRole('button',{name:'已发布作品',exact:true}).click();await page.getByRole('heading',{name:'真实作品待上架',exact:true}).waitFor();
- for(const id of ['brand','event','team','campus','person','family','enterprise','city']){
-  await route(`/category/${id}`);assert.equal(await page.locator('.simple-fold[open]').count(),0);
+ await page.getByRole('button',{name:'真实作品',exact:true}).click();await page.getByRole('heading',{name:'真实作品待上架',exact:true}).waitFor();
+ for(const [business,applications] of Object.entries(businessApplications))for(const [id,title] of applications){
+  await route(`/category/${id}`);
+  await page.getByRole('heading',{name:title,exact:true}).waitFor();
+  for(const text of ['应用场景','可拓展方向'])assert.ok(await page.getByRole('heading',{name:text,exact:true}).isVisible(),`${id} should explain ${text}`);
+  assert.ok((await page.locator('.application-audience').innerText()).trim().length>3,`${id} identifies the customer`);
+  assert.ok((await page.locator('.application-value').innerText()).trim().length>10,`${id} identifies the commercial value`);
   assert.equal(await page.getByText(/^(体验链路|创作链路)$/).count(),0);
-  await page.locator('.simple-fold summary').filter({hasText:'产品亮点和优势'}).click();
-  assert.equal(await page.locator('.scene-advantages>div').count(),4);await loadImages(page.locator('.detail-cover img'));await noOverflow();
+  if(business==='hall'){
+   const related=page.locator('a[href^="#/experience/"]');
+   const ids=directThemes.filter(theme=>theme.category===id).map(theme=>theme.id);
+   for(const themeId of ids)assert.ok(await related.evaluateAll((links,id)=>links.some(link=>link.getAttribute('href').endsWith('/'+id)),themeId),`${id} needs its own direct theme ${themeId}`);
+  }else assert.equal(await page.getByRole('link',{name:'整理定制需求',exact:true}).getAttribute('href'),`#/cooperate?direction=${id}`);
+  const benefits=page.locator('.application-benefits');
+  assert.equal(await benefits.getAttribute('open'),null,'category benefits remain available on demand');
+  await benefits.locator('summary').click();
+  assert.equal(await benefits.locator('h3').count(),4,'each category retains its four product benefits');
+  await benefits.locator('summary').click();
+  await loadImages(page.locator('.detail-cover img'));await noOverflow();
  }
  await route('/category/city');
  assert.match(await page.locator('.detail-cover img').getAttribute('src'),/guangdang-v2\/city-1920\.webp$/);
  assert.equal(await page.locator('.history-disclosure,.history-photo').count(),0,'historical gallery should be removed from page references');
  assert.equal(await page.locator('main img[src*="dongmen-history"], main img[srcset*="dongmen-history"]').count(),0);
  await screenshot('city-mobile');
- for(const business of ['hall','bespoke']){await route(`/scenes/${business}`);await assertBusinessFolds(business);assert.equal(await page.locator('.simple-scene-card').count(),0,'legacy scene URL should return to its business page');}
+ for(const business of ['hall','bespoke']){await route(`/scenes/${business}`);assert.deepEqual(await page.getByRole('tab').allTextContents(),['产品体验','产品介绍','商业应用']);assert.equal(await page.locator('.simple-scene-card').count(),0,'legacy scene URL should return to its business page');}
  await route('/category/event');await screenshot('event-mobile');
  await route('/category/not-found');await page.getByRole('heading',{name:'暂时没有这个页面',exact:true}).waitFor();
  for(const width of [360,375,390,430,768,1440]){
   await page.setViewportSize({width,height:width>700?1000:844});
   for(const path of ['/','/hall','/bespoke','/scenes/hall','/scenes/bespoke','/category/city','/works','/cooperate','/mine']){await route(path);await noOverflow();}
-  await route('/hall');await assertAspect(page.locator('.slide-media'),16/9,`theme covers at ${width}px`);
+  await route('/hall?section=experience');await assertAspect(page.locator('.theme-card-media'),16/9,`theme covers at ${width}px`);
   await route('/works');await page.getByRole('button',{name:'加载更多',exact:true}).click();await assertWorkGrid();
  }
  await page.setViewportSize({width:1440,height:1000});await route('/');await screenshot('home-desktop');
@@ -294,15 +359,21 @@ try {
  await page.locator('main[data-route="/mine"]').waitFor();
  await page.getByRole('heading',{name:'我的',exact:true}).waitFor();
  await assertPrimaryNavigation('desktop','我');
+ assert.equal(await page.locator('.profile-card p').textContent(),'账户待开放');
  assert.equal(await page.locator('.mine-item').count(),2,'existing pending account functions should remain visible');
  assert.equal(await page.locator('.mine-item').getByText('暂未开放',{exact:true}).count(),2);
  await page.getByRole('button',{name:'返回首页',exact:true}).click();
  await page.locator('main[data-route="/"]').waitFor();
  await assertPrimaryNavigation('desktop','首页');
+ await route('/hall?section=applications');
+ await page.getByRole('tab',{name:'商业应用',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+ await page.getByRole('navigation',{name:'主导航',exact:true}).getByRole('link',{name:'主题体验',exact:true}).click();
+ await page.getByRole('tab',{name:'产品体验',exact:true}).and(page.locator('[aria-selected="true"]')).waitFor();
+ assert.equal(await page.locator('a.theme-card').count(),9,'desktop primary theme navigation should open experience directly');
  await route('/works');await screenshot('works-grid-desktop');
  await page.setViewportSize({width:390,height:844});
  await page.route('**/images/guangdang-v2/person-*.webp',r=>r.abort());await route('/category/person');
  await page.getByRole('img',{name:/图片暂时无法加载/}).waitFor();
  assert.deepEqual(errors,[],'browser errors');assert.deepEqual(broken,[],'broken assets');assert.deepEqual(historicalRequests,[],'no historical photo should be requested by any page');
- console.log(JSON.stringify({result:'PASS',singleScreenHome:homeSizes,viewports:[360,375,390,430,768,1440],uniqueThemeImages:{urls:new Set(coverSources).size,pixels:new Set(fingerprints).size},directThemeConfigurations:directThemes.length,distinctThemeOptions:new Set(themeOptions.map(options=>JSON.stringify(options))).size,flows:['首页一屏双入口、桌面和手机四项主导航含我','桌面我入口、高亮和返回首页','轮播16:9、触屏横滑、按钮和键盘切换','九卡立即进入各自配置','旧主题与分类入口兼容、非法配置404','生成未开放且最终按钮禁用','简介保留原三条文案、优势四组独立说明且默认折叠','旧场景链接返回业务页','高定样品待上架','本机照片与授权校验','需求摘要未发送','作品4:3等高网格、筛选、分页与空态','八类优势按需展开','城市图恢复且历史资料请求为零','无效链接和图片降级'],browserErrors:errors,brokenAssets:broken,historicalRequests}));
+ console.log(JSON.stringify({result:'PASS',singleScreenHome:homeSizes,viewports:[360,375,390,430,768,1440],uniqueThemeImages:{urls:new Set(coverSources).size,pixels:new Set(fingerprints).size},directThemeConfigurations:directThemes.length,distinctThemeOptions:new Set(themeOptions.map(options=>JSON.stringify(options))).size,nativeSectionHistory,flows:['首页一屏双入口、桌面和手机四项主导航含我','桌面我入口、高亮和返回首页','三部分tab触摸和键盘切换、URL同步、浏览器后退前进恢复分区滚动、9主题筛选和16:9封面','九卡立即进入各自配置','旧主题与分类入口兼容、非法配置404','生成未开放且最终按钮禁用','双产品介绍定位与三项特性、商业四类直达详情','旧场景链接返回业务页','高定样品待上架','本机照片与授权校验','需求摘要未发送','作品4:3等高网格、筛选、分页与空态','八类客户场景价值拓展与主题/需求直达','城市图恢复且历史资料请求为零','无效链接和图片降级'],browserErrors:errors,brokenAssets:broken,historicalRequests}));
 } finally {await browser.close();server?.kill('SIGTERM');}

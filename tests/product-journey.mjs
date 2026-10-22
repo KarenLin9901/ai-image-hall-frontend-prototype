@@ -72,7 +72,7 @@ try {
   assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /专属故事定制/);
   const nav = page.getByRole('navigation', { name: '底部导航' });
   assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '主题体验', '商务合作', '我']);
-  assert.deepEqual(await nav.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href'))), ['#/', '#/hall', '#/cooperate', '#/mine']);
+  assert.deepEqual(await nav.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href'))), ['#/', '#/hall?section=experience', '#/cooperate', '#/mine']);
   assert.equal(await nav.getByRole('link', { name: '我的', exact: true }).count(), 0);
   assert.equal(await nav.getByRole('link', { name: '影像作品', exact: true }).count(), 0);
   for (const viewport of [{ width: 360, height: 640 }, { width: 390, height: 844 }]) {
@@ -99,15 +99,42 @@ try {
   await screenshot('home');
   report.checks.push('Home remains one screen at 360x640 and 390x844; four primary links include the exact label 我, which opens the pending account page, highlights correctly, and returns home');
 
-  // The overview exposes every theme in one place, and all nine still enter the correct direct configuration.
+  // Sections are linkable, preserve each service's context, and return from applications to the right part.
+  await route('/hall?section=applications');
+  await page.getByRole('tab', { name: '商业应用', exact: true }).and(page.locator('[aria-selected="true"]')).waitFor();
+  await page.locator('a.application-card[href="#/category/event"]').tap();
+  await waitRoute('/category/event');
+  await page.getByRole('heading', { name: '活动互动与用户体验', exact: true }).waitFor();
+  await page.getByRole('button', { name: '返回AI影像馆', exact: true }).tap();
+  await waitRoute('/hall');
+  assert.equal(await page.getByRole('tab', { name: '商业应用', exact: true }).getAttribute('aria-selected'), 'true');
+  assert.equal(await page.locator('a.application-card').count(), 4);
+  await route('/bespoke?section=introduction');
+  await page.getByRole('tab', { name: '产品介绍', exact: true }).and(page.locator('[aria-selected="true"]')).waitFor();
+  await nav.getByRole('link', { name: '首页', exact: true }).tap();
+  await waitRoute('/');
+  await page.locator('.home-choice[href="#/hall"]').tap();
+  await waitRoute('/hall');
+  assert.equal(await page.getByRole('tab', { name: '商业应用', exact: true }).getAttribute('aria-selected'), 'true', 'AI hall should retain its own selected part');
+  await nav.getByRole('link', { name: '首页', exact: true }).tap();
+  await waitRoute('/');
+  await page.locator('.home-choice[href="#/bespoke"]').tap();
+  await waitRoute('/bespoke');
+  assert.equal(await page.getByRole('tab', { name: '产品介绍', exact: true }).getAttribute('aria-selected'), 'true', 'Bespoke should retain its own selected part');
+  await page.reload();
+  await waitRoute('/bespoke');
+  assert.equal(await page.getByRole('tab', { name: '产品体验', exact: true }).getAttribute('aria-selected'), 'true', 'A fresh root product visit starts from experience');
+  report.checks.push('Three-part links and application return preserve the right product context; each service remembers its part during the visit and starts with experience in a fresh session');
+
+  // Every theme is visible in the catalogue and enters its own configuration in one action.
   for (const theme of themes) {
-    await route('/hall');
-    await page.getByRole('button', { name: '全部主题', exact: true }).tap();
-    const overview = page.getByRole('dialog');
-    await overview.getByRole('heading', { name: '选择影像主题', exact: true }).waitFor();
-    for (const entry of themes) assert.equal(await overview.getByRole('button', { name: entry.title, exact: true }).count(), 1);
-    assert.equal(await overview.locator('img').count(), 9);
-    await overview.getByRole('button', { name: theme.title, exact: true }).tap();
+    await route('/hall?section=experience');
+    await page.locator('.experience-filters').getByRole('button', { name: '全部主题', exact: true }).tap();
+    assert.equal(await page.locator('a.theme-card').count(), 9);
+    for (const entry of themes) assert.equal(await page.getByRole('link', { name: '使用主题：' + entry.title, exact: true }).count(), 1);
+    const card = page.locator(`a.theme-card[data-theme="${theme.id}"]`);
+    assert.equal(await card.getAttribute('href'), '#' + themePath(theme));
+    await card.tap();
     await waitRoute(themePath(theme));
     await page.getByRole('heading', { name: theme.title, exact: true }).waitFor();
     assert.equal(await page.getByRole('dialog').count(), 0);
@@ -116,7 +143,7 @@ try {
     assert.ok(await page.getByText('生成未开放', { exact: true }).isVisible());
     await assertNoOverflow(theme.title);
   }
-  report.checks.push('All nine overview entries directly open their own configuration, with generation status visible');
+  report.checks.push('All nine whole-card catalogue entries open their own configuration directly, with generation status visible');
 
   // Completing a plan requires no personal photo and creates no fake generation output.
   const theme = themes[8];
@@ -176,21 +203,18 @@ try {
   // A dirty theme change is reversible until the user explicitly confirms discarding the plan.
   await page.getByRole('link', { name: '更换主题', exact: true }).tap();
   await waitRoute('/hall');
-  await page.getByRole('button', { name: '全部主题', exact: true }).tap();
-  await page.getByRole('dialog').getByRole('button', { name: themes[0].title, exact: true }).tap();
+  await page.getByRole('link', { name: '使用主题：' + themes[0].title, exact: true }).tap();
   let guard = page.getByRole('dialog');
   await guard.getByRole('heading', { name: '更换主题？', exact: true }).waitFor();
   await guard.getByRole('button', { name: '保留当前配置', exact: true }).tap();
   await waitRoute('/hall');
-  await page.getByRole('button', { name: '全部主题', exact: true }).tap();
-  await page.getByRole('dialog').getByRole('button', { name: theme.title, exact: true }).tap();
+  await page.getByRole('link', { name: '使用主题：' + theme.title, exact: true }).tap();
   await waitRoute(themePath(theme));
   await page.getByRole('heading', { name: '确认你的选择', exact: true }).waitFor();
   assert.deepEqual(await page.locator('.summary-list dd').allTextContents(), choices);
   await page.getByRole('link', { name: '更换主题', exact: true }).tap();
   await waitRoute('/hall');
-  await page.getByRole('button', { name: '全部主题', exact: true }).tap();
-  await page.getByRole('dialog').getByRole('button', { name: themes[0].title, exact: true }).tap();
+  await page.getByRole('link', { name: '使用主题：' + themes[0].title, exact: true }).tap();
   guard = page.getByRole('dialog');
   await guard.getByRole('button', { name: '更换并清空', exact: true }).tap();
   await waitRoute(themePath(themes[0]));
@@ -198,13 +222,23 @@ try {
   assert.equal(await page.getByRole('button', { name: '下一步：准备照片', exact: true }).isDisabled(), true);
   report.checks.push('Cancelling a theme switch preserves the complete plan; confirming starts a clean unrelated theme');
 
-  await route('/bespoke');
-  await page.getByRole('heading', { name: '定制方向', exact: true }).waitFor();
-  assert.equal(await page.locator('.sample-pending').count(), 4);
-  assert.equal(await page.locator('.preview-slide video').count(), 0);
-  await page.locator('.preview-slide').first().getByRole('link', { name: '了解创作', exact: true }).tap();
-  await page.getByRole('link', { name: '整理定制需求', exact: true }).tap();
+  await route('/bespoke?section=experience');
+  assert.equal(await page.getByRole('tab', { name: '产品体验', exact: true }).getAttribute('aria-selected'), 'true');
+  assert.equal(await page.locator('article.sample-card').count(), 4);
+  assert.equal(await page.locator('.sample-status').count(), 4);
+  assert.equal(await page.locator('.sample-grid video').count(), 0);
+  const bespokeDirections = [['person', '人物故事'], ['family', '家庭记忆'], ['enterprise', '企业故事'], ['city', '城市与历史']];
+  for (const [id, title] of bespokeDirections) {
+    const card = page.locator('article.sample-card').filter({ hasText: title });
+    assert.equal(await card.count(), 1);
+    assert.equal(await card.getByRole('link', { name: '定制这一类', exact: true }).getAttribute('href'), `#/cooperate?direction=${id}`);
+  }
+  await page.locator('article.sample-card').first().getByRole('link', { name: '定制这一类', exact: true }).tap();
   await waitRoute('/cooperate');
+  await page.getByRole('heading', { name: '创作需求', exact: true }).waitFor();
+  assert.equal(await page.locator('.page-intro p').textContent(), '你想讲述怎样的故事？');
+  assert.equal(await page.locator('.consultation-state').textContent(), '咨询待开放，可先整理需求。');
+  assert.equal(await page.locator('.demand-form .field-hint').textContent(), '仅本机整理，不上传。');
   assert.equal(await page.locator('input[name="name"]').getAttribute('required'), null);
   assert.equal(await page.locator('input[name="contact"]').getAttribute('required'), null);
   assert.equal(await page.locator('select[name="direction"]').inputValue(), '人物故事');
@@ -213,6 +247,7 @@ try {
   await page.locator('.demand-form button[type="submit"]').tap();
   const summary = page.getByRole('dialog');
   await summary.getByRole('heading', { name: '你的需求摘要', exact: true }).waitFor();
+  assert.equal(await summary.locator('.notice').textContent(), '尚未发送 · 可复制留存');
   const summaryText = await summary.getByLabel('需求摘要', { exact: true }).inputValue();
   assert.ok(summaryText.includes(description));
   assert.match(summaryText, /尚未发送/);

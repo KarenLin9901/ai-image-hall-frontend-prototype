@@ -72,6 +72,85 @@ export const businessProfiles:Record<Business,{positioning:string;advantages:str
   ],
  },
 };
+export const productPresentations:Record<Business,{headline:string;definition:string;description:string;features:Highlight[];extension:string}>={
+ hall:{
+  headline:'让每一位参与者，成为故事主角。',
+  definition:'面向品牌与机构活动的模板化AI影像互动产品。',
+  description:'围绕品牌与活动主题设计影像模板，将个人素材与可选内容结合，打造专属影像体验。',
+  features:[
+   {title:'主题化互动',description:'围绕品牌、节庆与纪念节点，让参与者进入同一个故事。'},
+   {title:'个人化表达',description:'将个人素材与场景、角色和风格结合，保留每个人的表达。'},
+   {title:'多场景承载',description:'围绕小程序、H5或活动现场，策划合适的参与入口。'},
+  ],
+  extension:'从一个活动主题延展到系列互动内容，让品牌传播、组织文化与集体纪念拥有持续的参与方式。',
+ },
+ bespoke:{
+  headline:'让独特的故事，成为一部专属影片。',
+  definition:'围绕真实故事，提供从策划到成片的专属AI影像创作。',
+  description:'从人物经历、家庭回忆、企业历程与城市记忆出发，提供故事策划、AI制作与后期成片服务。',
+  features:[
+   {title:'故事策划',description:'从照片、影像与口述资料中，梳理人物、经历和故事线。'},
+   {title:'专属制作',description:'为故事设计角色、场景、镜头与声音，形成统一的影片表达。'},
+   {title:'完整成片',description:'融合AI生成、剪辑、配音与调色，将独特故事呈现为完整影片。'},
+  ],
+  extension:'从一段人物经历到一个时代的记忆，围绕纪念、传播与文化表达，拓展不同题材、叙事与影像形式。',
+ },
+};
+export type BusinessApplication={categoryId:string;title:string;audience:string;scenes:string[];value:string;extension:string};
+export const businessApplications:Record<Business,BusinessApplication[]>={
+ hall:[
+  {
+   categoryId:'brand',title:'品牌推广与主题传播',audience:'企业、品牌、城市及相关机构',
+   scenes:['品牌主张','城市主题','产品推广','重大主题宣传'],
+   value:'让品牌主张与城市主题，成为参与者自己的影像表达。',
+   extension:'围绕品牌发布、产品推荐与城市传播，延展系列主题与互动内容。',
+  },
+  {
+   categoryId:'event',title:'活动互动与用户体验',audience:'活动主办方、品牌营销部门、展会与会务机构',
+   scenes:['发布会','展会','节庆','客户答谢','线上线下互动'],
+   value:'把现场参与感转化为可以带走、分享的专属影像，让活动记忆继续延伸。',
+   extension:'连接活动前的主题预热、现场互动与活动后的纪念传播，延展完整活动体验。',
+  },
+  {
+   categoryId:'team',title:'企业文化与员工关怀',audience:'企业人力资源部门、工会、品牌文化部门',
+   scenes:['员工活动','入职迎新','周年纪念','团队文化','员工关怀'],
+   value:'把共同主题与个人经历结合，让每一位员工成为企业故事的一部分。',
+   extension:'从迎新、成长到退休纪念，形成贯穿员工重要节点的影像内容。',
+  },
+  {
+   categoryId:'campus',title:'校园与社群纪念',audience:'学校、教育机构、社群及相关组织',
+   scenes:['毕业季','校庆','校园活动','社群纪念','集体主题活动'],
+   value:'让同一段集体记忆，拥有每个人值得珍藏的专属表达。',
+   extension:'围绕院系、届别与社群主题，延展校园系列与年度纪念内容。',
+  },
+ ],
+ bespoke:[
+  {
+   categoryId:'person',title:'人物故事',audience:'个人、人物所属机构与人物内容创作方',
+   scenes:['个人经历','人物专访','成长历程','榜样人物','创业者故事'],
+   value:'用经历、选择、精神与情感，呈现人物的独特故事。',
+   extension:'可延展为人物志、人生阶段纪念片与职业故事，记录一个人的不同人生篇章。',
+  },
+  {
+   categoryId:'family',title:'家庭记忆',audience:'希望记录亲情与共同经历的个人和家庭',
+   scenes:['家庭故事','亲情纪念','成长记录','重要人生回忆'],
+   value:'以真实家庭关系为主线，串联家人之间的情感与共同经历。',
+   extension:'从一张老照片、一段口述回忆出发，延展长辈回忆录、家庭纪念片与跨代故事。',
+  },
+  {
+   categoryId:'enterprise',title:'企业故事',audience:'企业、品牌与相关组织',
+   scenes:['企业发展历程','品牌精神','创始人故事','员工故事','重大项目纪实'],
+   value:'以发展历程、关键人物和重要项目，呈现企业的价值理念与成果。',
+   extension:'从创业往事延展到品牌表达、周年纪念与团队人物系列，连接企业的过去与未来。',
+  },
+  {
+   categoryId:'city',title:'城市与历史',audience:'城市机构、文旅单位与地方文化组织',
+   scenes:['城市记忆','地方文化','历史叙事','文化传承','城市发展'],
+   value:'通过故事、史料与影像，呈现城市和时代的变化。',
+   extension:'以街区、人物与历史事件为线索，延展城市记忆片、地方文化与历史文旅内容。',
+  },
+ ],
+};
 export type ShowcaseSlide={id:string;title:string;image:string;to:string;action:string;media?:Media;pending?:boolean};
 export function getShowcaseSlides(business:Business):ShowcaseSlide[]{
  if(business==='hall')return themeConfigurations.map(theme=>({id:theme.id,title:theme.title,image:theme.image,to:experiencePath(theme.categoryId,theme.id),action:'立即体验'}));

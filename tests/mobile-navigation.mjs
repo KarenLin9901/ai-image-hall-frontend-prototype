@@ -7,9 +7,9 @@ const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4189/ai-image-hall-fro
 const server = process.env.PREVIEW_URL ? null : spawn('npm', ['exec', 'vite', 'preview', '--', '--host', '127.0.0.1', '--port', '4189', '--strictPort'], { stdio: 'ignore' });
 const report = { base, viewports: [], errors: [], mutationRequests: [], screenshots: [] };
 const themes = [
-  { index: 0, id: 'shenzhen-belike', category: 'brand', title: '我的深圳生活 belike' },
-  { index: 4, id: 'event-1', category: 'event', title: '专属节日影像' },
-  { index: 8, id: 'campus-1', category: 'campus', title: '我们的校园记忆' },
+  { filter: '城市品牌', count: 3, id: 'shenzhen-belike', category: 'brand', title: '我的深圳生活 belike' },
+  { filter: '活动节庆', count: 2, id: 'event-1', category: 'event', title: '专属节日影像' },
+  { filter: '校园青春', count: 2, id: 'campus-1', category: 'campus', title: '我们的校园记忆' },
 ];
 const pathFor = theme => `/experience/${theme.category}/${theme.id}`;
 let browser;
@@ -39,7 +39,7 @@ try {
     page.on('request', request => {
       if (!['GET', 'HEAD'].includes(request.method())) report.mutationRequests.push({ viewport, method: request.method(), url: request.url() });
     });
-    const result = { viewport, checks: [], transitions: [], carouselReturns: [], releasedPhotos: [] };
+    const result = { viewport, checks: [], transitions: [], listReturns: [], releasedPhotos: [] };
     report.viewports.push(result);
     const waitRoute = async path => {
       await page.locator(`main[data-route="${path}"]`).waitFor();
@@ -66,28 +66,38 @@ try {
       const file = `outputs/mobile-navigation-${viewport.width}x${viewport.height}-${label}.png`;
       await page.screenshot({ path: file }); report.screenshots.push(file);
     };
-    const moveTo = async index => {
+    const moveTo = async theme => {
       await waitRoute('/hall');
-      for (let attempts = 0; attempts < 12; attempts++) {
-        const current = Number((await page.locator('.carousel-count').textContent()).split('/')[0]) - 1;
-        if (current === index) break;
-        await page.getByRole('button', { name: current < index ? '下一个主题' : '上一个主题', exact: true }).tap();
-        await page.waitForFunction(previous => Number(document.querySelector('.carousel-count').textContent.split('/')[0]) - 1 !== previous, current);
-      }
-      assert.equal(await page.locator('.carousel-count').textContent(), `${index + 1} / 9`);
-      const visible = await page.locator('.preview-slide').nth(index).evaluate(element => {
-        const card = element.getBoundingClientRect(); const track = element.parentElement.getBoundingClientRect();
-        return card.left >= track.left - 1 && card.right <= track.right + 1;
+      await page.getByRole('tab', { name: '产品体验', exact: true }).tap();
+      await page.locator('.experience-filters').getByRole('button', { name: theme.filter, exact: true }).tap();
+      assert.equal(await page.locator('a.theme-card').count(), theme.count, 'the selected filter must show its matching themes');
+      const card = page.locator(`a.theme-card[data-theme="${theme.id}"]`);
+      await card.scrollIntoViewIfNeeded();
+      await card.evaluate(element => {
+        const r = element.getBoundingClientRect();
+        const header = document.querySelector('.topbar').getBoundingClientRect();
+        const nav = document.querySelector('.mobile-nav').getBoundingClientRect();
+        if (r.top < header.bottom + 8) window.scrollBy({ top: r.top - header.bottom - 12, behavior: 'instant' });
+        else if (r.bottom > nav.top - 8) window.scrollBy({ top: r.bottom - nav.top + 12, behavior: 'instant' });
       });
-      assert.ok(visible, `Card ${index + 1} must be visible before the real touch`);
+      return { scrollY: await page.evaluate(() => window.scrollY), filter: theme.filter };
     };
     const enter = async theme => {
-      await moveTo(theme.index);
-      await page.locator(`.preview-slide[data-slide="${theme.id}"]`).getByRole('link', { name: '立即体验', exact: true }).tap();
+      const position = await moveTo(theme);
+      await page.getByRole('link', { name: '使用主题：' + theme.title, exact: true }).tap();
       await waitRoute(pathFor(theme));
       assert.equal(await page.locator('main h1').textContent(), theme.title);
       assert.equal(await page.locator('.option-row').count(), 3);
       await atTop(`enter ${theme.id}`);
+      return position;
+    };
+    const assertListRestored = async (theme, position, method) => {
+      assert.equal(await page.getByRole('tab', { name: '产品体验', exact: true }).getAttribute('aria-selected'), 'true');
+      assert.equal(await page.locator('a.theme-card').count(), theme.count, `${method}: retain the active theme filter`);
+      const card = page.locator(`a.theme-card[data-theme="${theme.id}"]`);
+      assert.ok(await card.evaluate(element => element.classList.contains('last-used')), `${method}: mark the last visited theme`);
+      await page.waitForFunction(expected => Math.abs(window.scrollY - expected) <= 2, position.scrollY);
+      result.listReturns.push({ theme: theme.id, method, filter: theme.filter, scrollY: await page.evaluate(() => window.scrollY) });
     };
     const bottomTap = async (name, label) => {
       const button = page.getByRole('button', { name, exact: true });
@@ -113,31 +123,28 @@ try {
       assert.equal(await page.locator('.step-tabs .current').textContent(), '3确认信息');
       assert.equal(await page.locator('main h1').textContent(), theme.title);
       assert.equal(await page.locator('.summary-photo strong').textContent(), '已选择单人照片');
-      assert.match(await page.locator('.summary-photo').innerText(), /仅在当前浏览器中临时预览/);
+      assert.match(await page.locator('.summary-photo').innerText(), /本机|浏览器|临时/);
       assert.deepEqual(await page.locator('.summary-list dd').allTextContents(), expectedChoices);
       assert.equal(await page.locator('.summary-photo img').getAttribute('src'), photo);
       await page.locator('.summary-photo img').evaluate(image => image.decode());
       assert.ok(await page.locator('.summary-photo img').evaluate(image => image.complete && image.naturalWidth > 0));
       assert.equal(await page.getByRole('button', { name: '生成暂未开放', exact: true }).isDisabled(), true);
-      assert.match(await page.locator('.experience-panel .notice').textContent(), /不会上传照片或创建生成任务/);
+      assert.equal(await page.locator('.journey-result').textContent(), '故事设定已就绪。生成未开放，可先复制配置。');
     };
 
     await page.goto(base);
     await page.locator('.home-choice[href="#/hall"]').tap();
     await waitRoute('/hall');
     for (const theme of themes) {
-      await enter(theme);
+      let position = await enter(theme);
       await page.getByRole('button', { name: '返回AI影像馆', exact: true }).tap();
       await waitRoute('/hall');
-      result.carouselReturns.push({ card: theme.index + 1, method: 'page return', count: await page.locator('.carousel-count').textContent() });
-      // Check before moving again: a reset to the first theme must fail this regression.
-      assert.equal(await page.locator('.carousel-count').textContent(), `${theme.index + 1} / 9`);
-      await enter(theme);
+      await assertListRestored(theme, position, 'page return');
+      position = await enter(theme);
       await page.goBack(); await waitRoute('/hall');
-      assert.equal(await page.locator('.carousel-count').textContent(), `${theme.index + 1} / 9`, 'Browser Back must restore the selected theme');
-      result.carouselReturns.push({ card: theme.index + 1, method: 'browser Back', count: await page.locator('.carousel-count').textContent() });
+      await assertListRestored(theme, position, 'browser Back');
     }
-    result.checks.push('First, fifth, and ninth themes preserve their carousel position after both return methods');
+    result.checks.push('First, fifth, and ninth themes retain the selected filter, vertical position, and last visited marker after both return methods');
     await screenshot('hall-restored');
     const theme = themes[2];
     await enter(theme);
@@ -182,15 +189,16 @@ try {
     }
     result.checks.push('Bottom navigation to Home, Cooperation, and Mine followed by browser Back preserves the same complete draft');
     await page.getByRole('link', { name: '更换主题', exact: true }).tap(); await waitRoute('/hall');
-    assert.equal(await page.locator('.carousel-count').textContent(), '9 / 9');
-    await moveTo(themes[1].index);
-    await page.locator(`.preview-slide[data-slide="${themes[1].id}"]`).getByRole('link', { name: '立即体验', exact: true }).tap();
+    const guardedPosition = await moveTo(themes[1]);
+    await page.getByRole('link', { name: '使用主题：' + themes[1].title, exact: true }).tap();
     await page.getByRole('dialog').getByRole('heading', { name: '更换主题？', exact: true }).waitFor();
     assert.equal(await page.evaluate(url => window.__revokedObjectUrls.includes(url), secondPhoto), false, 'Opening the change-theme confirmation must preserve the old photo');
     await page.getByRole('button', { name: '保留当前配置', exact: true }).tap();
     await waitRoute('/hall');
     assert.equal(await page.evaluate(url => window.__revokedObjectUrls.includes(url), secondPhoto), false, 'Cancelling theme change must preserve the old photo');
-    await page.locator(`.preview-slide[data-slide="${themes[1].id}"]`).getByRole('link', { name: '立即体验', exact: true }).tap();
+    assert.equal(await page.locator('a.theme-card').count(), themes[1].count, 'Cancelling a switch should preserve the filter used to choose it');
+    await page.waitForFunction(expected => Math.abs(window.scrollY - expected) <= 2, guardedPosition.scrollY);
+    await page.getByRole('link', { name: '使用主题：' + themes[1].title, exact: true }).tap();
     await page.getByRole('button', { name: '更换并清空', exact: true }).tap();
     await waitRoute(pathFor(themes[1]));
     await atTop(`enter ${themes[1].id} after confirmed change`);
