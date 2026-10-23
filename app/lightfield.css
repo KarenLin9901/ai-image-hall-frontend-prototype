@@ -67,7 +67,7 @@ body.lightfield-app .header-actions .icon-button { width: 44px; height: 44px; co
 body.lightfield-app .header-actions .about-button { display: none; }
 body.lightfield-app .page-shell { max-width: 1144px; padding-inline: 48px; }
 body.lightfield-app .compact-shell { padding-bottom: 72px; }
-body.lightfield-app .lightfield-page { animation: lf-page-enter .65s var(--lf-ease) both; }
+body.lightfield-app .lightfield-page { animation: lf-page-enter .65s var(--lf-ease) backwards; }
 body.lightfield-app .compact-shell h1 { color: #f2f4f6; font-weight: 500; font-size: 36px; line-height: 1.35; letter-spacing: -.045em; }
 body.lightfield-app .back-button { min-height: 44px; width: max-content; max-width: 100%; margin: 10px 0 14px; padding: 4px 0; color: #acbac8; font-size: 14px; line-height: 1.5; }
 body.lightfield-app .back-button svg { width: 16px; height: 16px; }

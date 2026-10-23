@@ -204,6 +204,16 @@ try {
   // Clipboard is read back and followed, so this checks the actual customer link.
   for (const business of Object.keys(products)) {
     await route(page, '/' + business);
+    await page.waitForTimeout(750);
+    const overlayPosition = await page.locator('main').evaluate(main => {
+      const probe = document.createElement('div');
+      probe.style.cssText = 'position:fixed;bottom:20px;left:0;width:20px;height:20px;pointer-events:none';
+      main.append(probe);
+      const geometry = { bottom: probe.getBoundingClientRect().bottom, expected: innerHeight - 20 };
+      probe.remove();
+      return geometry;
+    });
+    assert.ok(Math.abs(overlayPosition.bottom - overlayPosition.expected) < 1, 'finished page transitions must keep fixed feedback inside the viewport');
     const expected = page.url();
     await page.getByRole('button', { name: '复制当前页面链接', exact: true }).click();
     const copied = await page.evaluate(() => navigator.clipboard.readText());
@@ -241,6 +251,11 @@ try {
     await waitRoute(page, '/' + business);
     await frames(page);
     assert.deepEqual(await continuousAnimations(page), [], `${business}: pause should survive route changes`);
+    await page.getByRole('button', { name: '场景启发', exact: true }).click();
+    await frames(page);
+    const immediateScroll = await page.evaluate(() => scrollY);
+    await page.waitForTimeout(100);
+    assert.equal(await page.evaluate(() => scrollY), immediateScroll, 'manual pause should also remove smooth anchor scrolling');
     await page.getByRole('button', { name: '返回首页', exact: true }).click();
     await waitRoute(page, '/');
   }
