@@ -90,9 +90,9 @@ try {
 
   await route('/');
   assert.equal(await page.locator('.home-choice').count(), 2);
-  await page.getByRole('heading', { name: '让品牌被看见，让故事被记住。', exact: true }).waitFor();
-  assert.match(await page.locator('.home-choice[href="#/hall"]').innerText(), /为品牌与活动定制互动影像/);
-  assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /为企业与机构创作专属影片/);
+  await page.getByRole('heading', { name: '你想如何创作一部AI影像？', exact: true }).waitFor();
+  assert.match(await page.locator('.home-choice[href="#/hall"]').innerText(), /模板化互动影像产品/);
+  assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /精品AI影像创作服务/);
   const nav = page.getByRole('navigation', { name: '底部导航' });
   assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '案例分享', '商务合作', '我']);
   assert.deepEqual(await nav.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href'))), ['#/', '#/works', '#/cooperate', '#/mine']);

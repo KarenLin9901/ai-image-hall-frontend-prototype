@@ -66,11 +66,11 @@ function Eyebrow(_props:{children:ReactNode}) { return null; }
 function Empty({title,children}:{title:string;children:ReactNode}) { return <div className="empty"><div className="empty-icon"><Icon name="image" size={30}/></div><h3>{title}</h3><p>{children}</p></div>; }
 
 function Home({paused}:{paused:boolean}){return <section className="simple-home lightfield-home" aria-label="选择影像服务">
- <div className="home-question"><p className="slogan">属于你的AI片场</p><h1 aria-label="让品牌被看见，让故事被记住。">让品牌被看见，<span>让故事被记住。</span></h1><p className="home-service-note">面向品牌、企业与机构的AI影像服务</p></div>
+ <div className="home-question"><p className="slogan">属于你的AI片场</p><h1 aria-label="你想如何创作一部AI影像？">你想如何创作<span>一部AI影像？</span></h1><p className="home-service-note">互动生成，还是专属创作？选择适合你的影像服务。</p></div>
  <LightfieldVisual paused={paused}/>
  <div className="home-choices">
-  <a className="home-choice" aria-label="AI影像馆" href="#/hall"><span className="home-choice-no" aria-hidden="true">01</span><div><h2>AI影像馆</h2><span className="home-choice-action">为品牌与活动定制互动影像</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
-  <a className="home-choice bespoke-choice" aria-label="高定AI影像" href="#/bespoke"><span className="home-choice-no" aria-hidden="true">02</span><div><h2>高定AI影像</h2><span className="home-choice-action">为企业与机构创作专属影片</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
+  <a className="home-choice" aria-label="AI影像馆" href="#/hall"><span className="home-choice-no" aria-hidden="true">01</span><div><h2>AI影像馆</h2><span className="home-choice-action">模板化互动影像产品</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
+  <a className="home-choice bespoke-choice" aria-label="高定AI影像" href="#/bespoke"><span className="home-choice-no" aria-hidden="true">02</span><div><h2>高定AI影像</h2><span className="home-choice-action">精品AI影像创作服务</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
  </div>
  <div className="home-end"><span>让想象，成为影像。</span><LinkButton to="/cooperate" className="text-link">聊聊你的项目<Icon name="arrow" size={16}/></LinkButton></div>
 </section>;}

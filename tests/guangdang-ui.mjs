@@ -119,10 +119,10 @@ try{
 
  const homeSizes=[{width:360,height:640},{width:375,height:667},{width:390,height:844},{width:430,height:932}];
  for(const size of homeSizes){
-  await page.setViewportSize(size);await route('/');await page.getByRole('heading',{name:'让品牌被看见，让故事被记住。',exact:true}).waitFor();
+  await page.setViewportSize(size);await route('/');await page.getByRole('heading',{name:'你想如何创作一部AI影像？',exact:true}).waitFor();
   await assertNavigation('mobile','首页');assert.equal(await page.locator('.home-choice').count(),2);
-  assert.equal(await page.locator('.home-question > p').first().textContent(),'属于你的AI片场');assert.ok((await page.locator('.home-service-note').innerText()).length>5);
-  assert.deepEqual(await page.locator('.home-choice-action').allTextContents(),['为品牌与活动定制互动影像','为企业与机构创作专属影片']);
+  assert.equal(await page.locator('.home-question > p').first().textContent(),'属于你的AI片场');assert.equal(await page.locator('.home-service-note').textContent(),'互动生成，还是专属创作？选择适合你的影像服务。');assert.equal(await page.locator('.home-question h1').textContent(),'你想如何创作一部AI影像？');
+  assert.deepEqual(await page.locator('.home-choice-action').allTextContents(),['模板化互动影像产品','精品AI影像创作服务']);
   const layout=await page.evaluate(()=>({height:innerHeight,scroll:document.documentElement.scrollHeight,navTop:document.querySelector('.mobile-nav').getBoundingClientRect().top,lastBottom:document.querySelector('.home-choice:last-child').getBoundingClientRect().bottom}));
   assert.ok(layout.scroll<=layout.height+1,`home should fit one screen: ${JSON.stringify({size,...layout})}`);assert.ok(layout.lastBottom<=layout.navTop);await noOverflow('home');
  }

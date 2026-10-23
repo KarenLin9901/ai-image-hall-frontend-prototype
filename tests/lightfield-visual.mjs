@@ -136,7 +136,7 @@ try {
     await imagesDecode(page);
     await lightfieldPresent(page, 'home');
     const heading = await page.locator('main h1').innerText();
-    assert.doesNotMatch(heading, /你想如何创作/);
+    assert.equal(await page.locator('main h1').getAttribute('aria-label'), '你想如何创作一部AI影像？');
     assert.ok(heading.trim().length > 5, 'home needs a meaningful customer-facing statement');
     const nav = page.getByRole('navigation', { name: '底部导航', exact: true });
     assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '案例分享', '商务合作', '我']);
