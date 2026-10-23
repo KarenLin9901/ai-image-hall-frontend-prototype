@@ -15,7 +15,7 @@ const scenarios = {
   hall: [['brand', '品牌推广与主题传播'], ['event', '活动互动与用户体验'], ['team', '企业文化与员工关怀'], ['campus', '校园与社群纪念']],
   bespoke: [['person', '人物故事'], ['family', '家庭记忆'], ['enterprise', '企业故事'], ['city', '城市与历史']],
 };
-const report = { base: base.href, status: 'running', viewports: [], anchors: [], scenarios: [], motion: [], productEntries: [], photoEntryInteractions: [], nativeScroll: [], backgrounds: [], sharedLinks: [], pages: [], screenshots: [], errors: [], missingAssets: [], failedRequests: [] };
+const report = { base: base.href, status: 'running', viewports: [], anchors: [], scenarios: [], motion: [], productEntries: [], photoEntryInteractions: [], nativeScroll: [], backgrounds: [], globalSurfaces: [], typography: [], sharedLinks: [], pages: [], screenshots: [], errors: [], missingAssets: [], failedRequests: [] };
 let browser;
 let activePage;
 await mkdir('outputs', { recursive: true });
@@ -55,6 +55,7 @@ async function noOverflow(page, label) {
   const geometry = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth, bodyWidth: document.body.scrollWidth }));
   assert.ok(geometry.scrollWidth <= geometry.width + 1 && geometry.bodyWidth <= geometry.width + 1, `${label}: horizontal overflow ${JSON.stringify(geometry)}`);
   report.pages.push({ label, ...geometry });
+  await auroraSemantics(page, label);
 }
 
 async function imagesDecode(page) {
@@ -117,18 +118,85 @@ async function cinematicEntries(page, label) {
   }
 }
 
-async function cinematicBackground(page, label) {
-  const background = await page.evaluate(() => {
+async function homeTypography(page, label) {
+  const hierarchy = await page.locator('.home-question h1').evaluate(heading => {
+    const emphasis = heading.querySelector('span');
+    const font = element => { const style = getComputedStyle(element); return { size: parseFloat(style.fontSize), weight: parseFloat(style.fontWeight) }; };
+    return { text: heading.textContent, heading: font(heading), emphasis: emphasis ? font(emphasis) : null, products: [...document.querySelectorAll('.home-choice')].map(entry => ({ name: entry.getAttribute('aria-label'), title: font(entry.querySelector('h2')), description: font(entry.querySelector('.home-choice-action')) })) };
+  });
+  assert.equal(hierarchy.text, '你想如何创作一部AI影像？', `${label}: typographic emphasis should preserve the approved home statement`);
+  assert.ok(hierarchy.emphasis && hierarchy.emphasis.size > hierarchy.heading.size, `${label}: the second title line should have stronger visual scale than the opening line`);
+  assert.ok(hierarchy.products.every(product => product.title.weight > product.description.weight), `${label}: product names should carry more weight than service descriptions`);
+  report.typography.push({label,...hierarchy});
+}
+
+async function auroraSemantics(page, label) {
+  const layer = page.locator('.aurora-backdrop');
+  assert.equal(await layer.count(), 1, `${label}: one shared aurora background should serve the complete mobile journey`);
+  assert.equal(await layer.getAttribute('aria-hidden'), 'true', `${label}: decorative aurora should stay outside the accessibility tree`);
+  assert.equal(await layer.locator('a[href],button,input,select,textarea,[tabindex="0"]').count(), 0, `${label}: background must not add controls or navigation stops`);
+  assert.equal(await page.locator('.ambient-scene').count(), 0, `${label}: the superseded background should not remain loaded`);
+  const appearance = await layer.evaluate(element => {
+    const style = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    const pseudos = ['::before', '::after'].map(pseudo => { const value = getComputedStyle(element, pseudo); return { image: value.backgroundImage, opacity: Number(value.opacity), pointerEvents: value.pointerEvents }; });
+    const points = [[4, innerHeight / 2], [innerWidth - 4, innerHeight / 2], [innerWidth / 2, innerHeight * .3]];
+    const intercepts = points.some(([x,y]) => { const hit = document.elementFromPoint(x,y); return hit && (hit === element || element.contains(hit)); });
+    const bottom = document.querySelector('.mobile-nav')?.getBoundingClientRect().top || innerHeight;
+    const top = document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0;
+    const parse = value => (value.match(/[\d.]+/g) || []).map(Number);
+    const luminance = rgb => rgb.slice(0,3).map(value => { const channel = value / 255; return channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4; }).reduce((sum,value,index) => sum + value * [.2126,.7152,.0722][index],0);
+    const texts = [...document.querySelectorAll('main h1,main h2,main h3,main p,main label,main .home-choice-action')].filter(child => { const box = child.getBoundingClientRect(); const css = getComputedStyle(child); return child.textContent?.trim() && box.width > 2 && box.height > 2 && box.bottom > top && box.top < bottom && css.visibility !== 'hidden' && css.display !== 'none'; }).map(child => { const css = getComputedStyle(child); const color = parse(css.color); return { text: child.textContent?.trim().slice(0,50), color: css.color, luminance: luminance(color), alpha: color.length < 4 ? 1 : color[3], fontSize: parseFloat(css.fontSize) }; });
     const body = getComputedStyle(document.body);
     const root = getComputedStyle(document.documentElement);
-    return { image: body.backgroundImage, color: body.backgroundColor, rootImage: root.backgroundImage, rootColor: root.backgroundColor, colorScheme: body.colorScheme };
+    const over = (foreground, background) => { const alpha = foreground.length < 4 ? 1 : foreground[3]; return [0,1,2].map(index => foreground[index] * alpha + background[index] * (1-alpha)); };
+    const compositedBase = over(parse(body.backgroundColor), over(parse(root.backgroundColor), [0,0,0]));
+    return { position: style.position, pointerEvents: style.pointerEvents, tabIndex: element.tabIndex, pseudos, intercepts, coversViewport: rect.left <= 0 && rect.right >= innerWidth && rect.top <= 0 && rect.bottom >= innerHeight, colorScheme: body.colorScheme, bodyColor: body.backgroundColor, rootColor: root.backgroundColor, compositedBase, baseLuminance: luminance(compositedBase), texts };
   });
-  const bodyChannels = background.color.match(/[\d.]+/g)?.map(Number) || [];
-  const foundation = bodyChannels.length === 4 && bodyChannels[3] === 0 ? background.rootColor : background.color;
-  const channels = foundation.match(/[\d.]+/g)?.map(Number) || [];
-  assert.ok(channels.length >= 3 && Math.max(...channels.slice(0, 3)) < 80, `${label}: the cinematic presentation needs a black or near-black foundation`);
-  assert.ok(background.colorScheme.includes('dark'), `${label}: native controls should use the dark colour scheme`);
-  report.backgrounds.push({ label, ...background });
+  assert.equal(appearance.position, 'fixed', `${label}: aurora should stay behind the viewport while content scrolls`);
+  assert.equal(appearance.pointerEvents, 'none', `${label}: aurora must not intercept input`);
+  assert.ok(appearance.tabIndex < 0 && !appearance.intercepts, `${label}: background must not acquire focus or cover controls`);
+  assert.ok(appearance.coversViewport, `${label}: shared background should cover the mobile viewport`);
+  assert.ok(appearance.pseudos.some(pseudo => /gradient\(/.test(pseudo.image) && pseudo.opacity > 0), `${label}: visible aurora gradients should be present`);
+  assert.ok(appearance.colorScheme.includes('dark'), `${label}: native controls should use the dark colour scheme`);
+  assert.ok(appearance.baseLuminance < .15, `${label}: the alpha-composited foundation should remain dark across all mobile routes`);
+  assert.ok(appearance.texts.every(text => text.luminance >= .15 && text.alpha >= .55), `${label}: visible headings and body text should retain readable light foregrounds ${JSON.stringify(appearance.texts.filter(text => text.luminance < .15 || text.alpha < .55))}`);
+  report.globalSurfaces.push({ label, position: appearance.position, pointerEvents: appearance.pointerEvents, intercepts: appearance.intercepts, bodyColor: appearance.bodyColor, rootColor: appearance.rootColor, compositedBase: appearance.compositedBase, baseLuminance: appearance.baseLuminance, checkedTexts: appearance.texts.length, minimumTextLuminance: Math.min(...appearance.texts.map(text => text.luminance)) });
+}
+
+async function sampleBackgroundPixels(page, points) {
+  const screenshot = await page.screenshot();
+  return page.evaluate(async ({ source, points }) => {
+    const image = new Image(); image.src = source; await image.decode();
+    const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height;
+    const context = canvas.getContext('2d'); context.drawImage(image,0,0);
+    return points.map(point => { const pixel = [...context.getImageData(Math.round(point.x),Math.round(point.y),1,1).data]; const channels = pixel.slice(0,3).map(value => { const c = value / 255; return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4; }); return { ...point, rgba: pixel, luminance: channels.reduce((sum,value,index) => sum + value * [.2126,.7152,.0722][index],0) }; });
+  }, { source: `data:image/png;base64,${screenshot.toString('base64')}`, points });
+}
+
+async function cinematicBackground(page, label) {
+  await auroraSemantics(page, label);
+  const points = await page.evaluate(() => {
+    const top = document.querySelector('.topbar').getBoundingClientRect().bottom;
+    const bottom = document.querySelector('.mobile-nav').getBoundingClientRect().top;
+    const points = [];
+    for (const x of [4,12,innerWidth/2,innerWidth-12,innerWidth-4]) for (const ratio of [.08,.3,.55,.8,.95]) {
+      const y = top + (bottom-top)*ratio;
+      const hit = document.elementFromPoint(x,y);
+      if (hit && !hit.closest('a,button,input,select,textarea,img,h1,h2,h3,h4,p,label,li,dt,dd,figcaption,.topbar,.mobile-nav')) points.push({x,y});
+    }
+    return points;
+  });
+  assert.ok(points.length >= 5, `${label}: enough exposed background points should remain around the content`);
+  const active = await sampleBackgroundPixels(page, points);
+  const hidden = await page.addStyleTag({content:'.aurora-backdrop{visibility:hidden!important}'});
+  let withoutAurora;
+  try { withoutAurora = await sampleBackgroundPixels(page, points); } finally { await hidden.evaluate(element => element.remove()); }
+  const changes = active.map((point,index) => Math.max(...point.rgba.slice(0,3).map((value,channel) => Math.abs(value-withoutAurora[index].rgba[channel]))));
+  assert.ok(Math.max(...active.map(point => point.luminance)) < .28, `${label}: composited background should remain deep and dark rather than a bright colour field`);
+  assert.ok(active.reduce((sum,point) => sum+point.luminance,0)/active.length < .16, `${label}: black should remain the dominant background after alpha compositing`);
+  assert.ok(Math.max(...changes) >= 4, `${label}: the aurora must make a visible contribution to the rendered background`);
+  report.backgrounds.push({label, active, withoutAurora, maximumAuroraContribution: Math.max(...changes)});
 }
 
 async function touchGesture(page, from, to) {
@@ -240,6 +308,7 @@ try {
     await route(page, '/');
     await imagesDecode(page);
     await cinematicEntries(page, `${viewport.width} home`);
+    await homeTypography(page, `${viewport.width} home`);
     await cinematicBackground(page, `${viewport.width} home`);
     await homeVerticalScroll(page, `${viewport.width} default`);
     const heading = await page.locator('main h1').innerText();

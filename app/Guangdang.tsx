@@ -65,7 +65,7 @@ function Eyebrow(_props:{children:ReactNode}) { return null; }
 function Empty({title,children}:{title:string;children:ReactNode}) { return <div className="empty"><div className="empty-icon"><Icon name="image" size={30}/></div><h3>{title}</h3><p>{children}</p></div>; }
 
 function Home(){return <section className="simple-home lightfield-home cinema-home" aria-label="选择影像服务">
- <div className="home-question"><p className="slogan">属于你的AI片场</p><h1 aria-label="你想如何创作一部AI影像？">你想如何创作<span>一部AI影像？</span></h1><p className="home-service-note">互动生成，还是专属创作？选择适合你的影像服务。</p></div>
+ <div className="home-question"><p className="slogan">属于你的AI片场</p><h1 aria-label="你想如何创作一部AI影像？">你想如何创作<span>一部<em>AI影像</em>？</span></h1><p className="home-service-note">互动生成，还是专属创作？选择适合你的影像服务。</p></div>
  <div className="home-choices">
   <a className="home-choice" aria-label="AI影像馆" href="#/hall"><span className="home-choice-backdrop" aria-hidden="true"><Picture src={reference(2)} alt="" className="home-choice-image" eager/></span><span className="home-choice-no" aria-hidden="true">01</span><div><h2>AI影像馆</h2><span className="home-choice-action">模板化互动影像产品</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
   <a className="home-choice bespoke-choice" aria-label="高定AI影像" href="#/bespoke"><span className="home-choice-backdrop" aria-hidden="true"><Picture src={reference(3)} alt="" className="home-choice-image" eager/></span><span className="home-choice-no" aria-hidden="true">02</span><div><h2>高定AI影像</h2><span className="home-choice-action">精品AI影像创作服务</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
@@ -366,7 +366,7 @@ export default function Guangdang(){
  else if(path==='/mine')page=<Mine/>;
  else page=<><Empty title="暂时没有这个页面">这个入口可能已经更新，可以返回首页重新探索。</Empty><LinkButton to="/">返回首页</LinkButton></>;
  return <>
-  <div className="ambient-scene" style={{backgroundImage:`url(${reference(11)})`}} aria-hidden="true"/>
+  <div className="aurora-backdrop" aria-hidden="true"/>
   <a href="#main" className="skip-link" onClick={e=>{e.preventDefault();main.current?.focus();}}>跳到主要内容</a>
   <header className="topbar"><div className="topbar-inner">
    <a className="brand" href="#/" aria-label="咣当首页"><span className="brand-mark"><img className="brand-logo" src={asset('images/brand/guangdang-logo.png')} alt="咣当原品牌Logo"/></span><span className="brand-wordmark"><strong>咣当</strong><small>GUANGDANG</small></span></a>

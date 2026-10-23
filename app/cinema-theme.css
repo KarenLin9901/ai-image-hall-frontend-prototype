@@ -12,10 +12,36 @@ body.lightfield-app.cinema-app {
   isolation: isolate;
   color: var(--ink);
   background-color: #070809;
-  background-image: radial-gradient(ellipse at 95% 8%,#18202b21,transparent 44%),radial-gradient(ellipse at 2% 85%,#2a231e16,transparent 45%),linear-gradient(150deg,#090a0c,#070809 55%,#0c0c0e);
+  background-image: radial-gradient(ellipse at 98% 0%,#30356b26,transparent 52%),radial-gradient(ellipse at 0% 85%,#174f4421,transparent 48%),linear-gradient(150deg,#07080b,#060709 55%,#09090d);
   background-attachment: fixed;
 }
 body.cinema-app .ambient-scene { display: none; }
+/* Light stays behind the black canvas; narrow ribbons give the colour a direction. */
+body.cinema-app .aurora-backdrop { position: fixed; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; }
+body.cinema-app .aurora-backdrop::before {
+  position: absolute;
+  content: "";
+  inset: -16% -25%;
+  background: linear-gradient(124deg,transparent 27%,#3f2c7900 36%,#7754d95c 44%,#4c6bd24d 48%,#2b999e33 53%,#19464800 62%,transparent 71%);
+  mask-image: radial-gradient(ellipse at 66% 30%,#000 12%,#000b 43%,transparent 74%);
+  -webkit-mask-image: radial-gradient(ellipse at 66% 30%,#000 12%,#000b 43%,transparent 74%);
+  filter: blur(30px);
+  opacity: .78;
+  transform: translate3d(0,-4%,0) rotate(-8deg);
+  animation: cinema-aurora-ribbon 32s ease-in-out infinite alternate;
+}
+body.cinema-app .aurora-backdrop::after {
+  position: absolute;
+  content: "";
+  inset: 10% -30% -28%;
+  background: radial-gradient(ellipse 60% 12% at 24% 66%,#444ab958,transparent 74%),radial-gradient(ellipse 54% 14% at 78% 79%,#21837444,transparent 74%);
+  filter: blur(27px);
+  transform: rotate(-21deg);
+  opacity: .65;
+  animation: cinema-aurora-glow 38s ease-in-out infinite alternate;
+}
+@keyframes cinema-aurora-ribbon { from { opacity: .66; transform: translate3d(-2%,-4%,0) rotate(-8deg); } to { opacity: .9; transform: translate3d(3%,3%,0) rotate(-3deg); } }
+@keyframes cinema-aurora-glow { from { opacity: .5; transform: translate3d(0,2%,0) rotate(-21deg); } to { opacity: .75; transform: translate3d(-3%,-2%,0) rotate(-17deg); } }
 body.cinema-app::selection { color: #151618; background: #e9e6dc; }
 body.cinema-app :is(a,button,summary,input,textarea,select):focus-visible { outline-color: #f0ede3; }
 body.cinema-app .topbar {

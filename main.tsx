@@ -9,6 +9,7 @@ import "./app/editorial-pages.css";
 import "./app/lightfield.css";
 import "./app/cinema-theme.css";
 import "./app/cinema-home.css";
+import "./app/cinema-typography.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

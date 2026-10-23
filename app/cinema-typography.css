@@ -1,0 +1,192 @@
+/* Typography by purpose: invitation, product identity, chapter, reading, action. */
+body.cinema-app {
+  font-family: -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+body.cinema-app :is(h1,h2,h3,h4) { font-style: normal; }
+body.cinema-app .cinema-home .home-question > p.slogan {
+  color: #a8a8a5;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: .12em;
+}
+body.cinema-app .cinema-home .home-question h1 {
+  color: #d1d2d3;
+  font-size: 44px;
+  font-weight: 350;
+  line-height: 1.3;
+  letter-spacing: -.045em;
+}
+body.cinema-app .cinema-home .home-question h1 > span {
+  display: block;
+  color: #f7f4ed;
+  font-size: 60px;
+  font-weight: 650;
+  line-height: 1.24;
+  letter-spacing: -.055em;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+body.cinema-app .cinema-home .home-question h1 em {
+  color: #d5d6fa;
+  font-size: inherit;
+  font-style: normal;
+  font-weight: inherit;
+  letter-spacing: inherit;
+}
+@supports ((background-clip:text) or (-webkit-background-clip:text)) {
+  body.cinema-app .cinema-home .home-question h1 em {
+    background: linear-gradient(110deg,#f2f4ff 6%,#c4d9ff 36%,#c1b7ff 71%,#f3e9ff 98%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+body.cinema-app .cinema-home .home-question .home-service-note {
+  color: #a5a8aa;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.8;
+  letter-spacing: .015em;
+}
+body.cinema-app .cinema-home .home-choice h2 {
+  color: #f9f6f0;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -.035em;
+}
+body.cinema-app .cinema-home .home-choice-action { color: #c4c4c0; font-size: 14px; font-weight: 400; line-height: 1.6; letter-spacing: .02em; }
+body.cinema-app .cinema-home .home-choice > .home-choice-no { font-family: "SFMono-Regular",Consolas,monospace; font-size: 11px; font-weight: 400; letter-spacing: .14em; }
+
+body.cinema-app .editorial-heading h1 {
+  color: #fbf7ef;
+  font-size: 64px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -.055em;
+}
+body.cinema-app .editorial-heading .definition { color: #d4d7d7; font-size: 20px; font-weight: 350; line-height: 1.85; letter-spacing: .015em; }
+body.cinema-app :is(.editorial-overview,.editorial-benefits,.editorial-scenarios) > h2 {
+  color: #f0f0e9;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -.035em;
+}
+body.cinema-app :is(.editorial-overview,.editorial-benefits,.editorial-scenarios) > h2::before {
+  display: inline-block;
+  width: 22px;
+  height: 1px;
+  margin: 0 13px 0 0;
+  vertical-align: .34em;
+  background: #adaea773;
+  content: "";
+}
+body.cinema-app .editorial-overview > p { font-size: 17px; font-weight: 400; line-height: 2; letter-spacing: .01em; }
+body.cinema-app .buyer-role-grid h3 { font-size: 18px; font-weight: 600; line-height: 1.5; letter-spacing: -.015em; }
+body.cinema-app .buyer-role-grid p { font-size: 16px; font-weight: 400; line-height: 1.95; }
+body.cinema-app .benefit-grid > article::before { color: #92958f; font-family: "SFMono-Regular",Consolas,monospace; font-size: 13px; font-style: normal; font-weight: 400; line-height: 1.5; letter-spacing: .12em; }
+body.cinema-app .benefit-grid h3 { color: #eeeee7; font-size: 24px; font-weight: 600; line-height: 1.5; letter-spacing: -.03em; }
+body.cinema-app .benefit-need { font-size: 17px; font-weight: 400; line-height: 1.9; }
+body.cinema-app .benefit-grid dt { color: #989e99; font-size: 13px; font-weight: 500; line-height: 1.6; letter-spacing: .06em; }
+body.cinema-app .benefit-grid dd { font-size: 16px; font-weight: 400; line-height: 1.95; }
+body.cinema-app .scenario-card h3 { color: #fbf9f1; font-size: 28px; font-weight: 600; line-height: 1.4; letter-spacing: -.035em; }
+body.cinema-app .scenario-card p { color: #c4cacc; font-size: 16px; font-weight: 400; line-height: 1.85; }
+body.cinema-app .scenario-card-action { color: #e6e8df; font-size: 14px; font-weight: 500; line-height: 1.5; letter-spacing: .025em; }
+body.cinema-app .editorial-experience h2 { color: #f8f5ed; font-size: 44px; font-weight: 600; line-height: 1.25; letter-spacing: -.045em; }
+body.cinema-app .editorial-experience p { font-size: 17px; font-weight: 400; line-height: 1.85; }
+body.cinema-app .editorial-index > button { font-weight: 400; letter-spacing: .035em; }
+body.cinema-app .editorial-index > button.active { font-weight: 550; }
+
+body.cinema-app .application-detail > h1 { color: #f2f2e9; font-size: 44px; font-weight: 600; line-height: 1.35; letter-spacing: -.04em; }
+body.cinema-app .application-audience { color: #9da9ac; font-size: 16px; font-weight: 400; line-height: 1.9; }
+body.cinema-app :is(.scenario-example,.scenario-production,.application-detail-section) > h2 { font-size: 26px; font-weight: 600; line-height: 1.5; letter-spacing: -.025em; }
+body.cinema-app .scenario-example > h3 { font-size: 23px; font-weight: 550; line-height: 1.55; letter-spacing: -.02em; }
+body.cinema-app .scenario-production h4 { font-size: 18px; font-weight: 600; line-height: 1.5; }
+body.cinema-app .scenario-example p { font-size: 17px; font-weight: 400; line-height: 1.95; }
+body.cinema-app .scenario-production p,body.cinema-app .application-detail-section > p { font-size: 16px; font-weight: 400; line-height: 1.9; }
+body.cinema-app .samples-page h1 { font-size: 44px; font-weight: 600; line-height: 1.35; letter-spacing: -.04em; }
+body.cinema-app .samples-pending h2 { font-size: 30px; font-weight: 550; line-height: 1.4; letter-spacing: -.03em; }
+body.cinema-app .theme-card-copy h3 { font-size: 18px; font-weight: 550; line-height: 1.5; }
+body.cinema-app .config-theme-strip h1 { font-size: 28px; font-weight: 600; line-height: 1.4; letter-spacing: -.025em; }
+body.cinema-app .experience-panel h2 { font-size: 26px; font-weight: 600; line-height: 1.45; letter-spacing: -.025em; }
+body.cinema-app .experience-panel legend { font-size: 17px; font-weight: 550; line-height: 1.6; }
+body.cinema-app .option,body.cinema-app .summary-list { font-size: 16px; font-weight: 400; }
+body.cinema-app .page-intro h1 { font-size: 46px; font-weight: 600; line-height: 1.3; letter-spacing: -.045em; }
+body.cinema-app .page-intro p:not(.eyebrow) { color: #a5b0b2; font-size: 16px; font-weight: 400; line-height: 1.85; }
+body.cinema-app .cooperate-copy h2 { font-size: 42px; font-weight: 550; line-height: 1.4; letter-spacing: -.035em; }
+body.cinema-app .cooperate-direction > span { font-size: 18px; font-weight: 550; line-height: 1.5; }
+body.cinema-app .cooperate-direction small { font-size: 14px; font-weight: 400; line-height: 1.8; }
+body.cinema-app .demand-form > label,body.cinema-app .form-pair > label { font-size: 15px; font-weight: 500; line-height: 1.6; }
+body.cinema-app .demand-form :is(input,textarea,select) { font-size: 16px; font-weight: 400; }
+body.cinema-app .profile-card h2 { font-size: 26px; font-weight: 550; line-height: 1.4; letter-spacing: -.025em; }
+body.cinema-app .mine-item h3,body.cinema-app .content-panel h2 { font-size: 24px; font-weight: 550; line-height: 1.45; letter-spacing: -.025em; }
+body.cinema-app .content-panel p { font-size: 16px; font-weight: 400; line-height: 1.9; }
+body.cinema-app .modal-head h2 { font-size: 26px; font-weight: 550; line-height: 1.4; letter-spacing: -.025em; }
+body.cinema-app .simple-fold summary { font-size: 18px; font-weight: 500; letter-spacing: -.01em; }
+body.cinema-app .feature-card h3 { font-size: 20px; font-weight: 550; line-height: 1.5; }
+body.cinema-app .feature-card p { font-size: 16px; font-weight: 400; }
+body.cinema-app .status-tag,body.cinema-app .config-state { font-size: 13px; font-weight: 400; line-height: 1.5; letter-spacing: .035em; }
+body.cinema-app .button { font-size: 16px; font-weight: 550; line-height: 1.5; letter-spacing: .025em; }
+body.cinema-app .button.secondary,body.cinema-app .button.light { font-weight: 400; }
+body.cinema-app .work-copy h3 { font-size: 18px; font-weight: 550; line-height: 1.5; letter-spacing: -.015em; }
+body.cinema-app .work-copy > span { font-size: 12px; font-weight: 400; letter-spacing: .07em; }
+
+@media (max-width:1000px) and (min-width:701px) {
+  body.cinema-app .cinema-home .home-question h1 { font-size: 40px; }
+  body.cinema-app .cinema-home .home-question h1 > span { font-size: 55px; }
+  body.cinema-app .editorial-heading h1 { font-size: 54px; }
+  body.cinema-app .scenario-card h3 { font-size: 26px; }
+}
+@media (max-width:700px) {
+  body.cinema-app .cinema-home .home-question > p.slogan { font-size: 12px; }
+  body.cinema-app .cinema-home .home-question h1 { font-size: 28px; font-weight: 350; line-height: 1.25; letter-spacing: -.035em; }
+  body.cinema-app .cinema-home .home-question h1 > span { font-size: 38px; font-weight: 650; line-height: 1.2; letter-spacing: -.055em; }
+  body.cinema-app .cinema-home .home-question .home-service-note { font-size: 13px; line-height: 1.8; }
+  body.cinema-app .cinema-home .home-choice h2 { font-size: 26px; font-weight: 600; line-height: 1.25; }
+  body.cinema-app .cinema-home .home-choice-action { font-size: 13px; font-weight: 400; line-height: 1.6; }
+  body.cinema-app .editorial-heading h1 { font-size: 40px; font-weight: 600; line-height: 1.25; }
+  body.cinema-app .editorial-heading .definition { font-size: 17px; font-weight: 350; line-height: 1.8; }
+  body.cinema-app :is(.editorial-overview,.editorial-benefits,.editorial-scenarios) > h2 { font-size: 26px; font-weight: 600; line-height: 1.5; }
+  body.cinema-app :is(.editorial-overview,.editorial-benefits,.editorial-scenarios) > h2::before { width: 18px; margin-right: 10px; }
+  body.cinema-app .editorial-overview > p { font-size: 16px; line-height: 2; }
+  body.cinema-app .benefit-grid h3 { font-size: 22px; font-weight: 600; }
+  body.cinema-app .benefit-need { font-size: 16px; }
+  body.cinema-app .scenario-card h3 { font-size: 26px; font-weight: 600; line-height: 1.4; }
+  body.cinema-app .editorial-experience h2 { font-size: 38px; font-weight: 600; line-height: 1.3; }
+  body.cinema-app .editorial-experience p { font-size: 16px; }
+  body.cinema-app .application-detail > h1 { font-size: 32px; font-weight: 600; line-height: 1.4; }
+  body.cinema-app :is(.scenario-example,.scenario-production,.application-detail-section) > h2 { font-size: 24px; }
+  body.cinema-app .scenario-example > h3 { font-size: 22px; }
+  body.cinema-app .scenario-example p { font-size: 16px; }
+  body.cinema-app .samples-page h1 { font-size: 36px; font-weight: 600; }
+  body.cinema-app .samples-pending h2 { font-size: 28px; font-weight: 550; }
+  body.cinema-app .theme-card-copy h3 { font-size: 17px; }
+  body.cinema-app .config-theme-strip h1 { font-size: 24px; font-weight: 600; }
+  body.cinema-app .experience-panel h2 { font-size: 24px; font-weight: 600; }
+  body.cinema-app .page-intro h1 { font-size: 36px; font-weight: 600; }
+  body.cinema-app .cooperate-copy h2 { font-size: 34px; font-weight: 550; }
+  body.cinema-app .cooperate-direction > span { font-size: 17px; }
+  body.cinema-app .profile-card h2 { font-size: 23px; }
+  body.cinema-app .mine-item h3,body.cinema-app .content-panel h2 { font-size: 22px; }
+  body.cinema-app .modal-head h2 { font-size: 24px; }
+  body.cinema-app .simple-fold summary { font-size: 17px; }
+  body.cinema-app .work-copy h3 { font-size: 16px; }
+}
+@media (max-width:700px) and (max-height:710px) {
+  body.cinema-app .cinema-home .home-question h1 { font-size: 28px; line-height: 1.25; }
+  body.cinema-app .cinema-home .home-question h1 > span { font-size: 38px; line-height: 1.2; }
+  body.cinema-app .editorial-heading h1 { font-size: 36px; }
+}
+@media (max-width:340px) and (max-height:610px) {
+  body.cinema-app .cinema-home .home-question h1 { font-size: 25px; line-height: 1.16; }
+  body.cinema-app .cinema-home .home-question h1 > span { font-size: 32px; line-height: 1.16; }
+  body.cinema-app .cinema-home .home-question .home-service-note { font-size: 13px; line-height: 1.6; }
+  body.cinema-app .cinema-home .home-choice h2 { font-size: 26px; line-height: 1.25; }
+  body.cinema-app .editorial-heading h1 { font-size: 36px; }
+  body.cinema-app .config-theme-strip h1 { font-size: 22px; }
+}
