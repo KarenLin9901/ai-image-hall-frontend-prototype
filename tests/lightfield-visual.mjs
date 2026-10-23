@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { chromium } from 'playwright-core';
 
-// Exercise the dark glass release as customers see it: motion is enabled by default.
+// Exercise the cinematic image release as customers see it: motion is enabled by default.
 // The other interaction suites cover the nine configuration flows in more depth.
 const base = new URL(process.env.PREVIEW_URL || 'http://127.0.0.1:4193/ai-image-hall-frontend-prototype/');
 base.hash = '';
@@ -15,7 +15,7 @@ const scenarios = {
   hall: [['brand', '品牌推广与主题传播'], ['event', '活动互动与用户体验'], ['team', '企业文化与员工关怀'], ['campus', '校园与社群纪念']],
   bespoke: [['person', '人物故事'], ['family', '家庭记忆'], ['enterprise', '企业故事'], ['city', '城市与历史']],
 };
-const report = { base: base.href, status: 'running', viewports: [], anchors: [], scenarios: [], motion: [], showcase: [], surfaces: [], sharedLinks: [], pages: [], screenshots: [], errors: [], missingAssets: [], failedRequests: [] };
+const report = { base: base.href, status: 'running', viewports: [], anchors: [], scenarios: [], motion: [], productEntries: [], photoEntryInteractions: [], nativeScroll: [], backgrounds: [], sharedLinks: [], pages: [], screenshots: [], errors: [], missingAssets: [], failedRequests: [] };
 let browser;
 let activePage;
 await mkdir('outputs', { recursive: true });
@@ -78,51 +78,57 @@ async function hitTarget(locator, label) {
   return result;
 }
 
-async function lightfieldPresent(page, label) {
-  const visual = page.locator('.lf-visual.glass-showcase');
-  assert.equal(await visual.count(), 1, `${label}: the selected glass photo showcase should be present`);
-  const semantics = await visual.evaluate(element => ({ role: element.getAttribute('role'), name: element.getAttribute('aria-label') }));
-  assert.equal(semantics.role, 'region', `${label}: interactive photo showcase should expose a named region`);
-  assert.equal(semantics.name, '影像场景灵感', `${label}: photo showcase needs a clear accessible name`);
-  assert.equal(await visual.locator('img').count(), 5, `${label}: all five scene photographs should remain available`);
-  const controls = visual.getByRole('button');
-  const names = await controls.evaluateAll(elements => elements.map(element => element.getAttribute('aria-label') || element.textContent?.trim()));
-  const keyboardStops = await visual.locator('button:not([tabindex="-1"])').count();
-  assert.ok(keyboardStops >= 2 && keyboardStops <= 8, `${label}: showcase controls should provide a small set of useful keyboard navigation choices`);
-  assert.ok(names.every(name => name?.trim()), `${label}: every showcase button needs an accessible name`);
-  assert.equal(new Set(names).size, names.length, `${label}: showcase control names should identify distinct actions`);
-  assert.equal(await visual.locator('a[href], input, select, textarea').count(), 0, `${label}: photo gallery must not introduce unrelated tasks`);
+async function cinematicEntries(page, label) {
+  assert.equal(await page.locator('.glass-showcase,.lf-visual').count(), 0, `${label}: the old decorative photo gallery should not remain in the home flow`);
+  assert.equal(await page.locator('.simple-home button').count(), 0, `${label}: the home should not add decorative carousel controls`);
+  const entries = page.locator('.home-choice');
+  assert.equal(await entries.count(), 2, `${label}: both image-led product entries should remain present`);
+  for (const [business, name] of Object.entries(products)) {
+    const entry = page.getByRole('link', { name, exact: true });
+    const image = entry.locator('img.home-choice-image');
+    assert.equal(await image.count(), 1, `${label} ${business}: each product entry needs one full photograph`);
+    const presentation = await entry.evaluate(element => {
+      const image = element.querySelector('img.home-choice-image');
+      const entryBox = element.getBoundingClientRect();
+      const imageBox = image.getBoundingClientRect();
+      const imageStyle = getComputedStyle(image);
+      const before = getComputedStyle(element, '::before');
+      const after = getComputedStyle(element, '::after');
+      const overlayGradients = [getComputedStyle(element).backgroundImage, before.backgroundImage, after.backgroundImage, ...[...element.querySelectorAll('div,span')].map(child => getComputedStyle(child).backgroundImage)].filter(value => /gradient\(/.test(value));
+      const text = [...element.querySelectorAll('h2,.home-choice-action')].map(child => {
+        const box = child.getBoundingClientRect(); const style = getComputedStyle(child);
+        return { value: child.textContent?.trim(), left: box.left, right: box.right, top: box.top, bottom: box.bottom, color: style.color };
+      });
+      return { href: element.getAttribute('href'), naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight, imageFit: imageStyle.objectFit, source: image.currentSrc || image.src, entry: { left: entryBox.left, right: entryBox.right, top: entryBox.top, bottom: entryBox.bottom, width: entryBox.width, height: entryBox.height }, image: { left: imageBox.left, right: imageBox.right, top: imageBox.top, bottom: imageBox.bottom, width: imageBox.width, height: imageBox.height }, overlayGradients, text };
+    });
+    assert.equal(presentation.href, '#/' + business, `${label}: image entry should lead directly to its own product`);
+    assert.ok(presentation.naturalWidth >= 800 && presentation.naturalHeight > 0, `${label} ${business}: product photography must decode at a useful resolution`);
+    assert.equal(presentation.imageFit, 'cover', `${label} ${business}: product photograph should fill its entry without distortion`);
+    assert.ok(presentation.image.left <= presentation.entry.left + 4 && presentation.image.right >= presentation.entry.right - 4 && presentation.image.top <= presentation.entry.top + 4 && presentation.image.bottom >= presentation.entry.bottom - 4, `${label} ${business}: photograph should cover the full entry instead of a small thumbnail, allowing slow image zoom`);
+    const hasDarkGradient = presentation.overlayGradients.some(gradient => [...gradient.matchAll(/rgba?\(([^)]+)\)/g)].some(match => {
+      const channels = match[1].match(/[\d.]+/g)?.map(Number) || [];
+      return channels.length >= 3 && Math.max(...channels.slice(0, 3)) < 100 && (channels.length < 4 || channels[3] >= .25);
+    }));
+    assert.ok(hasDarkGradient, `${label} ${business}: image needs a dark gradient layer behind overlaid text`);
+    assert.equal(presentation.text.length, 2, `${label} ${business}: product name and concise service description should remain present`);
+    assert.ok(presentation.text.every(text => Math.max(...(text.color.match(/[\d.]+/g)?.slice(0, 3).map(Number) || [])) >= 160), `${label} ${business}: image text should retain a light foreground colour`);
+    assert.ok(presentation.text.every(text => text.value && text.left >= presentation.image.left - 1 && text.right <= presentation.image.right + 1 && text.top >= presentation.image.top - 1 && text.bottom <= presentation.image.bottom + 1), `${label} ${business}: both text lines should sit clearly inside the full photograph`);
+    report.productEntries.push({ label, business, ...presentation });
+  }
 }
 
-async function glassSurfaces(page, label) {
+async function cinematicBackground(page, label) {
   const background = await page.evaluate(() => {
     const body = getComputedStyle(document.body);
     const root = getComputedStyle(document.documentElement);
     return { image: body.backgroundImage, color: body.backgroundColor, rootImage: root.backgroundImage, rootColor: root.backgroundColor, colorScheme: body.colorScheme };
   });
-  assert.ok(/gradient\(/.test(background.image + background.rootImage), `${label}: the main background should retain dark colour gradients`);
   const bodyChannels = background.color.match(/[\d.]+/g)?.map(Number) || [];
   const foundation = bodyChannels.length === 4 && bodyChannels[3] === 0 ? background.rootColor : background.color;
   const channels = foundation.match(/[\d.]+/g)?.map(Number) || [];
-  assert.ok(channels.length >= 3 && channels.slice(0, 3).some(value => value > 0) && Math.max(...channels.slice(0, 3)) < 100, `${label}: background needs a dark coloured foundation rather than solid black or white`);
+  assert.ok(channels.length >= 3 && Math.max(...channels.slice(0, 3)) < 80, `${label}: the cinematic presentation needs a black or near-black foundation`);
   assert.ok(background.colorScheme.includes('dark'), `${label}: native controls should use the dark colour scheme`);
-  const panel = page.locator('.home-choice').first();
-  const initial = await panel.evaluate(element => {
-    const style = getComputedStyle(element); const rect = element.getBoundingClientRect();
-    return { background: style.backgroundColor, image: style.backgroundImage, filter: style.backdropFilter || style.webkitBackdropFilter, width: rect.width, height: rect.height };
-  });
-  const glassFilters = await page.locator('.topbar,.home-choice,.glass-showcase .gs-card').evaluateAll(elements => elements.map(element => { const style = getComputedStyle(element); return style.backdropFilter || style.webkitBackdropFilter || 'none'; }));
-  assert.ok(glassFilters.some(filter => filter !== 'none'), `${label}: supported glass filtering should be present on a limited set of surfaces`);
-  const fallbackStyle = await page.addStyleTag({ content: '.home-choice,.topbar,.glass-showcase{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}' });
-  const fallback = await panel.evaluate(element => {
-    const style = getComputedStyle(element); const rect = element.getBoundingClientRect();
-    return { background: style.backgroundColor, image: style.backgroundImage, color: style.color, width: rect.width, height: rect.height };
-  });
-  await fallbackStyle.evaluate(element => element.remove());
-  const fallbackChannels = fallback.background.match(/[\d.]+/g)?.map(Number) || [];
-  assert.ok((fallbackChannels.length >= 3 && (fallbackChannels.length < 4 || fallbackChannels[3] > 0)) || /gradient\(/.test(fallback.image), `${label}: disabling backdrop filters should retain a visible panel background`);
-  assert.ok(Math.abs(initial.width - fallback.width) < 1 && Math.abs(initial.height - fallback.height) < 1, `${label}: glass fallback must not change the product entry geometry`);
-  report.surfaces.push({ label, background, initial, fallback, glassFilters });
+  report.backgrounds.push({ label, ...background });
 }
 
 async function touchGesture(page, from, to) {
@@ -139,91 +145,48 @@ async function touchGesture(page, from, to) {
   }
 }
 
-const showcaseIndex = page => page.locator('.glass-showcase .gs-card').evaluateAll(elements => elements.findIndex(element => element.getAttribute('aria-pressed') === 'true'));
-
-async function waitShowcase(page, index) {
-  await page.waitForFunction(expected => {
-    const cards = [...document.querySelectorAll('.glass-showcase .gs-card')];
-    const dots = [...document.querySelectorAll('.glass-showcase .gs-dot')];
-    return cards.findIndex(element => element.getAttribute('aria-pressed') === 'true') === expected && dots.findIndex(element => element.getAttribute('aria-current') === 'true') === expected && cards.filter(element => element.getAttribute('aria-pressed') === 'true').length === 1 && dots.filter(element => element.getAttribute('aria-current') === 'true').length === 1;
-  }, index);
+async function tapProductPhoto(page, business, label) {
+  const entry = page.getByRole('link', { name: products[business], exact: true });
+  const photoTarget = await entry.evaluate(element => {
+    const rect = element.getBoundingClientRect();
+    const x = rect.left + rect.width * .78;
+    const y = rect.top + rect.height * .3;
+    const hit = document.elementFromPoint(x, y);
+    return { x, y, exposed: !!hit && (hit === element || element.contains(hit)), localX: rect.width * .78, localY: rect.height * .3 };
+  });
+  assert.ok(photoTarget.exposed, `${label} ${business}: full photo area should be a usable product entry`);
+  await entry.tap({ position: { x: photoTarget.localX, y: photoTarget.localY } });
+  await waitRoute(page, '/' + business);
+  assert.equal(await page.locator('main h1').innerText(), products[business]);
+  report.photoEntryInteractions.push({ label, business, nativeTap: true, ...photoTarget });
 }
 
-async function galleryControls(page, label, { swipe = false, verticalScroll = false } = {}) {
-  const visual = page.getByRole('region', { name: '影像场景灵感', exact: true });
-  const cards = visual.locator('.gs-card');
-  const dots = visual.locator('.gs-dot');
-  const initial = await showcaseIndex(page);
-  await hitTarget(visual.getByRole('button', { name: '下一个影像场景', exact: true }), `${label} next scene`);
-  await visual.getByRole('button', { name: '下一个影像场景', exact: true }).click();
-  await waitShowcase(page, (initial + 1) % 5);
-  await visual.getByRole('button', { name: '上一个影像场景', exact: true }).click();
-  await waitShowcase(page, initial);
-  await dots.nth(2).click();
-  await waitShowcase(page, 2);
-  // Only the selected photo is a keyboard stop; arrow/Home/End bubble from it.
-  await cards.nth(2).focus();
-  await page.keyboard.press('ArrowRight');
-  await waitShowcase(page, 3);
-  await page.keyboard.press('ArrowLeft');
-  await waitShowcase(page, 2);
-  await page.keyboard.press('Home');
-  await waitShowcase(page, 0);
-  await page.keyboard.press('End');
-  await waitShowcase(page, 4);
-  await dots.nth(0).focus();
-  await page.keyboard.press('Enter');
-  await waitShowcase(page, 0);
-  // Clicking an exposed side photograph brings that photograph to the centre.
-  await page.waitForTimeout(800);
-  const side = cards.nth(1);
-  const exposed = await side.evaluate(element => {
-    const rect = element.getBoundingClientRect();
-    for (const fx of [.9, .75, .6, .4, .25, .1]) for (const fy of [.35, .5, .65]) {
-      const x = rect.left + rect.width * fx, y = rect.top + rect.height * fy;
-      const hit = document.elementFromPoint(x, y);
-      if (hit && (hit === element || element.contains(hit))) return { x, y };
-    }
-    return null;
+async function homeVerticalScroll(page, label) {
+  // The real home fits one screen. A temporary inert spacer allows an actual
+  // browser touch scroll to verify that image entries do not swallow pan-y.
+  const originalRoute = page.url();
+  await page.evaluate(() => {
+    const spacer = document.createElement('div');
+    spacer.dataset.qaScrollSpacer = 'true';
+    spacer.setAttribute('aria-hidden', 'true');
+    spacer.style.height = '900px';
+    document.body.append(spacer);
+    scrollTo({ top: 0, behavior: 'instant' });
   });
-  assert.ok(exposed, `${label}: a neighbouring photograph must remain touchable`);
-  await page.mouse.click(exposed.x, exposed.y);
-  await waitShowcase(page, 1);
-  if (swipe) {
-    await page.waitForTimeout(800);
-    const bounds = await visual.boundingBox();
-    assert.ok(bounds, `${label}: gallery bounds required for native touch`);
-    const y = bounds.y + bounds.height * .34;
-    await touchGesture(page, { x: bounds.x + bounds.width * .72, y }, { x: bounds.x + bounds.width * .3, y });
-    await waitShowcase(page, 2);
-    await page.waitForTimeout(450);
-    await touchGesture(page, { x: bounds.x + bounds.width * .3, y }, { x: bounds.x + bounds.width * .72, y });
-    await waitShowcase(page, 1);
+  let finalScroll = 0;
+  try {
+    const bounds = await page.locator('.home-choice').first().boundingBox();
+    assert.ok(bounds, `${label}: image entry bounds required for native vertical gesture`);
+    const start = { x: bounds.x + bounds.width * .75, y: bounds.y + bounds.height * .7 };
+    await touchGesture(page, start, { x: start.x + 3, y: start.y - 80 });
+    await page.waitForFunction(() => scrollY > 15);
+    finalScroll = await page.evaluate(() => scrollY);
+    assert.equal(page.url(), originalRoute, `${label}: a vertical gesture should scroll without following a product link`);
+  } finally {
+    await page.evaluate(() => { document.querySelector('[data-qa-scroll-spacer]')?.remove(); scrollTo({ top: 0, behavior: 'instant' }); });
+    await frames(page);
   }
-  if (verticalScroll) {
-    // The real home fits one screen. A temporary inert spacer allows an actual
-    // browser touch scroll to verify that the gallery does not swallow pan-y.
-    await page.evaluate(() => {
-      const spacer = document.createElement('div');
-      spacer.dataset.qaScrollSpacer = 'true';
-      spacer.setAttribute('aria-hidden', 'true');
-      spacer.style.height = '900px';
-      document.body.append(spacer);
-      scrollTo(0, 0);
-    });
-    try {
-      const bounds = await visual.boundingBox();
-      const start = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height * .6 };
-      const before = await showcaseIndex(page);
-      await touchGesture(page, start, { x: start.x + 3, y: start.y - 80 });
-      await page.waitForFunction(() => scrollY > 15);
-      assert.equal(await showcaseIndex(page), before, `${label}: a vertical gesture should scroll without changing the photograph`);
-    } finally {
-      await page.evaluate(() => { document.querySelector('[data-qa-scroll-spacer]')?.remove(); scrollTo(0, 0); });
-      await frames(page);
-    }
-  }
-  report.showcase.push({ label, initial, final: await showcaseIndex(page), click: true, keyboard: true, nativeHorizontalTouch: swipe, nativeVerticalScroll: verticalScroll });
+  report.nativeScroll.push({ label, finalScroll, routeUnchanged: true });
 }
 
 async function screenshot(page, name) {
@@ -276,9 +239,9 @@ try {
     observe(page);
     await route(page, '/');
     await imagesDecode(page);
-    await lightfieldPresent(page, 'home');
-    await glassSurfaces(page, `${viewport.width} home`);
-    await galleryControls(page, `${viewport.width} default`, { swipe: true, verticalScroll: true });
+    await cinematicEntries(page, `${viewport.width} home`);
+    await cinematicBackground(page, `${viewport.width} home`);
+    await homeVerticalScroll(page, `${viewport.width} default`);
     const heading = await page.locator('main h1').innerText();
     assert.equal(await page.locator('main h1').getAttribute('aria-label'), '你想如何创作一部AI影像？');
     assert.ok(heading.trim().length > 5, 'home needs a meaningful customer-facing statement');
@@ -296,8 +259,7 @@ try {
     report.viewports.push({ viewport, heading, ...geometry });
     for (const [business, name] of Object.entries(products)) {
       await route(page, '/');
-      await page.getByRole('link', { name, exact: true }).tap();
-      await waitRoute(page, '/' + business);
+      await tapProductPhoto(page, business, `${viewport.width} default`);
       assert.equal(await page.locator('main h1').innerText(), name);
       await imagesDecode(page);
       await noOverflow(page, `${viewport.width} ${business} intro`);
@@ -390,11 +352,10 @@ try {
   await page.getByRole('button', { name: '恢复动效', exact: true }).waitFor();
   await frames(page);
   assert.deepEqual(await continuousAnimations(page), [], 'global pause must stop continuous animations');
-  await galleryControls(page, 'manual pause', { swipe: true });
-  assert.deepEqual(await continuousAnimations(page), [], 'carousel interaction must not restart globally paused motion');
+  await homeVerticalScroll(page, 'manual pause');
+  assert.deepEqual(await continuousAnimations(page), [], 'image entry interaction must not restart globally paused motion');
   for (const business of Object.keys(products)) {
-    await page.getByRole('link', { name: products[business], exact: true }).tap();
-    await waitRoute(page, '/' + business);
+    await tapProductPhoto(page, business, 'manual pause');
     await frames(page);
     assert.deepEqual(await continuousAnimations(page), [], `${business}: pause should survive route changes`);
     await page.getByRole('button', { name: '场景启发', exact: true }).click();
@@ -421,8 +382,14 @@ try {
     assert.deepEqual(await continuousAnimations(reducedPage), [], `${path}: system reduced motion must stop continuous animation`);
     await noOverflow(reducedPage, path + ' reduced motion');
     if (path === '/') {
-      await galleryControls(reducedPage, 'system reduced motion', { swipe: true });
-      assert.deepEqual(await continuousAnimations(reducedPage), [], 'carousel interaction must respect system reduced motion');
+      await homeVerticalScroll(reducedPage, 'system reduced motion');
+      for (const business of Object.keys(products)) {
+        await tapProductPhoto(reducedPage, business, 'system reduced motion');
+        assert.deepEqual(await continuousAnimations(reducedPage), [], `${business}: photo entry navigation must respect system reduced motion`);
+        await reducedPage.getByRole('button', { name: '返回首页', exact: true }).click();
+        await waitRoute(reducedPage, '/');
+      }
+      assert.deepEqual(await continuousAnimations(reducedPage), [], 'photo entry interaction must respect system reduced motion');
     }
   }
   report.motion.push({ state: 'system reduced motion', running: await continuousAnimations(reducedPage) });
@@ -432,7 +399,7 @@ try {
   assert.deepEqual(report.missingAssets, [], 'no missing same-origin assets');
   assert.deepEqual(report.failedRequests, [], 'no failed resources');
   report.status = 'passed';
-  console.log(`Lightfield visual/mobile checks passed: ${report.viewports.length} viewports, ${report.anchors.length} product anchors, ${report.scenarios.length} scenarios, gallery click/keyboard/native touch, motion controls, and ${report.sharedLinks.length} followed share links.`);
+  console.log(`Cinematic visual/mobile checks passed: ${report.viewports.length} viewports, ${report.productEntries.length} full-photo entries, ${report.photoEntryInteractions.length} native product-entry taps, ${report.nativeScroll.length} native scroll checks, ${report.anchors.length} product anchors, ${report.scenarios.length} scenarios, motion controls, and ${report.sharedLinks.length} followed share links.`);
 } catch (error) {
   report.status = 'failed';
   report.failure = { message: error.message, stack: error.stack, url: activePage && !activePage.isClosed() ? activePage.url() : null };

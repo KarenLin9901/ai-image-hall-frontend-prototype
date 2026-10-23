@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { asset, reference, categories, categoryById, businessName, illustrativeWorks, publishedWorks, cases, highlights, productPresentations, productBenefits, scenarioExamples, businessApplications, themeImages, getShowcaseSlides, getThemeConfiguration, themeConfigurations, experiencePath, type ThemeConfiguration, type Media, type Business, type Category } from './guangdang-data';
-import GlassShowcase from './GlassShowcase';
 
 type ThemeDraft={step:number;choices:string[];photo:string;authorized:boolean};
 type ProductSection='experience'|'introduction'|'applications';
@@ -65,12 +64,11 @@ function LinkButton({to,children,className='button',ariaLabel}:{to:string;childr
 function Eyebrow(_props:{children:ReactNode}) { return null; }
 function Empty({title,children}:{title:string;children:ReactNode}) { return <div className="empty"><div className="empty-icon"><Icon name="image" size={30}/></div><h3>{title}</h3><p>{children}</p></div>; }
 
-function Home({paused}:{paused:boolean}){return <section className="simple-home lightfield-home" aria-label="选择影像服务">
+function Home(){return <section className="simple-home lightfield-home cinema-home" aria-label="选择影像服务">
  <div className="home-question"><p className="slogan">属于你的AI片场</p><h1 aria-label="你想如何创作一部AI影像？">你想如何创作<span>一部AI影像？</span></h1><p className="home-service-note">互动生成，还是专属创作？选择适合你的影像服务。</p></div>
- <GlassShowcase paused={paused}/>
  <div className="home-choices">
-  <a className="home-choice" aria-label="AI影像馆" href="#/hall"><span className="home-choice-no" aria-hidden="true">01</span><div><h2>AI影像馆</h2><span className="home-choice-action">模板化互动影像产品</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
-  <a className="home-choice bespoke-choice" aria-label="高定AI影像" href="#/bespoke"><span className="home-choice-no" aria-hidden="true">02</span><div><h2>高定AI影像</h2><span className="home-choice-action">精品AI影像创作服务</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
+  <a className="home-choice" aria-label="AI影像馆" href="#/hall"><span className="home-choice-backdrop" aria-hidden="true"><Picture src={reference(2)} alt="" className="home-choice-image" eager/></span><span className="home-choice-no" aria-hidden="true">01</span><div><h2>AI影像馆</h2><span className="home-choice-action">模板化互动影像产品</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
+  <a className="home-choice bespoke-choice" aria-label="高定AI影像" href="#/bespoke"><span className="home-choice-backdrop" aria-hidden="true"><Picture src={reference(3)} alt="" className="home-choice-image" eager/></span><span className="home-choice-no" aria-hidden="true">02</span><div><h2>高定AI影像</h2><span className="home-choice-action">精品AI影像创作服务</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
  </div>
  <div className="home-end"><span>让想象，成为影像。</span><LinkButton to="/cooperate" className="text-link">聊聊你的项目<Icon name="arrow" size={16}/></LinkButton></div>
 </section>;}
@@ -291,7 +289,7 @@ export default function Guangdang(){
  const focusedPath=useRef('');
  const memory=useRef<BrowsingMemory>({carouselIndices:{hall:0,bespoke:0},productViews:{hall:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}},bespoke:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}}},draft:null,inquiryDrafts:{},sampleViews:{hall:{open:false,scroll:0},bespoke:{open:false,scroll:0}}});
  useEffect(()=>{const preference=matchMedia('(prefers-reduced-motion: reduce)');const change=()=>setReduceMotion(preference.matches);preference.addEventListener('change',change);return()=>preference.removeEventListener('change',change);},[]);
- useLayoutEffect(()=>{document.body.classList.add('lightfield-app','glass-app');document.body.classList.toggle('motion-paused',motionPaused);return()=>{document.body.classList.remove('lightfield-app','glass-app','motion-paused');};},[motionPaused]);
+ useLayoutEffect(()=>{document.body.classList.add('lightfield-app','cinema-app');document.body.classList.toggle('motion-paused',motionPaused);return()=>{document.body.classList.remove('lightfield-app','cinema-app','motion-paused');};},[motionPaused]);
  useEffect(()=>{
   if(motionPaused||!('IntersectionObserver' in window))return;
   const animations:Animation[]=[];
@@ -357,7 +355,7 @@ export default function Guangdang(){
  const configuration=configurationForRoute(route);
  const active=path.startsWith('/cooperate')?'cooperate':path.startsWith('/mine')?'mine':path==='/works'?'works':path==='/'||path==='/hall'||path==='/bespoke'||parts[0]==='experience'||parts[0]==='samples'||Boolean(c)?'home':'';
  let page:ReactNode;
- if(path==='/')page=<Home paused={motionPaused}/>;
+ if(path==='/')page=<Home/>;
  else if(path==='/hall'||path==='/bespoke')page=<Catalogue key={path} business={path.slice(1) as Business} memory={memory.current} route={route}/>;
  else if(parts[0]==='samples'&&(parts[1]==='hall'||parts[1]==='bespoke')&&parts.length===2)page=<Samples key={route} business={parts[1]} memory={memory.current} route={route}/>;
  else if(parts[0]==='category'&&c)page=<Detail key={route} category={c}/>;

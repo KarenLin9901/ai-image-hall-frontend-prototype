@@ -128,7 +128,16 @@ try{
   assert.ok(layout.scroll<=layout.height+1,`home should fit one screen: ${JSON.stringify({size,...layout})}`);assert.ok(layout.lastBottom<=layout.navTop);await noOverflow('home');
  }
  await page.setViewportSize({width:390,height:844});await route('/');
- assert.ok(await page.evaluate(()=>{const style=getComputedStyle(document.body);const colors=style.backgroundImage.match(/rgba?\([^)]*\)/g)||[];return style.backgroundImage.includes('gradient')&&colors.length>1&&colors.every(color=>{const rgb=color.match(/[\d.]+/g).slice(0,3).map(Number);return (rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722)<100;});}),'selected glass theme keeps a dark, colored gradient reading surface');
+ assert.ok(await page.evaluate(()=>{
+  const style=getComputedStyle(document.body);
+  const base=style.backgroundColor.match(/[\d.]+/g).map(Number);
+  const colors=style.backgroundImage.match(/rgba?\([^)]*\)/g)||[];
+  const luminance=rgb=>rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;
+  return luminance(base)<20&&style.backgroundImage.includes('gradient')&&colors.length>1&&colors.every(color=>{
+   const channels=color.match(/[\d.]+/g).map(Number),alpha=channels[3]??1;
+   return luminance(channels.slice(0,3).map((value,index)=>value*alpha+base[index]*(1-alpha)))<32;
+  });
+ }),'selected cinema theme keeps a predominantly black gradient reading surface');
  assert.equal(await page.getByRole('img',{name:'咣当原品牌Logo',exact:true}).getAttribute('src'),'/ai-image-hall-frontend-prototype/images/brand/guangdang-logo.png');
  assert.equal(await page.getByRole('button',{name:'关于原型',exact:true}).isVisible(),false);await screenshot('home-mobile');
  for(const business of ['hall','bespoke'])await assertEditorial(business);
