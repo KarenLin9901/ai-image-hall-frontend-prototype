@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { asset, reference, categories, categoryById, businessName, illustrativeWorks, publishedWorks, cases, highlights, productPresentations, businessApplications, themeImages, getShowcaseSlides, getThemeConfiguration, themeConfigurations, experiencePath, type ThemeConfiguration, type Media, type Business, type Category } from './guangdang-data';
+import { asset, reference, categories, categoryById, businessName, illustrativeWorks, publishedWorks, cases, highlights, productPresentations, productBenefits, scenarioExamples, businessApplications, themeImages, getShowcaseSlides, getThemeConfiguration, themeConfigurations, experiencePath, type ThemeConfiguration, type Media, type Business, type Category } from './guangdang-data';
+import LightfieldVisual from './LightfieldVisual';
 
 type ThemeDraft={step:number;choices:string[];photo:string;authorized:boolean};
 type ProductSection='experience'|'introduction'|'applications';
 type ProductView={section:ProductSection;filter:string;scroll:Record<ProductSection,number>};
 type InquiryDraft={direction:string;description:string;organization:string;timing:string;scope:string;name:string;contact:string};
-type BrowsingMemory={carouselIndices:Record<Business,number>;productViews:Record<Business,ProductView>;draft:{themeId:string;value:ThemeDraft}|null;inquiryDrafts:Record<string,InquiryDraft>};
-type InquirySource='product'|'application'|'theme';
+type BrowsingMemory={carouselIndices:Record<Business,number>;productViews:Record<Business,ProductView>;draft:{themeId:string;value:ThemeDraft}|null;inquiryDrafts:Record<string,InquiryDraft>;sampleViews:Record<Business,{open:boolean;scroll:number}>};
+type InquirySource='product'|'application'|'theme'|'samples';
 type InquiryOptions={source?:InquirySource;section?:ProductSection;direction?:string;theme?:string};
 function inquiryPath(business:Business,options:InquiryOptions={}){
  const params=new URLSearchParams({product:business,source:options.source||'product'});
@@ -26,12 +27,12 @@ function inquiryContext(route:string){
  const direction=category||(theme?categoryById.get(theme.categoryId):undefined);
  const requestedSection=params.get('section');
  const section:ProductSection=requestedSection==='introduction'||requestedSection==='applications'?requestedSection:'experience';
- const source:InquirySource=params.get('source')==='theme'&&theme?'theme':params.get('source')==='application'&&direction?'application':params.has('source')||!direction?'product':'application';
- const returnTo=source==='theme'&&theme?experiencePath(theme.categoryId,theme.id):source==='application'&&direction?'/category/'+direction.id:business?'/'+business+'?section='+section:'/';
- const returnLabel=source==='theme'?'返回主题配置':source==='application'?'返回应用详情':business?'返回'+businessName(business):'返回首页';
+ const source:InquirySource=params.get('source')==='samples'&&business?'samples':params.get('source')==='theme'&&theme?'theme':params.get('source')==='application'&&direction?'application':params.has('source')||!direction?'product':'application';
+ const returnTo=source==='samples'&&business?'/samples/'+business+(direction?'?category='+direction.id:''):source==='theme'&&theme?experiencePath(theme.categoryId,theme.id):source==='application'&&direction?'/category/'+direction.id:business?'/'+business+'?section='+section:'/';
+ const returnLabel=source==='samples'?'返回样片专区':source==='theme'?'返回主题配置':source==='application'?'返回应用详情':business?'返回'+businessName(business):'返回首页';
  return {business,direction,theme,section,source,returnTo,returnLabel,key:[business||'all',direction?.id||'',theme?.id||''].join(':')};
 }
-type IconName = 'home'|'works'|'cooperate'|'mine'|'arrow'|'back'|'close'|'play'|'check'|'spark'|'copy'|'image';
+type IconName = 'home'|'works'|'cooperate'|'mine'|'arrow'|'back'|'close'|'play'|'pause'|'check'|'spark'|'copy'|'image';
 function Icon({name,size=22}:{name:IconName;size?:number}) {
  const paths:Record<IconName,ReactNode> = {
   home:<><path d="m3 10 9-7 9 7v10H3Z"/><path d="M9 20v-7h6v7"/></>,
@@ -39,7 +40,7 @@ function Icon({name,size=22}:{name:IconName;size?:number}) {
   cooperate:<><path d="m3 9 5-5 4 3 4-3 5 5-7 10-4-1Z"/><path d="m7 12 6 6M10 9l7 6"/></>,
   mine:<><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></>,
   arrow:<><path d="M4 12h15m-6-6 6 6-6 6"/></>, back:<path d="m15 5-7 7 7 7"/>,close:<path d="m6 6 12 12M6 18 18 6"/>,
-  play:<path d="m9 5 11 7-11 7Z"/>,check:<path d="m5 12 4 4L19 6"/>, spark:<><path d="m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z"/></>,
+  play:<path d="m9 5 11 7-11 7Z"/>,pause:<><path d="M9 5v14M15 5v14"/></>,check:<path d="m5 12 4 4L19 6"/>, spark:<><path d="m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z"/></>,
   copy:<><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></>,image:<><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="2"/><path d="m3 17 6-5 4 3 3-3 5 5"/></>,
  };
  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
@@ -64,117 +65,90 @@ function LinkButton({to,children,className='button',ariaLabel}:{to:string;childr
 function Eyebrow(_props:{children:ReactNode}) { return null; }
 function Empty({title,children}:{title:string;children:ReactNode}) { return <div className="empty"><div className="empty-icon"><Icon name="image" size={30}/></div><h3>{title}</h3><p>{children}</p></div>; }
 
-function Home(){return <section className="simple-home" aria-label="选择影像服务">
- <div className="home-question"><p>属于你的AI片场</p><h1>你的项目，需要哪种影像？</h1></div>
+function Home({paused}:{paused:boolean}){return <section className="simple-home lightfield-home" aria-label="选择影像服务">
+ <div className="home-question"><p className="slogan">属于你的AI片场</p><h1 aria-label="让品牌被看见，让故事被记住。">让品牌被看见，<span>让故事被记住。</span></h1><p className="home-service-note">面向品牌、企业与机构的AI影像服务</p></div>
+ <LightfieldVisual paused={paused}/>
  <div className="home-choices">
-  <a className="home-choice" aria-label="AI影像馆" href="#/hall"><div><h2>AI影像馆</h2><span className="home-choice-action">体验主题互动<Icon name="arrow" size={20}/></span></div><Picture src={reference(2)} alt="AI影像馆" eager/></a>
-  <a className="home-choice bespoke-choice" aria-label="高定AI影像" href="#/bespoke"><div><h2>高定AI影像</h2><span className="home-choice-action">了解专属制作<Icon name="arrow" size={20}/></span></div><Picture src={reference(3)} alt="高定AI影像" eager/></a>
+  <a className="home-choice" aria-label="AI影像馆" href="#/hall"><span className="home-choice-no" aria-hidden="true">01</span><div><h2>AI影像馆</h2><span className="home-choice-action">为品牌与活动定制互动影像</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
+  <a className="home-choice bespoke-choice" aria-label="高定AI影像" href="#/bespoke"><span className="home-choice-no" aria-hidden="true">02</span><div><h2>高定AI影像</h2><span className="home-choice-action">为企业与机构创作专属影片</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
  </div>
+ <div className="home-end"><span>让想象，成为影像。</span><LinkButton to="/cooperate" className="text-link">聊聊你的项目<Icon name="arrow" size={16}/></LinkButton></div>
 </section>;}
 
-const productSections=[{id:'experience',label:'产品体验'},{id:'introduction',label:'产品介绍'},{id:'applications',label:'商业应用'}] as const;
-const sampleOrder=['enterprise','city','person','family'];
-const sampleUses:Record<string,string>={person:'人物专访 · 员工故事',family:'亲情纪念 · 家庭服务',enterprise:'企业历程 · 品牌精神',city:'城市记忆 · 文旅文化'};
 const themeGroups=[{id:'all',label:'全部主题'},{id:'brand',label:'城市品牌'},{id:'event',label:'活动节庆'},{id:'team',label:'职场团队'},{id:'campus',label:'校园青春'}];
-
 function Catalogue({business,memory,route}:{business:Business;memory:BrowsingMemory;route:string}){
  const view=memory.productViews[business];
  const requested=new URLSearchParams(route.split('?')[1]||'').get('section');
- const section:ProductSection=productSections.some(item=>item.id===requested)?requested as ProductSection:view.section;
- const [filter,setFilter]=useState(view.filter);
+ const section:ProductSection=requested==='experience'||requested==='applications'?requested:'introduction';
+ const [activeSection,setActiveSection]=useState('overview');
  const profile=productPresentations[business];
- const filteredThemes=themeConfigurations.filter(theme=>filter==='all'||theme.categoryId===filter);
- const tabs=useRef<HTMLElement>(null);
+ const sections=[{id:'overview',label:'产品简介'},{id:'benefits',label:'特点优势'},{id:'scenes',label:'场景启发'},{id:'try',label:'立即体验'}];
  useLayoutEffect(()=>{
-  view.section=section;
-  const savedPosition=view.scroll[section];
-  let restoring=true;let releaseFrame=0;
-  const saveScroll=()=>{if(!restoring)view.scroll[section]=window.scrollY;};
-  window.addEventListener('scroll',saveScroll,{passive:true});
+  view.section=section;let restoring=true;let release=0;
+  const save=()=>{if(!restoring)view.scroll[section]=window.scrollY;};
+  window.addEventListener('scroll',save,{passive:true});
   const frame=requestAnimationFrame(()=>{
-   window.scrollTo({top:savedPosition,behavior:'instant'});
-   releaseFrame=requestAnimationFrame(()=>{restoring=false;});
+   const target=section==='applications'?'scenes':section==='experience'?'try':'';
+   if(view.scroll[section]>0)window.scrollTo({top:view.scroll[section],behavior:'instant'});
+   else if(target)document.getElementById(business+'-'+target)?.scrollIntoView({block:'start'});
+   release=requestAnimationFrame(()=>{restoring=false;});
   });
-  return()=>{cancelAnimationFrame(frame);cancelAnimationFrame(releaseFrame);window.removeEventListener('scroll',saveScroll);};
- },[section,view]);
- function selectSection(next:ProductSection){
-  if(next===section)return;
-  view.scroll[section]=window.scrollY;view.section=next;
-  go('/'+business+'?section='+next);
-  document.getElementById(business+'-tab-'+next)?.focus({preventScroll:true});
- }
- function rememberPosition(){view.scroll[section]=window.scrollY;}
- const liveSamples=publishedWorks.filter(work=>work.business==='bespoke'&&work.displayAuthorized&&work.status==='published'&&work.media.type==='video');
- return <div className="product-page">
-  <header className="product-header"><div className="product-heading-row"><h1 className="product-title">{businessName(business)}</h1><LinkButton to={inquiryPath(business,{section})} className="button secondary buyer-project-link">整理合作需求<Icon name="arrow" size={16}/></LinkButton></div><p className="product-definition">{profile.definition}</p></header>
-  <nav ref={tabs} className="product-tabs" role="tablist" aria-label={businessName(business)+'内容'}>{productSections.map((item,index)=><button key={item.id} id={business+'-tab-'+item.id} role="tab" aria-selected={section===item.id} aria-controls={business+'-panel-'+item.id} tabIndex={section===item.id?0:-1} onClick={()=>selectSection(item.id)} onKeyDown={event=>{
-   let next=index;
-   if(event.key==='ArrowRight')next=(index+1)%productSections.length;
-   else if(event.key==='ArrowLeft')next=(index+productSections.length-1)%productSections.length;
-   else if(event.key==='Home')next=0;
-   else if(event.key==='End')next=productSections.length-1;
-   else return;
-   event.preventDefault();selectSection(productSections[next].id);
-   document.getElementById(business+'-tab-'+productSections[next].id)?.focus({preventScroll:true});
-  }}>{item.label}</button>)}</nav>
-  {productSections.map(part=><section key={part.id} hidden={section!==part.id} className="product-panel" role="tabpanel" id={business+'-panel-'+part.id} aria-labelledby={business+'-tab-'+part.id} tabIndex={0}>
-   {part.id==='experience'&&business==='hall'?<div className="experience-library">
-    <div className="library-heading"><h2>体验用户参与流程</h2><span>{filteredThemes.length} 个主题</span></div><p className="experience-context">先体验参与者的操作，再规划你的品牌活动。</p>
-    <div className="experience-filters" aria-label="主题分类">{themeGroups.map(group=><button key={group.id} className={filter===group.id?'chip active':'chip'} aria-pressed={filter===group.id} onClick={()=>{setFilter(group.id);view.filter=group.id;view.scroll.experience=0;}}>{group.label}</button>)}</div>
-    <div className="theme-grid">{filteredThemes.map(theme=>{
-     const current=memory.draft?.themeId===theme.id;
-     const resume=current&&memory.draft?.value.choices.some(Boolean);
-     return <a key={theme.id} className={'theme-card'+(current?' last-used':'')} data-theme={theme.id} aria-label={'使用主题：'+theme.title} href={'#'+experiencePath(theme.categoryId,theme.id)} onClick={rememberPosition}>
-      <div className="theme-card-media"><Picture src={theme.image} alt={theme.title}/></div>
-      <div className="theme-card-copy"><h3>{theme.title}</h3><span className="theme-card-action">{resume?'继续配置':'使用主题'}<Icon name="arrow" size={17}/></span></div>
-     </a>;
-    })}</div>
-   </div>:null}
-   {part.id==='experience'&&business==='bespoke'?<div className="sample-library">
-    <div className="library-heading"><h2>高定创作方向</h2><span>专属策划与成片</span></div>
-    <div className="sample-grid">{liveSamples.length?liveSamples.map(work=><article className="sample-card" key={work.id}><div className="sample-card-media"><MediaDisplay media={work.media}/></div><div className="sample-card-copy"><h3>{work.title}</h3><LinkButton to={inquiryPath('bespoke',{direction:work.categoryId,section})} className="button secondary">规划此类项目<Icon name="arrow" size={17}/></LinkButton></div></article>):categories.filter(category=>category.business==='bespoke').sort((a,b)=>sampleOrder.indexOf(a.id)-sampleOrder.indexOf(b.id)).map(category=><article className="sample-card" key={category.id} data-sample={category.id}>
-     <div className="sample-card-media"><Picture src={reference(category.image)} alt={category.title+'创作方向'}/><span className="sample-status">样品待上架</span></div>
-     <div className="sample-card-copy"><h3>{category.title}</h3><p>{sampleUses[category.id]}</p><LinkButton to={inquiryPath(business,{direction:category.id,section})} className="button secondary">规划此类项目<Icon name="arrow" size={17}/></LinkButton></div>
-    </article>)}</div>
-   </div>:null}
-   {part.id==='introduction'?<>
-    <div className="product-story"><h2 className="product-headline">{profile.headline}</h2><p className="product-description">{profile.description}</p></div>
-    <section className="buyer-roles"><h2>{business==='hall'?'谁来采购，谁来参与':'为谁创作，需要什么'}</h2><div className="buyer-role-grid">{profile.roles.map(role=><article key={role.title}><h3>{role.title}</h3><p>{role.description}</p></article>)}</div></section>
-    <section className="product-offering"><h2>项目合作内容</h2><div className="product-features">{profile.features.map(feature=><article className="feature-card" key={feature.title}><h3>{feature.title}</h3><p>{feature.description}</p></article>)}</div><p className="scope-note">{profile.scopeNote}</p></section>
-    <section className="product-workflow"><h2>项目如何开展</h2><ol className="workflow-list">{profile.workflow.map((item,index)=><li key={item.title}><b>{index+1}</b><div><h3>{item.title}</h3><p>{item.description}</p></div></li>)}</ol></section>
-    <details className="simple-fold project-preparation"><summary>项目开始前准备什么<Icon name="arrow" size={18}/></summary><div className="fold-content"><ul>{profile.preparation.map(item=><li key={item}>{item}</li>)}</ul></div></details>
-    <div className="product-next-action"><LinkButton to={inquiryPath(business,{section})}>整理合作需求<Icon name="arrow" size={17}/></LinkButton><button className="button secondary" onClick={()=>selectSection('experience')}>{business==='hall'?'选择体验主题':'浏览精品方向'}<Icon name="arrow" size={17}/></button><button className="text-link" onClick={()=>selectSection('applications')}>探索商业应用<Icon name="arrow" size={17}/></button></div>
-    <p className="product-alternative">{business==='hall'?'需要围绕一个故事专属创作？':'希望让更多用户参与同一主题？'}<LinkButton to={business==='hall'?'/bespoke?section=introduction':'/hall?section=introduction'} className="text-link">了解{businessName(business==='hall'?'bespoke':'hall')}<Icon name="arrow" size={16}/></LinkButton></p>
-   </>:null}
-   {part.id==='applications'?<>
-    <div className="applications-heading"><h2>{business==='hall'?'让更多人参与传播':'把一个独特故事讲好'}</h2><p>{business==='hall'?'品牌、活动与集体纪念，都可以成为参与的起点。':'从一个人的经历，到一座城的记忆。'}</p></div>
-    <div className="application-grid">{businessApplications[business].map(application=>{
-     const category=categoryById.get(application.categoryId)!;
-     return <a className="application-card" key={application.categoryId} href={'#/category/'+application.categoryId} onClick={rememberPosition}>
-      <div className="application-card-media"><Picture src={reference(category.image)} alt=""/></div>
-      <div className="application-card-copy"><h3>{application.title}</h3><div className="application-tags">{application.scenes.slice(0,3).map(scene=><span key={scene}>{scene}</span>)}</div><p>{application.value}</p><span className="application-card-action">查看应用与拓展<Icon name="arrow" size={17}/></span></div>
-     </a>;
-    })}</div>
-    <section className="extension-panel"><h3>{business==='hall'?'从一次互动，到系列化主题':'从一段故事，到更多影像表达'}</h3><p>{profile.extension}</p><LinkButton to={inquiryPath(business,{section})} className="text-link">整理合作需求<Icon name="arrow" size={17}/></LinkButton></section>
-   </>:null}
-  </section>)}
- </div>;
+  return()=>{cancelAnimationFrame(frame);cancelAnimationFrame(release);window.removeEventListener('scroll',save);};
+ },[route,business,section,view]);
+ useEffect(()=>{
+  let frame=0;
+  const update=()=>{frame=0;const offset=(document.querySelector('.topbar')?.getBoundingClientRect().height||68)+(document.querySelector('.editorial-index')?.getBoundingClientRect().height||60)+28;let selected='overview';for(const id of ['overview','benefits','scenes','try']){if((document.getElementById(business+'-'+id)?.getBoundingClientRect().top??Infinity)<=offset)selected=id;}setActiveSection(selected);};
+  const scroll=()=>{if(!frame)frame=requestAnimationFrame(update);};
+  window.addEventListener('scroll',scroll,{passive:true});frame=requestAnimationFrame(update);
+  return()=>{window.removeEventListener('scroll',scroll);cancelAnimationFrame(frame);};
+ },[business]);
+ function scrollTo(id:string){const target=document.getElementById(business+'-'+id);target?.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('motion-paused')?'instant':'smooth'});target?.focus({preventScroll:true});}
+ return <article className="editorial-product" data-business={business}>
+  <header className="editorial-hero"><div className="editorial-heading"><h1>{businessName(business)}</h1><p className="definition">{profile.definition}</p></div><div className="editorial-hero-image"><Picture src={reference(business==='hall'?2:3)} alt={businessName(business)+'产品概念图'} eager/><span>概念配图</span></div></header>
+  <nav className="editorial-index" aria-label="产品内容导航">{sections.map(item=><button key={item.id} className={activeSection===item.id?'active':''} aria-current={activeSection===item.id?'location':undefined} onClick={()=>scrollTo(item.id)}>{item.label}</button>)}</nav>
+  <section id={business+'-overview'} tabIndex={-1} className="editorial-overview"><h2>产品简介</h2><p>{profile.description}</p><div className="buyer-role-grid">{profile.roles.map(role=><article key={role.title}><h3>{role.title}</h3><p>{role.description}</p></article>)}</div></section>
+  <section id={business+'-benefits'} tabIndex={-1} className="editorial-benefits"><h2>产品特点与优势</h2><div className="benefit-grid">{productBenefits[business].map(item=><article key={item.title}><h3>{item.title}</h3><p className="benefit-need">{item.need}</p><dl><div><dt>解决方式</dt><dd>{item.solution}</dd></div><div><dt>产品优势</dt><dd>{item.advantage}</dd></div></dl></article>)}</div><details className="simple-fold editorial-project-details"><summary>项目合作与准备<Icon name="arrow" size={18}/></summary><div className="fold-content"><div className="product-features">{profile.features.map(item=><article className="feature-card" key={item.title}><h3>{item.title}</h3><p>{item.description}</p></article>)}</div><h3>项目如何开展</h3><ol className="workflow-list">{profile.workflow.map((item,index)=><li key={item.title}><b>{index+1}</b><div><h4>{item.title}</h4><p>{item.description}</p></div></li>)}</ol><h3>准备资料</h3><ul>{profile.preparation.map(item=><li key={item}>{item}</li>)}</ul><p className="scope-note">{profile.scopeNote}</p></div></details></section>
+  <section id={business+'-scenes'} tabIndex={-1} className="editorial-scenarios"><h2>场景启发</h2><p>{business==='hall'?'让品牌、活动与集体纪念，成为用户可以参与的内容。':'从人物经历到城市记忆，为不同的故事找到影像表达。'}</p><div className="scenario-grid">{businessApplications[business].map(application=>{
+   const category=categoryById.get(application.categoryId)!;
+   return <a className="scenario-card" key={category.id} href={'#/category/'+category.id} onClick={()=>{view.scroll.applications=window.scrollY;}}><div className="scenario-card-media"><Picture src={reference(category.image)} alt={application.title+'场景参考'}/></div><div className="scenario-card-copy"><h3>{application.title}</h3><p>{category.intro}</p><span className="scenario-card-action">查看应用示例<Icon name="arrow" size={17}/></span></div></a>;
+  })}</div></section>
+  <section id={business+'-try'} tabIndex={-1} className="editorial-experience"><div className="editorial-experience-media"><Picture src={reference(business==='hall'?5:10)} alt={businessName(business)+'样片专区场景参考'}/></div><div className="editorial-experience-copy"><span className="status-tag">样片制作中</span><h2>立即体验</h2><p>{business==='hall'?'通过模板样片，了解主题互动的影像风格与参与方式。':'通过高定样片，了解专属故事的叙事与影像表达。'}</p><div className="action-row"><LinkButton to={'/samples/'+business}>立即体验<Icon name="arrow" size={18}/></LinkButton><LinkButton to={inquiryPath(business,{section})} className="button secondary">整理合作需求</LinkButton></div></div></section>
+ </article>;
 }
-
+function Samples({business,memory,route}:{business:Business;memory:BrowsingMemory;route:string}){
+ const params=new URLSearchParams(route.split('?')[1]||'');
+ const category=categoryById.get(params.get('category')||'');
+ const selectedCategory=category?.business===business?category:undefined;
+ const view=memory.sampleViews[business];
+ const [expanded,setExpanded]=useState(view.open||params.get('preview')==='themes');
+ const [filter,setFilter]=useState(memory.productViews.hall.filter);
+ const works=publishedWorks.filter(work=>work.business===business&&work.displayAuthorized&&work.status==='published'&&work.media.type==='video'&&(!selectedCategory||work.categoryId===selectedCategory.id));
+ const themes=themeConfigurations.filter(theme=>filter==='all'||theme.categoryId===filter);
+ useLayoutEffect(()=>{
+  let restoring=true;let release=0;const saved=view.scroll;
+  const save=()=>{if(!restoring)view.scroll=window.scrollY;};window.addEventListener('scroll',save,{passive:true});
+  const frame=requestAnimationFrame(()=>{window.scrollTo({top:saved,behavior:'instant'});release=requestAnimationFrame(()=>{restoring=false;});});
+  return()=>{cancelAnimationFrame(frame);cancelAnimationFrame(release);window.removeEventListener('scroll',save);};
+ },[view]);
+ return <section className="samples-page"><header><h1>{business==='hall'?'模板样片':'高定样片'}</h1>{selectedCategory?<p>{selectedCategory.title}</p>:null}</header>
+  {works.length?<div className="sample-grid">{works.map(work=><article className="sample-card" key={work.id}><div className="sample-card-media"><MediaDisplay media={work.media}/></div><div className="sample-card-copy"><h2>{work.title}</h2><LinkButton to={inquiryPath(business,{source:'samples',direction:work.categoryId})} className="button secondary">整理合作需求</LinkButton></div></article>)}</div>:<div className="samples-pending"><Picture src={reference(selectedCategory?.image||(business==='hall'?2:3))} alt="样片创作方向参考图"/><div><span className="status-tag">制作中</span><h2>样片制作中</h2><p>{business==='hall'?'模板样片正在准备，上架后可在此观看。':'高定样片正在准备，上架后可在此观看。'}</p><div className="action-row"><LinkButton to={selectedCategory?'/category/'+selectedCategory.id:'/'+business+'?section=applications'} className="button secondary">查看场景启发</LinkButton><LinkButton to={inquiryPath(business,{source:'samples',direction:selectedCategory?.id})}>整理合作需求</LinkButton></div></div></div>}
+  {business==='hall'?<details className="simple-fold legacy-theme-library" open={expanded} onToggle={event=>{const next=event.currentTarget.open;view.open=next;setExpanded(next);}}><summary>主题配置预览<Icon name="arrow" size={18}/></summary><div className="fold-content"><p>预览主题选项，影像生成尚未开放。</p><div className="experience-filters" aria-label="主题分类">{themeGroups.map(group=><button key={group.id} className={filter===group.id?'chip active':'chip'} aria-pressed={filter===group.id} onClick={()=>{setFilter(group.id);memory.productViews.hall.filter=group.id;}}>{group.label}</button>)}</div><div className="theme-grid">{themes.map(theme=><a key={theme.id} data-theme={theme.id} className={'theme-card'+(memory.draft?.themeId===theme.id?' last-used':'')} href={'#'+experiencePath(theme.categoryId,theme.id)} aria-label={'使用主题：'+theme.title} onClick={()=>{view.scroll=window.scrollY;}}><div className="theme-card-media"><Picture src={theme.image} alt={theme.title}/></div><div className="theme-card-copy"><h3>{theme.title}</h3><span className="theme-card-action">{memory.draft?.themeId===theme.id&&memory.draft.value.choices.some(Boolean)?'继续配置':'使用主题'}<Icon name="arrow" size={17}/></span></div></a>)}</div></div></details>:null}
+ </section>;
+}
 function Detail({category:c,themeIndex}:{category:Category;themeIndex?:number}){
  const theme=themeIndex===undefined?undefined:c.themes[themeIndex];const isHall=c.business==='hall';
  const application=businessApplications[c.business].find(item=>item.categoryId===c.id)!;
+ const example=scenarioExamples[c.id];
  const relevantThemes=themeConfigurations.filter(item=>item.categoryId===c.id&&(themeIndex===undefined||item.id===c.id+'-'+themeIndex));
  const relatedCases=cases.filter(item=>item.categoryId===c.id&&item.status==='published'&&(themeIndex===undefined||item.themeId===c.id+'-'+themeIndex));
- return <article className="application-detail">
-  <h1>{theme||application.title}</h1>
-  <div className="application-cover detail-cover"><Picture src={themeIndex===undefined?reference(c.image):themeImages[c.id+'-'+themeIndex]} alt={(theme||c.title)+'创作方向'} eager/></div>
-  <p className="application-audience">{application.audience}</p>
-  <p className="application-value">{application.value}</p>
-  <div className="application-actions"><LinkButton to={isHall?experiencePath(c.id,themeIndex===undefined?undefined:c.id+'-'+themeIndex):inquiryPath(c.business,{source:'application',direction:c.id})} className="button scene-cta">{isHall?'立即体验':'整理合作需求'}<Icon name="arrow" size={18}/></LinkButton>{isHall?<LinkButton to={inquiryPath(c.business,{source:'application',direction:c.id})} className="button secondary">整理合作需求<Icon name="arrow" size={18}/></LinkButton>:null}</div>
+ return <article className="application-detail"><h1>{theme||application.title}</h1><p className="application-audience">{application.audience}</p>
+  <section className="scenario-example"><h2>应用示例</h2><h3>{example.title}</h3><p className="application-value">{example.summary}</p></section>
+  <section className="scenario-production"><h2>制作过程</h2><ol>{example.steps.map(item=><li key={item.title}><h4>{item.title}</h4><p>{item.description}</p></li>)}</ol></section>
+  <figure className="scenario-template"><div className="application-cover detail-cover"><Picture src={example.image} alt={example.title+'场景参考图'} eager/></div><figcaption>{example.caption}</figcaption></figure>
+  <div className="application-actions"><LinkButton to={theme&&isHall?experiencePath(c.id,c.id+'-'+themeIndex):'/samples/'+c.business+'?category='+c.id} className="button scene-cta">{theme&&isHall?'预览主题配置':'查看样片'}<Icon name="arrow" size={18}/></LinkButton><LinkButton to={inquiryPath(c.business,{source:'application',direction:c.id})} className="button secondary">整理合作需求<Icon name="arrow" size={18}/></LinkButton></div>
   <section className="application-detail-section"><h2>应用场景</h2><div className="application-tags">{application.scenes.map(scene=><span key={scene}>{scene}</span>)}</div></section>
   <section className="application-detail-section"><h2>可拓展方向</h2><p>{application.extension}</p></section>
-  {isHall?<section className="application-detail-section"><h2>相关主题</h2><div className="related-theme-links">{relevantThemes.map(item=><LinkButton key={item.id} to={experiencePath(item.categoryId,item.id)} ariaLabel={'使用主题：'+item.title} className="button secondary">{item.title}<Icon name="arrow" size={16}/></LinkButton>)}</div></section>:null}
+  {isHall?<details className="simple-fold related-theme-section"><summary>主题配置预览<Icon name="arrow" size={18}/></summary><div className="fold-content related-theme-links">{relevantThemes.map(item=><LinkButton key={item.id} to={experiencePath(item.categoryId,item.id)} ariaLabel={'使用主题：'+item.title} className="button secondary">{item.title}<Icon name="arrow" size={16}/></LinkButton>)}</div></details>:null}
   <details className="simple-fold application-benefits"><summary>产品亮点和优势<Icon name="arrow" size={20}/></summary><div className="fold-content scene-advantages">{highlights[c.id].map(item=><div key={item.title}><h3>{item.title}</h3><p>{item.description}</p></div>)}</div></details>
   {relatedCases.length?<section className="real-case-section"><h2>精品样品</h2>{relatedCases.map(item=><article key={item.id}><h3>{item.title}</h3>{item.media.map((media,index)=><MediaDisplay key={item.id+'-'+index} media={media}/>)}</article>)}</section>:null}
  </article>;
@@ -229,7 +203,7 @@ function Experience({theme,draft,onDraftChange}:{theme:ThemeConfiguration;draft?
     <div className="notice journey-result">故事设定已就绪。生成未开放，可先复制配置。</div>
     <div className="action-row"><button className="button" onClick={copy}><Icon name="copy" size={17}/>复制我的配置</button><button className="button secondary" disabled>生成暂未开放</button></div>
     <section className="project-bridge"><h3>把这个主题用于你的项目</h3><p>围绕活动目标、品牌呈现和参与规模，规划合适的互动方式。</p><LinkButton to={inquiryPath('hall',{source:'theme',direction:theme.categoryId,theme:theme.id})}>整理合作需求<Icon name="arrow" size={17}/></LinkButton></section>
-    <LinkButton to="/hall" className="text-link">更换主题 <Icon name="arrow" size={16}/></LinkButton>
+    <LinkButton to="/samples/hall?preview=themes" className="text-link">更换主题 <Icon name="arrow" size={16}/></LinkButton>
    </>:null}
   </section>
   {copyState?<div className="toast" role="status">{copyState}</div>:null}
@@ -239,8 +213,8 @@ function Experience({theme,draft,onDraftChange}:{theme:ThemeConfiguration;draft?
 
 function Gallery(){const [business,setBusiness]=useState('all');const [category,setCategory]=useState('all');const [mode,setMode]=useState('layout');const [count,setCount]=useState(6);const [active,setActive]=useState<string|null>(null);
  const liveWorks=publishedWorks.filter(w=>w.status==='published'&&w.displayAuthorized);const works=illustrativeWorks.filter(w=>(business==='all'||w.business===business)&&(category==='all'||w.categoryId===category));const filteredLive=liveWorks.filter(w=>(business==='all'||w.business===business)&&(category==='all'||w.categoryId===category)).sort((a,b)=>a.sort-b.sort);const liveWork=liveWorks.find(w=>w.id===active);const work=illustrativeWorks.find(w=>w.id===active);
- return <><section className="page-intro compact"><Eyebrow>THE VISUAL COLLECTION</Eyebrow><h1>影像作品</h1><p>在故事里看见别人，也遇见自己。</p></section><div className="gallery-controls"><div className="segmented"><button className={mode==='layout'?'active':''} onClick={()=>setMode('layout')}>主题灵感</button><button className={mode==='published'?'active':''} onClick={()=>setMode('published')}>真实作品</button></div><span className="muted">主题参考图，非生成作品</span></div><div className="filter-row"><button className={business==='all'?'chip active':'chip'} onClick={()=>{setBusiness('all');setCategory('all');setCount(6);}}>全部业务</button>{(['hall','bespoke'] as Business[]).map(b=><button key={b} className={business===b?'chip active':'chip'} onClick={()=>{setBusiness(b);setCategory('all');setCount(6);}}>{businessName(b)}</button>)}<label className="select-filter">分类<select aria-label="作品分类" value={category} onChange={e=>{setCategory(e.target.value);setCount(6);}}><option value="all">全部分类</option>{categories.filter(c=>business==='all'||c.business===business).map(c=><option value={c.id} key={c.id}>{c.short}</option>)}</select></label></div>
- {mode==='published'?(filteredLive.length?<><div className="masonry">{filteredLive.slice(0,count).map(w=><button className="work-card" key={w.id} onClick={()=>setActive(w.id)} aria-label={`查看作品${w.title}`}><div className="work-image"><Picture src={w.media.type==='image'?w.media.src:(w.media.poster||'')} alt={w.title}/>{w.media.type==='video'?<span className="work-open"><Icon name="play"/></span>:null}</div><div className="work-copy"><span>{businessName(w.business)}</span><h3>{w.title}</h3></div></button>)}</div><div className="load-more">{count<filteredLive.length?<button className="button secondary" onClick={()=>setCount(n=>n+6)}>加载更多</button>:<span>没有更多作品了</span>}</div></>:<Empty title="真实作品待上架">探索主题灵感，找到想讲述的故事。</Empty>):<><div className="masonry">{works.slice(0,count).map(w=><button className="work-card" key={w.id} onClick={()=>setActive(w.id)} aria-label={`查看${w.title}主题参考`}><div className="work-image"><Picture src={w.image} alt={`${w.title}主题参考`}/><span className="photo-caption">主题参考</span><span className="work-open"><Icon name="image" size={20}/></span></div><div className="work-copy"><span>{businessName(w.business)}</span><h3>{w.title}</h3><p>{categoryById.get(w.categoryId)?.short}</p></div></button>)}</div><div className="load-more">{count<works.length?<button className="button secondary" onClick={()=>setCount(n=>n+6)}>加载更多</button>:<span>已经看到全部主题参考</span>}</div></>}
+ return <><section className="page-intro compact"><Eyebrow>THE VISUAL COLLECTION</Eyebrow><h1>案例分享</h1><p>看见影像的更多可能。</p></section><div className="gallery-controls"><div className="segmented"><button className={mode==='layout'?'active':''} onClick={()=>setMode('layout')}>主题灵感</button><button className={mode==='published'?'active':''} onClick={()=>setMode('published')}>真实作品</button></div><span className="muted">主题参考图，非生成作品</span></div><div className="filter-row"><button className={business==='all'?'chip active':'chip'} onClick={()=>{setBusiness('all');setCategory('all');setCount(6);}}>全部业务</button>{(['hall','bespoke'] as Business[]).map(b=><button key={b} className={business===b?'chip active':'chip'} onClick={()=>{setBusiness(b);setCategory('all');setCount(6);}}>{businessName(b)}</button>)}<label className="select-filter">分类<select aria-label="作品分类" value={category} onChange={e=>{setCategory(e.target.value);setCount(6);}}><option value="all">全部分类</option>{categories.filter(c=>business==='all'||c.business===business).map(c=><option value={c.id} key={c.id}>{c.short}</option>)}</select></label></div>
+ {mode==='published'?(filteredLive.length?<><div className="masonry case-waterfall">{filteredLive.slice(0,count).map(w=><button className="work-card" key={w.id} onClick={()=>setActive(w.id)} aria-label={`查看作品${w.title}`}><div className="work-image"><Picture src={w.media.type==='image'?w.media.src:(w.media.poster||'')} alt={w.title}/>{w.media.type==='video'?<span className="work-open"><Icon name="play"/></span>:null}</div><div className="work-copy"><span>{businessName(w.business)}</span><h3>{w.title}</h3></div></button>)}</div><div className="load-more">{count<filteredLive.length?<button className="button secondary" onClick={()=>setCount(n=>n+6)}>加载更多</button>:<span>没有更多作品了</span>}</div></>:<Empty title="真实作品待上架">探索主题灵感，找到想讲述的故事。</Empty>):<><div className="masonry case-waterfall">{works.slice(0,count).map(w=><button className="work-card" key={w.id} onClick={()=>setActive(w.id)} aria-label={`查看${w.title}主题参考`}><div className="work-image"><Picture src={w.image} alt={`${w.title}主题参考`}/><span className="photo-caption">主题参考</span><span className="work-open"><Icon name="image" size={20}/></span></div><div className="work-copy"><span>{businessName(w.business)}</span><h3>{w.title}</h3><p>{categoryById.get(w.categoryId)?.short}</p></div></button>)}</div><div className="load-more">{count<works.length?<button className="button secondary" onClick={()=>setCount(n=>n+6)}>加载更多</button>:<span>已经看到全部主题参考</span>}</div></>}
  {liveWork?<Modal title={liveWork.title} onClose={()=>setActive(null)}><MediaDisplay media={liveWork.media}/><p>{businessName(liveWork.business)} · {categoryById.get(liveWork.categoryId)?.title}</p><LinkButton to={liveWork.business==='hall'?experiencePath(liveWork.categoryId,liveWork.themeId):`/category/${liveWork.categoryId}`}>{liveWork.business==='hall'?'立即体验':'咨询同类创作'}<Icon name="arrow" size={17}/></LinkButton></Modal>:null}{work?<Modal title="主题参考" onClose={()=>setActive(null)}><Picture src={work.image} alt={work.title} className="modal-image"/><h3>{work.title}</h3><p className="muted">主题参考图，非客户案例或生成成片。</p><LinkButton to={work.business==='hall'?experiencePath(work.categoryId,`${work.categoryId}-0`):`/category/${work.categoryId}`} className="button">{work.business==='hall'?'立即体验':'探索同类创作'} <Icon name="arrow" size={17}/></LinkButton></Modal>:null}</>;
 }
 
@@ -294,13 +268,25 @@ function configurationForRoute(route:string){
 
 export default function Guangdang(){
  const [route,setRoute]=useState(getRoute);
+ const [reduceMotion,setReduceMotion]=useState(()=>matchMedia('(prefers-reduced-motion: reduce)').matches);
+ const [manualPaused,setManualPaused]=useState(false);
+ const motionPaused=reduceMotion||manualPaused;
  const routeRef=useRef(route);
  const [share,setShare]=useState('');
  const [about,setAbout]=useState(false);
  const [pendingRoute,setPendingRoute]=useState<string|null>(null);
  const main=useRef<HTMLElement>(null);
  const focusedPath=useRef('');
- const memory=useRef<BrowsingMemory>({carouselIndices:{hall:0,bespoke:0},productViews:{hall:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}},bespoke:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}}},draft:null,inquiryDrafts:{}});
+ const memory=useRef<BrowsingMemory>({carouselIndices:{hall:0,bespoke:0},productViews:{hall:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}},bespoke:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}}},draft:null,inquiryDrafts:{},sampleViews:{hall:{open:false,scroll:0},bespoke:{open:false,scroll:0}}});
+ useEffect(()=>{const preference=matchMedia('(prefers-reduced-motion: reduce)');const change=()=>setReduceMotion(preference.matches);preference.addEventListener('change',change);return()=>preference.removeEventListener('change',change);},[]);
+ useLayoutEffect(()=>{document.body.classList.add('lightfield-app');document.body.classList.toggle('motion-paused',motionPaused);return()=>{document.body.classList.remove('lightfield-app','motion-paused');};},[motionPaused]);
+ useEffect(()=>{
+  if(motionPaused||!('IntersectionObserver' in window))return;
+  const animations:Animation[]=[];
+  const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(!entry.isIntersecting)continue;observer.unobserve(entry.target);animations.push(entry.target.animate([{opacity:.55,transform:'translateY(10px)'},{opacity:1,transform:'translateY(0)'}],{duration:480,easing:'cubic-bezier(.2,.7,.2,1)'}));}},{threshold:.08});
+  main.current?.querySelectorAll('.editorial-product > section,.scenario-card,.scenario-production li').forEach(node=>observer.observe(node));
+  return()=>{observer.disconnect();animations.forEach(animation=>animation.cancel());};
+ },[route,motionPaused]);
  const rememberDraft=useCallback((themeId:string,value:ThemeDraft)=>{
   const previous=memory.current.draft;
   if(previous&&previous.themeId!==themeId&&previous.value.photo)URL.revokeObjectURL(previous.value.photo);
@@ -348,19 +334,20 @@ export default function Guangdang(){
  },[]);
  useLayoutEffect(()=>{window.scrollTo({top:0,behavior:'instant'});},[route]);
  useEffect(()=>()=>{const photo=memory.current.draft?.value.photo;if(photo)URL.revokeObjectURL(photo);memory.current.draft=null;},[]);
- useEffect(()=>{const configuration=configurationForRoute(route);const title=configuration?.title||(route.startsWith('/hall')?'AI影像馆':route.startsWith('/bespoke')?'高定AI影像':route.startsWith('/works')?'影像作品':route.startsWith('/cooperate')?'商务合作':route.startsWith('/mine')?'我的':'属于你的AI片场');document.title='咣当 AI影像 · '+title;const nextPath=route.split('?')[0];if(focusedPath.current!==nextPath){main.current?.focus({preventScroll:true});focusedPath.current=nextPath;}},[route]);
+ useEffect(()=>{const configuration=configurationForRoute(route);const title=configuration?.title||(route.startsWith('/hall')?'AI影像馆':route.startsWith('/bespoke')?'高定AI影像':route.startsWith('/samples/hall')?'模板样片':route.startsWith('/samples/bespoke')?'高定样片':route.startsWith('/works')?'案例分享':route.startsWith('/cooperate')?'商务合作':route.startsWith('/mine')?'我的':'属于你的AI片场');document.title='咣当 AI影像 · '+title;const nextPath=route.split('?')[0];if(focusedPath.current!==nextPath){main.current?.focus({preventScroll:true});focusedPath.current=nextPath;}},[route]);
  useEffect(()=>{if(!share)return;const timer=setTimeout(()=>setShare(''),3500);return()=>clearTimeout(timer);},[share]);
- async function sharePage(){try{await navigator.clipboard.writeText(window.location.href);setShare('当前页面链接已复制，可以分享给朋友。');}catch{setShare('请复制浏览器地址：'+window.location.href);}}
+ async function sharePage(){try{await navigator.clipboard.writeText(window.location.href);setShare('页面链接已复制，可分享给客户或同事。');}catch{setShare('请复制浏览器地址：'+window.location.href);}}
  function confirmThemeChange(){
   if(!pendingRoute)return;const next=pendingRoute;const photo=memory.current.draft?.value.photo;
   if(photo)URL.revokeObjectURL(photo);memory.current.draft=null;setPendingRoute(null);go(next);
  }
  const path=route.split('?')[0];const parts=path.split('/').filter(Boolean);const c=categoryById.get(parts[1]||'');
  const configuration=configurationForRoute(route);
- const active=path==='/'?'home':path==='/hall'||parts[0]==='experience'||c?.business==='hall'?'hall':path.startsWith('/cooperate')?'cooperate':path.startsWith('/mine')?'mine':'';
+ const active=path.startsWith('/cooperate')?'cooperate':path.startsWith('/mine')?'mine':path==='/works'?'works':path==='/'||path==='/hall'||path==='/bespoke'||parts[0]==='experience'||parts[0]==='samples'||Boolean(c)?'home':'';
  let page:ReactNode;
- if(path==='/')page=<Home/>;
+ if(path==='/')page=<Home paused={motionPaused}/>;
  else if(path==='/hall'||path==='/bespoke')page=<Catalogue key={path} business={path.slice(1) as Business} memory={memory.current} route={route}/>;
+ else if(parts[0]==='samples'&&(parts[1]==='hall'||parts[1]==='bespoke')&&parts.length===2)page=<Samples key={route} business={parts[1]} memory={memory.current} route={route}/>;
  else if(parts[0]==='category'&&c)page=<Detail key={route} category={c}/>;
  else if(parts[0]==='theme'&&c&&c.themes[Number(parts[2])])page=<Detail key={route} category={c} themeIndex={Number(parts[2])}/>;
  else if(parts[0]==='experience'&&configuration)page=<Experience key={configuration.id} theme={configuration} draft={memory.current.draft?.themeId===configuration.id?memory.current.draft.value:undefined} onDraftChange={rememberDraft}/>;
@@ -371,14 +358,14 @@ export default function Guangdang(){
  return <>
   <a href="#main" className="skip-link" onClick={e=>{e.preventDefault();main.current?.focus();}}>跳到主要内容</a>
   <header className="topbar"><div className="topbar-inner">
-   <a className="brand" href="#/" aria-label="咣当首页"><img className="brand-logo" src={asset('images/brand/guangdang-logo.png')} alt="咣当原品牌Logo"/><span>AI影像</span></a>
-   <nav className="desktop-nav" aria-label="主导航"><a href="#/" className={active==='home'?'active':''}>首页</a><a href="#/hall?section=experience" className={active==='hall'?'active':''}>主题体验</a><a href="#/cooperate" className={active==='cooperate'?'active':''}>商务合作</a><a href="#/mine" className={active==='mine'?'active':''}>我</a></nav>
-   <div className="header-actions"><button className="icon-button about-button" onClick={()=>setAbout(true)} aria-label="关于原型"><Icon name="spark" size={18}/></button><button className="icon-button share-button" onClick={sharePage} aria-label="复制当前页面链接"><Icon name="copy" size={19}/></button></div>
+   <a className="brand" href="#/" aria-label="咣当首页"><span className="brand-mark"><img className="brand-logo" src={asset('images/brand/guangdang-logo.png')} alt="咣当原品牌Logo"/></span><span className="brand-wordmark"><strong>咣当</strong><small>GUANGDANG</small></span></a>
+   <nav className="desktop-nav" aria-label="主导航"><a href="#/" className={active==='home'?'active':''}>首页</a><a href="#/works" className={active==='works'?'active':''}>案例分享</a><a href="#/cooperate" className={active==='cooperate'?'active':''}>商务合作</a><a href="#/mine" className={active==='mine'?'active':''}>我</a></nav>
+   <div className="header-actions"><button className="icon-button about-button" onClick={()=>setAbout(true)} aria-label="关于原型"><Icon name="spark" size={18}/></button><button className="icon-button motion-toggle" onClick={()=>setManualPaused(value=>!value)} disabled={reduceMotion} aria-pressed={motionPaused} aria-label={reduceMotion?'已遵循系统减少动态效果设置':motionPaused?'恢复动效':'暂停动效'} title={reduceMotion?'已遵循系统减少动态效果设置':motionPaused?'恢复动效':'暂停动效'}><Icon name={motionPaused?'play':'pause'} size={18}/></button><button className="icon-button share-button" onClick={sharePage} aria-label="复制当前页面链接"><Icon name="copy" size={19}/></button></div>
   </div></header>
-  <main id="main" data-route={path} ref={main} tabIndex={-1} key={path} className={'page-shell compact-shell '+(path==='/'?'is-home':'')+' '+(path==='/hall'||path==='/bespoke'?'is-business':'')}>
-   {parts.length>0?<button className="back-button" onClick={()=>{if(parts[0]==='experience')go('/hall');else if(parts[0]==='theme')go('/category/'+c?.id);else if(parts[0]==='category')go(c?'/'+c.business+'?section=applications':'/');else if(path==='/cooperate')go(inquiryContext(route).returnTo);else go('/');}}><Icon name="back" size={16}/>{path==='/cooperate'?inquiryContext(route).returnLabel:'返回'+(parts[0]==='experience'?'AI影像馆':parts[0]==='category'?businessName(c?.business||'hall'):parts[0]==='theme'?'主题详情':'首页')}</button>:null}{page}
+  <main id="main" data-route={path} ref={main} tabIndex={-1} key={path} className={'page-shell compact-shell lightfield-page '+(path==='/'?'is-home':'')+' '+(path==='/hall'||path==='/bespoke'?'is-business':'')}>
+   {parts.length>0?<button className="back-button" onClick={()=>{if(parts[0]==='experience')go('/samples/hall?preview=themes');else if(parts[0]==='samples')go('/'+parts[1]+'?section=experience');else if(parts[0]==='theme')go('/category/'+c?.id);else if(parts[0]==='category')go(c?'/'+c.business+'?section=applications':'/');else if(path==='/cooperate')go(inquiryContext(route).returnTo);else go('/');}}><Icon name="back" size={16}/>{path==='/cooperate'?inquiryContext(route).returnLabel:'返回'+(parts[0]==='experience'?'主题配置预览':parts[0]==='samples'?businessName(parts[1] as Business):parts[0]==='category'?businessName(c?.business||'hall'):parts[0]==='theme'?'主题详情':'首页')}</button>:null}{page}
   </main>
-  <nav className="mobile-nav" aria-label="底部导航">{([{id:'home',title:'首页',to:'/'},{id:'hall',title:'主题体验',to:'/hall?section=experience'},{id:'cooperate',title:'商务合作',to:'/cooperate'},{id:'mine',title:'我',to:'/mine'}] as const).map(item=><a key={item.id} href={'#'+item.to} className={active===item.id?'active':''} aria-current={active===item.id?'page':undefined}><Icon name={item.id==='hall'?'image':item.id}/><span>{item.title}</span></a>)}</nav>
+  <nav className="mobile-nav" aria-label="底部导航">{([{id:'home',title:'首页',to:'/'},{id:'works',title:'案例分享',to:'/works'},{id:'cooperate',title:'商务合作',to:'/cooperate'},{id:'mine',title:'我',to:'/mine'}] as const).map(item=><a key={item.id} href={'#'+item.to} className={active===item.id?'active':''} aria-current={active===item.id?'page':undefined}><Icon name={item.id}/><span>{item.title}</span></a>)}</nav>
   {share?<div className="toast" role="status">{share}</div>:null}
   {about?<Modal title="关于本次改版预览" onClose={()=>setAbout(false)}><p>AI影像馆可自行配置单人主题；高定AI影像围绕专属故事整理创作需求。</p><div className="about-links"><a className="button secondary" href="#/works" onClick={()=>setAbout(false)}>影像作品示意</a><a className="button secondary" href="#/mine" onClick={()=>setAbout(false)}>我的（待开放）</a></div><p>场景配图不代表真实案例，高定样品待上架。真实生成、咨询渠道和账户服务尚未开放。</p><p className="muted">配置只在本次浏览中临时保留；确认更换主题或刷新页面会清除，不会上传照片或提交需求。</p><button className="button wide" onClick={()=>setAbout(false)}>继续浏览</button></Modal>:null}
   {pendingRoute?<Modal title="更换主题？" onClose={()=>setPendingRoute(null)}><p>更换后，当前主题的选择和本机照片将被清空。复制的文字配置可继续留存。</p><div className="action-row"><button className="button secondary" onClick={()=>setPendingRoute(null)}>保留当前配置</button><button className="button" onClick={confirmThemeChange}>更换并清空</button></div></Modal>:null}

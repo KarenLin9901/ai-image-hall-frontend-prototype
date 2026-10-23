@@ -67,8 +67,9 @@ try {
       await page.screenshot({ path: file }); report.screenshots.push(file);
     };
     const moveTo = async theme => {
-      await waitRoute('/hall');
-      await page.getByRole('tab', { name: '产品体验', exact: true }).tap();
+      await waitRoute('/samples/hall');
+      const library=page.locator('details.legacy-theme-library');
+      if(await library.getAttribute('open')===null)await library.locator('summary').tap();
       await page.locator('.experience-filters').getByRole('button', { name: theme.filter, exact: true }).tap();
       assert.equal(await page.locator('a.theme-card').count(), theme.count, 'the selected filter must show its matching themes');
       const card = page.locator(`a.theme-card[data-theme="${theme.id}"]`);
@@ -92,7 +93,7 @@ try {
       return position;
     };
     const assertListRestored = async (theme, position, method) => {
-      assert.equal(await page.getByRole('tab', { name: '产品体验', exact: true }).getAttribute('aria-selected'), 'true');
+      assert.notEqual(await page.locator('details.legacy-theme-library').getAttribute('open'), null, `${method}: keep the preview library expanded`);
       assert.equal(await page.locator('a.theme-card').count(), theme.count, `${method}: retain the active theme filter`);
       const card = page.locator(`a.theme-card[data-theme="${theme.id}"]`);
       assert.ok(await card.evaluate(element => element.classList.contains('last-used')), `${method}: mark the last visited theme`);
@@ -135,13 +136,15 @@ try {
     await page.goto(base);
     await page.locator('.home-choice[href="#/hall"]').tap();
     await waitRoute('/hall');
+    await page.locator('.editorial-experience').getByRole('link', { name: '立即体验', exact: true }).tap();
+    await waitRoute('/samples/hall');
     for (const theme of themes) {
       let position = await enter(theme);
-      await page.getByRole('button', { name: '返回AI影像馆', exact: true }).tap();
-      await waitRoute('/hall');
+      await page.getByRole('button', { name: '返回主题配置预览', exact: true }).tap();
+      await waitRoute('/samples/hall');
       await assertListRestored(theme, position, 'page return');
       position = await enter(theme);
-      await page.goBack(); await waitRoute('/hall');
+      await page.goBack(); await waitRoute('/samples/hall');
       await assertListRestored(theme, position, 'browser Back');
     }
     result.checks.push('First, fifth, and ninth themes retain the selected filter, vertical position, and last visited marker after both return methods');
@@ -176,7 +179,7 @@ try {
     result.checks.push('All step transitions reset scroll; previous choices, photo, and consent survive previous/modify actions');
     await screenshot('confirmation');
 
-    for (const destination of [{ title: '首页', path: '/' }, { title: '商务合作', path: '/cooperate' }, { title: '我', path: '/mine' }]) {
+    for (const destination of [{ title: '首页', path: '/' }, { title: '案例分享', path: '/works' }, { title: '商务合作', path: '/cooperate' }, { title: '我', path: '/mine' }]) {
       await page.getByRole('navigation', { name: '底部导航' }).getByRole('link', { name: destination.title, exact: true }).tap();
       await waitRoute(destination.path); await atTop(`bottom navigation to ${destination.path}`);
       assert.deepEqual(await page.getByRole('navigation', { name: '底部导航' }).locator('a.active').allTextContents(), [destination.title]);
@@ -187,14 +190,14 @@ try {
       assert.equal(await page.getByRole('checkbox').isChecked(), true);
       await bottomTap('下一步：确认信息', `confirm retained draft after ${destination.path}`);
     }
-    result.checks.push('Bottom navigation to Home, Cooperation, and Mine followed by browser Back preserves the same complete draft');
-    await page.getByRole('link', { name: '更换主题', exact: true }).tap(); await waitRoute('/hall');
+    result.checks.push('Bottom navigation to Home, Case Sharing, Cooperation, and Mine followed by browser Back preserves the same complete draft');
+    await page.getByRole('link', { name: '更换主题', exact: true }).tap(); await waitRoute('/samples/hall');
     const guardedPosition = await moveTo(themes[1]);
     await page.getByRole('link', { name: '使用主题：' + themes[1].title, exact: true }).tap();
     await page.getByRole('dialog').getByRole('heading', { name: '更换主题？', exact: true }).waitFor();
     assert.equal(await page.evaluate(url => window.__revokedObjectUrls.includes(url), secondPhoto), false, 'Opening the change-theme confirmation must preserve the old photo');
     await page.getByRole('button', { name: '保留当前配置', exact: true }).tap();
-    await waitRoute('/hall');
+    await waitRoute('/samples/hall');
     assert.equal(await page.evaluate(url => window.__revokedObjectUrls.includes(url), secondPhoto), false, 'Cancelling theme change must preserve the old photo');
     assert.equal(await page.locator('a.theme-card').count(), themes[1].count, 'Cancelling a switch should preserve the filter used to choose it');
     await page.waitForFunction(expected => Math.abs(window.scrollY - expected) <= 2, guardedPosition.scrollY);
@@ -207,7 +210,7 @@ try {
     assert.equal(await page.locator('img[src^="blob:"]').count(), 0);
     assert.ok(await page.evaluate(url => window.__revokedObjectUrls.includes(url), secondPhoto), 'Changing themes must release the abandoned draft photo');
     result.releasedPhotos.push({ reason: 'change theme', url: secondPhoto });
-    await page.getByRole('button', { name: '返回AI影像馆', exact: true }).tap(); await waitRoute('/hall');
+    await page.getByRole('button', { name: '返回主题配置预览', exact: true }).tap(); await waitRoute('/samples/hall');
     await enter(theme);
     assert.equal(await page.locator('.option.selected').count(), 0, 'Only one theme draft is retained; changing back starts clean');
     for (const row of await page.locator('.option-row').all()) await row.getByRole('button').first().tap();

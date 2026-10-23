@@ -90,12 +90,12 @@ try {
 
   await route('/');
   assert.equal(await page.locator('.home-choice').count(), 2);
-  await page.getByRole('heading', { name: '你的项目，需要哪种影像？', exact: true }).waitFor();
-  assert.match(await page.locator('.home-choice[href="#/hall"]').innerText(), /体验主题互动/);
-  assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /了解专属制作/);
+  await page.getByRole('heading', { name: '让品牌被看见，让故事被记住。', exact: true }).waitFor();
+  assert.match(await page.locator('.home-choice[href="#/hall"]').innerText(), /为品牌与活动定制互动影像/);
+  assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /为企业与机构创作专属影片/);
   const nav = page.getByRole('navigation', { name: '底部导航' });
-  assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '主题体验', '商务合作', '我']);
-  assert.deepEqual(await nav.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href'))), ['#/', '#/hall?section=experience', '#/cooperate', '#/mine']);
+  assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '案例分享', '商务合作', '我']);
+  assert.deepEqual(await nav.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href'))), ['#/', '#/works', '#/cooperate', '#/mine']);
   assert.equal(await nav.getByRole('link', { name: '我的', exact: true }).count(), 0);
   assert.equal(await nav.getByRole('link', { name: '影像作品', exact: true }).count(), 0);
   for (const viewport of [{ width: 360, height: 640 }, { width: 390, height: 844 }]) {
@@ -122,36 +122,31 @@ try {
   await screenshot('home');
   report.checks.push('Home remains one screen at 360x640 and 390x844; four primary links include the exact label 我, which opens the pending account page, highlights correctly, and returns home');
 
-  // Sections are linkable, preserve each service's context, and return from applications to the right part.
+  // The illustrated product page leads to scene details and honest sample preparation states.
   await route('/hall?section=applications');
-  await page.getByRole('tab', { name: '商业应用', exact: true }).and(page.locator('[aria-selected="true"]')).waitFor();
-  await page.locator('a.application-card[href="#/category/event"]').tap();
+  assert.equal(await page.locator('.editorial-product').count(), 1);
+  assert.equal(await page.getByRole('tab').count(), 0);
+  await page.locator('a.scenario-card[href="#/category/event"]').tap();
   await waitRoute('/category/event');
   await page.getByRole('heading', { name: '活动互动与用户体验', exact: true }).waitFor();
-  await page.getByRole('button', { name: '返回AI影像馆', exact: true }).tap();
-  await waitRoute('/hall');
-  assert.equal(await page.getByRole('tab', { name: '商业应用', exact: true }).getAttribute('aria-selected'), 'true');
-  assert.equal(await page.locator('a.application-card').count(), 4);
-  await route('/bespoke?section=introduction');
-  await page.getByRole('tab', { name: '产品介绍', exact: true }).and(page.locator('[aria-selected="true"]')).waitFor();
-  await nav.getByRole('link', { name: '首页', exact: true }).tap();
-  await waitRoute('/');
-  await page.locator('.home-choice[href="#/hall"]').tap();
-  await waitRoute('/hall');
-  assert.equal(await page.getByRole('tab', { name: '商业应用', exact: true }).getAttribute('aria-selected'), 'true', 'AI hall should retain its own selected part');
-  await nav.getByRole('link', { name: '首页', exact: true }).tap();
-  await waitRoute('/');
-  await page.locator('.home-choice[href="#/bespoke"]').tap();
-  await waitRoute('/bespoke');
-  assert.equal(await page.getByRole('tab', { name: '产品介绍', exact: true }).getAttribute('aria-selected'), 'true', 'Bespoke should retain its own selected part');
-  await page.reload();
-  await waitRoute('/bespoke');
-  assert.equal(await page.getByRole('tab', { name: '产品体验', exact: true }).getAttribute('aria-selected'), 'true', 'A fresh root product visit starts from experience');
-  report.checks.push('Three-part links and application return preserve the right product context; each service remembers its part during the visit and starts with experience in a fresh session');
+  await page.locator('.back-button').tap(); await waitRoute('/hall');
+  assert.equal(await page.locator('.scenario-grid a.scenario-card').count(), 4);
+  await page.locator('.editorial-experience').getByRole('link', { name: '立即体验', exact: true }).tap();
+  await waitRoute('/samples/hall');
+  assert.equal(await page.locator('.legacy-theme-library').getAttribute('open'), null, 'theme configuration starts as a secondary disclosure');
+  await page.getByRole('heading', { name: '样片制作中', exact: true }).waitFor();
+  assert.equal(await page.locator('video').count(), 0);
+  await page.locator('.legacy-theme-library summary').tap();
+  assert.notEqual(await page.locator('.legacy-theme-library').getAttribute('open'), null);
+  await nav.getByRole('link', { name: '案例分享', exact: true }).tap(); await waitRoute('/works');
+  await page.getByRole('heading', { name: '案例分享', exact: true }).waitFor();
+  await page.goBack(); await waitRoute('/samples/hall');
+  assert.notEqual(await page.locator('.legacy-theme-library').getAttribute('open'), null, 'Returning to samples keeps the explicitly opened preview');
+  report.checks.push('Illustrated product and scenario pages lead to the pending sample area; the legacy preview stays secondary and keeps its expanded state after Case Sharing and native Back');
 
   // Every theme is visible in the catalogue and enters its own configuration in one action.
   for (const theme of themes) {
-    await route('/hall?section=experience');
+    await route('/samples/hall?preview=themes');
     await page.locator('.experience-filters').getByRole('button', { name: '全部主题', exact: true }).tap();
     assert.equal(await page.locator('a.theme-card').count(), 9);
     for (const entry of themes) assert.equal(await page.getByRole('link', { name: '使用主题：' + entry.title, exact: true }).count(), 1);
@@ -274,18 +269,18 @@ try {
 
   // A dirty theme change is reversible until the user explicitly confirms discarding the plan.
   await page.getByRole('link', { name: '更换主题', exact: true }).tap();
-  await waitRoute('/hall');
+  await waitRoute('/samples/hall');
   await page.getByRole('link', { name: '使用主题：' + themes[0].title, exact: true }).tap();
   let guard = page.getByRole('dialog');
   await guard.getByRole('heading', { name: '更换主题？', exact: true }).waitFor();
   await guard.getByRole('button', { name: '保留当前配置', exact: true }).tap();
-  await waitRoute('/hall');
+  await waitRoute('/samples/hall');
   await page.getByRole('link', { name: '使用主题：' + theme.title, exact: true }).tap();
   await waitRoute(themePath(theme));
   await page.getByRole('heading', { name: '确认你的选择', exact: true }).waitFor();
   assert.deepEqual(await page.locator('.summary-list dd').allTextContents(), choices);
   await page.getByRole('link', { name: '更换主题', exact: true }).tap();
-  await waitRoute('/hall');
+  await waitRoute('/samples/hall');
   await page.getByRole('link', { name: '使用主题：' + themes[0].title, exact: true }).tap();
   guard = page.getByRole('dialog');
   await guard.getByRole('button', { name: '更换并清空', exact: true }).tap();
@@ -294,18 +289,14 @@ try {
   assert.equal(await page.getByRole('button', { name: '下一步：准备照片', exact: true }).isDisabled(), true);
   report.checks.push('Cancelling a theme switch preserves the complete plan; confirming starts a clean unrelated theme');
 
-  await route('/bespoke?section=experience');
-  assert.equal(await page.getByRole('tab', { name: '产品体验', exact: true }).getAttribute('aria-selected'), 'true');
-  assert.equal(await page.locator('article.sample-card').count(), 4);
-  assert.equal(await page.locator('.sample-status').count(), 4);
-  assert.equal(await page.locator('.sample-grid video').count(), 0);
-  const bespokeDirections = [['person', '人物故事'], ['family', '家庭记忆'], ['enterprise', '企业故事'], ['city', '城市与历史']];
-  for (const [id, title] of bespokeDirections) {
-    const card = page.locator('article.sample-card').filter({ hasText: title });
-    assert.equal(await card.count(), 1);
-    await assertCooperationLink(card.getByRole('link', { name: '规划此类项目', exact: true }), { product: 'bespoke', direction: id, source: 'product', section: 'experience' });
-  }
-  await page.locator('article.sample-card').first().getByRole('link', { name: '规划此类项目', exact: true }).tap();
+  await route('/samples/bespoke?category=enterprise');
+  await page.getByRole('heading', { name: '高定样片', exact: true }).waitFor();
+  await page.getByRole('heading', { name: '样片制作中', exact: true }).waitFor();
+  assert.equal(await page.locator('.samples-page video').count(), 0);
+  assert.equal(await page.locator('.samples-page > header p').textContent(), '企业故事');
+  const sampleInquiry = page.getByRole('link', { name: '整理合作需求', exact: true });
+  await assertCooperationLink(sampleInquiry, { product: 'bespoke', direction: 'enterprise', source: 'samples' });
+  await sampleInquiry.tap();
   await waitRoute('/cooperate');
   await page.getByRole('heading', { name: '合作需求', exact: true }).waitFor();
   assert.equal(await page.locator('.page-intro p').textContent(), '明确项目目标，整理合作范围。');
@@ -331,15 +322,15 @@ try {
   assert.equal(await page.locator('input[name="contact"]').inputValue(), '');
   report.checks.push('Bespoke uses a clear planning action; an unsigned local demand summary needs no personal contact details and remains editable');
 
-  await page.locator('.back-button').tap(); await waitRoute('/bespoke');
-  assert.equal(await page.getByRole('tab', { name: '产品体验', exact: true }).getAttribute('aria-selected'), 'true');
-  await page.locator('article.sample-card').first().getByRole('link', { name: '规划此类项目', exact: true }).tap();
+  await page.locator('.back-button').tap(); await waitRoute('/samples/bespoke');
+  assert.equal(await page.locator('.samples-page > header p').textContent(), '企业故事');
+  await page.getByRole('link', { name: '整理合作需求', exact: true }).tap();
   await waitRoute('/cooperate');
   assert.equal(await page.locator('textarea[name="description"]').inputValue(), description, 'The same sample-direction context restores the buyer draft');
 
   // A product introduction and a commercial application each return to their own source.
   await route('/hall?section=introduction');
-  const productInquiry = page.getByRole('tabpanel').getByRole('link', { name: '整理合作需求', exact: true }).first();
+  const productInquiry = page.locator('.editorial-experience').getByRole('link', { name: '整理合作需求', exact: true }).first();
   await assertCooperationLink(productInquiry, { product: 'hall', source: 'product', section: 'introduction' });
   await productInquiry.tap(); await waitRoute('/cooperate'); await assertDirections('hall');
   assert.equal(await page.locator('textarea[name="description"]').inputValue(), '', 'A new hall product context must not inherit an unrelated bespoke inquiry');
@@ -349,8 +340,9 @@ try {
   await page.locator('textarea[name="description"]').fill(productDescription);
   await page.locator('.back-button').tap(); await waitRoute('/hall');
   await page.waitForFunction(() => window.location.hash === '#/hall?section=introduction');
-  assert.equal(await page.getByRole('tab', { name: '产品介绍', exact: true }).getAttribute('aria-selected'), 'true');
-  await page.getByRole('tabpanel').getByRole('link', { name: '整理合作需求', exact: true }).first().tap();
+  assert.equal(await page.locator('.editorial-product[data-business="hall"]').count(), 1);
+  assert.ok((await page.locator('.editorial-overview').innerText()).length > 50);
+  await page.locator('.editorial-experience').getByRole('link', { name: '整理合作需求', exact: true }).first().tap();
   await waitRoute('/cooperate');
   assert.equal(await page.locator('textarea[name="description"]').inputValue(), productDescription);
   assert.ok((await selectedDirection()).includes('尚未确定'));
@@ -373,7 +365,7 @@ try {
   await page.reload(); await waitRoute('/cooperate');
   assert.equal(await selectedDirection(), '城市与历史', 'A shareable source context survives refresh');
   for (const name of ['description', 'organization', 'timing', 'scope', 'name', 'contact']) assert.equal(await page.locator(`.demand-form [name="${name}"]`).inputValue(), '', 'Refresh clears local inquiry drafts');
-  report.checks.push('Product-introduction and application inquiries preserve their own source, direction, and temporary draft; a new context stays separate, and refresh retains only shareable source information');
+  report.checks.push('Illustrated-product and application inquiries preserve their own source, direction, and temporary draft; a new context stays separate, and refresh retains only shareable source information');
 
   // Existing links still work, while an explicitly chosen product cannot preselect the other product's direction.
   await route('/cooperate?direction=family');

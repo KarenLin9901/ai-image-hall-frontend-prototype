@@ -75,8 +75,8 @@ export const businessProfiles:Record<Business,{positioning:string;advantages:str
 export const productPresentations:Record<Business,{headline:string;definition:string;description:string;features:Highlight[];roles:Highlight[];workflow:Highlight[];preparation:string[];scopeNote:string;extension:string}>={
  hall:{
   headline:'让更多人参与品牌传播。',
-  definition:'为品牌与机构活动策划的模板化AI影像互动服务。',
-  description:'围绕品牌传播、活动互动与组织纪念，为品牌方、政企单位和活动主办方策划主题模板与参与入口。采购方确定主题、品牌呈现和参与规则，参与者通过个人素材与内容选择体验专属影像，让活动内容与个人表达结合。',
+  definition:'为品牌与活动定制的AI影像互动服务。',
+  description:'围绕品牌传播、活动互动与组织纪念，为品牌方、政企单位和活动主办方策划主题模板与参与入口。品牌与活动方确定主题、品牌呈现和参与规则，参与者通过个人素材与内容选择体验专属影像，让活动内容与个人表达结合。',
   features:[
    {title:'主题与影像模板',description:'围绕传播目标设计故事主题、画面风格与品牌呈现，并确定参与者可以选择的场景、角色和内容组合。'},
    {title:'活动入口与页面',description:'根据活动载体策划小程序或H5入口，组织主题展示、素材要求与参与步骤，让页面服务于活动的参与方式。'},
@@ -84,7 +84,7 @@ export const productPresentations:Record<Business,{headline:string;definition:st
    {title:'影像成果与数据',description:'约定参与者的影像成果及使用方式，整理基础活动数据；生成数量、数据口径与成果范围在项目方案中确认。'},
   ],
   roles:[
-   {title:'采购方',description:'品牌方、政企单位或活动主办方提出传播目标，确认活动主题、品牌素材、参与规则与服务范围。'},
+   {title:'品牌与活动方',description:'品牌方、政企单位或活动主办方提出传播目标，确认活动主题、品牌素材、参与规则与服务范围。'},
    {title:'参与者',description:'按活动要求提供个人素材与授权，在开放的内容选项中完成选择，参与主题影像体验。'},
   ],
   workflow:[
@@ -99,13 +99,13 @@ export const productPresentations:Record<Business,{headline:string;definition:st
  },
  bespoke:{
   headline:'让真实故事，成为专属影片。',
-  definition:'为企业与机构提供从故事策划到成片的专属AI影像创作。',
+  definition:'为企业与机构创作的专属AI影片。',
   description:'面向企业、机构与文旅项目，围绕人物经历、家庭记忆、企业历程和城市故事提供专属影像创作。以照片、档案和口述资料为起点，完成故事策划、影像设计与后期成片，按阶段确认创作方向，服务纪念、品牌传播和文化表达。',
   features:[
    {title:'故事策划',description:'梳理人物经历、历史资料与传播目标，组织故事结构、人物关系和关键事件，形成供双方确认的剧本。'},
    {title:'影像设计',description:'依据剧本设计人物形象、年代场景、镜头与声音，结合样段确认影像风格，为后续制作建立共同依据。'},
-   {title:'制作与后期',description:'按确认的剧本与资产开展AI影像制作，完成剪辑、调色、配音与声音整合，并结合阶段审片调整。'},
-   {title:'完整成片',description:'按约定交付完整影片及相应的画幅、版本、字幕与封面；源文件、其他资产和修改范围依项目约定。'},
+   {title:'制作与后期',description:'按确认的剧本与创作素材开展AI影像制作，完成剪辑、调色、配音与声音整合，并结合阶段审片调整。'},
+   {title:'完整成片',description:'按约定交付完整影片及相应的画幅、版本、字幕与封面；源文件、其他素材和修改范围依项目约定。'},
   ],
   roles:[
    {title:'委托方',description:'企业、机构或项目负责人确定影片用途、表达重点与交付要求，并参与剧本、样段和成片确认。'},
@@ -114,11 +114,11 @@ export const productPresentations:Record<Business,{headline:string;definition:st
   workflow:[
    {title:'资料与故事策划',description:'梳理人物、事件和资料，确认影片用途与故事结构。'},
    {title:'设计与样段确认',description:'围绕剧本设计角色、场景与声音，确认影像风格和样段。'},
-   {title:'制作与阶段审片',description:'按确认的剧本和资产推进制作，结合阶段审片集中反馈。'},
+   {title:'制作与阶段审片',description:'按确认的剧本和创作素材推进制作，结合阶段审片集中反馈。'},
    {title:'后期与成片交付',description:'完成剪辑、声音与字幕整合，按约定版本交付完整影片。'},
   ],
   preparation:['影片用途、表达重点与希望讲述的故事','照片、档案、已有影像或可访谈的人物线索','期望片长、播放场景、交付版本与素材使用范围'],
-  scopeNote:'片长、画幅、版本、修改及素材使用范围按项目确认；源文件与其他资产依合同约定。',
+  scopeNote:'片长、画幅、版本、修改及素材使用范围按项目确认；源文件与其他素材依合同约定。',
   extension:'从一段人物经历到一个时代的记忆，围绕纪念、传播与文化表达，拓展不同题材、叙事与影像形式。',
  },
 };
@@ -257,4 +257,210 @@ export const getThemeConfiguration=(categoryId:string,themeId?:string)=>themeCon
 export const experiencePath=(categoryId:string,themeId?:string)=>{
  const theme=getThemeConfiguration(categoryId,themeId);
  return theme?`/experience/${theme.categoryId}/${theme.id}`:'/hall';
+};
+
+export const productBenefits:Record<Business,{title:string;need:string;solution:string;advantage:string}[]>={
+  "hall": [
+    {
+      "title": "让品牌传播有人参与",
+      "need": "品牌信息容易被看过即忘，活动需要让参与者愿意加入并留下自己的表达。",
+      "solution": "把品牌主题转化为可选择、可参与的影像模板，结合个人素材形成专属内容。",
+      "advantage": "统一品牌表达，也保留个人特色，让参与者与传播主题建立更具体的连接。"
+    },
+    {
+      "title": "一套主题，组织更多人参与",
+      "need": "同一场活动面对不同参与者，需要兼顾统一主题、个人表达与清楚的操作步骤。",
+      "solution": "提前设计模板、素材要求和开放选项，以小程序或H5承载同一套参与流程。",
+      "advantage": "以统一入口组织参与，按活动规模安排模板、生成额度与服务支持。"
+    },
+    {
+      "title": "让一次活动延展为系列内容",
+      "need": "品牌推广、员工关怀与校园纪念往往持续发生，每个节点都需要新的参与内容。",
+      "solution": "围绕共同主题建立内容与视觉基础，按不同活动节点扩展场景、角色和纪念形式。",
+      "advantage": "将单次互动积累为可延续的主题内容，服务年度活动与系列传播计划。"
+    }
+  ],
+  "bespoke": [
+    {
+      "title": "让难以补拍的故事被看见",
+      "need": "创业往事、城市变迁与人物经历可能只留下照片和口述，难以完整依靠实拍呈现。",
+      "solution": "梳理真实资料，结合AI影像与专业制作，重建故事所需的年代、人物和场景。",
+      "advantage": "为无法补拍的过去提供新的影像表达，让历史资料成为可以观看和理解的故事。"
+    },
+    {
+      "title": "让复杂资料形成完整叙事",
+      "need": "照片、档案与访谈分散在不同来源，需要找到主线才能服务纪念或传播目标。",
+      "solution": "由编导梳理素材、组织故事结构，统筹角色、场景与声音，再推进制作和后期。",
+      "advantage": "将资料整理、创作与成片连成一条流程，保持故事重点、画面和声音的一致表达。"
+    },
+    {
+      "title": "让创作方向逐步确认",
+      "need": "专属影片涉及故事、风格和交付版本，委托方需要在关键阶段看清方向与成果。",
+      "solution": "依次确认剧本、人物与场景素材及样段，通过阶段审片集中反馈，再完成剪辑、声音与字幕。",
+      "advantage": "以阶段成果建立共同判断依据，让创作讨论更具体，交付范围与修改边界更清楚。"
+    }
+  ]
+};
+
+export const scenarioExamples:Record<string,{title:string;summary:string;steps:Highlight[];image:string;caption:string}>={
+  "brand": {
+    "title": "我为品牌代言",
+    "summary": "围绕品牌发布或城市传播，为参与者设计专属代言影像，让品牌主张通过个人表达进入活动传播。",
+    "steps": [
+      {
+        "title": "明确传播主题",
+        "description": "梳理品牌主张、目标人群与使用场景，确定影像中需要呈现的品牌元素。"
+      },
+      {
+        "title": "配置代言模板",
+        "description": "设计统一视觉与代言内容，将场景、身份等内容整理为参与者可选择的选项。"
+      },
+      {
+        "title": "组织参与与传播",
+        "description": "配置活动入口与个人素材要求，按约定提供影像成果，衔接现场展示与后续分享。"
+      }
+    ],
+    "image": reference(4),
+    "caption": "场景参考图"
+  },
+  "event": {
+    "title": "我的活动高光时刻",
+    "summary": "把发布会、展会或节庆的活动主题转化为个人影像体验，让参与者带走一份与现场相关的专属纪念。",
+    "steps": [
+      {
+        "title": "梳理活动体验",
+        "description": "确认活动主题、参与对象与现场动线，找到适合加入影像互动的参与节点。"
+      },
+      {
+        "title": "设计互动内容",
+        "description": "将活动视觉、纪念内容与可选场景融入模板，明确个人素材与现场参与方式。"
+      },
+      {
+        "title": "配置活动服务",
+        "description": "根据活动载体设置入口与服务规模，衔接现场参与、成果领取和活动后的纪念传播。"
+      }
+    ],
+    "image": reference(5),
+    "caption": "场景参考图"
+  },
+  "team": {
+    "title": "退休员工纪念",
+    "summary": "面向企业与工会，结合员工照片、岗位经历与退休心愿，制作有统一致谢表达的个人纪念影像。",
+    "steps": [
+      {
+        "title": "整理员工资料",
+        "description": "由单位或本人确认姓名、岗位与工龄，整理近照、老照片及希望保留的纪念内容。"
+      },
+      {
+        "title": "设计纪念模板",
+        "description": "将岗位岁月与退休生活组织为可选场景，统一单位标识、致谢表达与影像风格。"
+      },
+      {
+        "title": "形成纪念成果",
+        "description": "按所选场景与个人资料制作纪念影像，结合审片确认内容，交付个人或单位播放版本。"
+      }
+    ],
+    "image": reference(6),
+    "caption": "场景参考图"
+  },
+  "campus": {
+    "title": "我的毕业纪念影像",
+    "summary": "围绕毕业季与学校共同记忆，为毕业生策划个人纪念影像，让同一届的青春拥有各自不同的表达。",
+    "steps": [
+      {
+        "title": "梳理校园记忆",
+        "description": "确认学校、届别与毕业主题，整理校园标识、重要地点及共同经历的内容线索。"
+      },
+      {
+        "title": "设计青春模板",
+        "description": "以统一毕业视觉组织场景、身份与纪念选项，明确毕业生参与需要提供的素材。"
+      },
+      {
+        "title": "组织纪念参与",
+        "description": "通过活动入口组织毕业生参与，结合个人选择形成影像成果，服务毕业活动与纪念留存。"
+      }
+    ],
+    "image": reference(7),
+    "caption": "场景参考图"
+  },
+  "person": {
+    "title": "一位人物的职业故事",
+    "summary": "面向人物所属机构或品牌团队，从真实经历与关键选择中提炼故事，制作具有人物温度的专属影片。",
+    "steps": [
+      {
+        "title": "访谈与资料梳理",
+        "description": "结合人物访谈、照片与已有影像，核实关键经历，确定影片用途和最希望讲述的主线。"
+      },
+      {
+        "title": "确认故事与样段",
+        "description": "围绕人物经历组织故事结构，设计年代场景与影像表达，以样段确认创作方向。"
+      },
+      {
+        "title": "制作与成片交付",
+        "description": "按确认的剧本推进AI影像与后期制作，结合阶段审片，完成画面、声音及字幕整合。"
+      }
+    ],
+    "image": reference(8),
+    "caption": "场景参考图"
+  },
+  "family": {
+    "title": "一段跨代的家庭记忆",
+    "summary": "面向家庭服务与员工关怀项目，以老照片、家书和口述回忆为线索，将家庭共同经历整理成纪念影片。",
+    "steps": [
+      {
+        "title": "整理家庭资料",
+        "description": "梳理老照片、家书与家人口述，核实人物关系和重要时间，明确资料使用与纪念需求。"
+      },
+      {
+        "title": "组织记忆主线",
+        "description": "从共同经历中确定故事重点，设计适合家庭记忆的影像形式，通过样段讨论表达。"
+      },
+      {
+        "title": "完成专属影片",
+        "description": "结合资料与确认的创作方向制作影片，经家人或委托方审片，交付约定的纪念版本。"
+      }
+    ],
+    "image": reference(9),
+    "caption": "场景参考图"
+  },
+  "enterprise": {
+    "title": "企业周年记忆影片",
+    "summary": "为企业周年纪念或品牌传播，串联创业历程、关键人物与重要项目，将分散的企业资料转化为完整故事。",
+    "steps": [
+      {
+        "title": "梳理发展资料",
+        "description": "整理企业档案、历史照片与人物访谈，核实关键节点，确认周年纪念与传播的表达重点。"
+      },
+      {
+        "title": "设计企业叙事",
+        "description": "以发展主线组织人物与事件，确定品牌呈现、历史场景及影像风格，确认剧本与样段。"
+      },
+      {
+        "title": "制作多场景成片",
+        "description": "完成AI影像与专业后期，通过阶段审片统一内容，按约定交付活动播放或品牌传播版本。"
+      }
+    ],
+    "image": reference(10),
+    "caption": "场景参考图"
+  },
+  "city": {
+    "title": "一条街区的城市记忆",
+    "summary": "面向城市文化与文旅机构，以街区照片、地方档案和口述记忆为依据，呈现城市与时代变化的具体故事。",
+    "steps": [
+      {
+        "title": "核实城市史料",
+        "description": "梳理街区照片、地方档案与口述资料，核对年代和地点，明确可使用的素材与内容范围。"
+      },
+      {
+        "title": "组织时空表达",
+        "description": "以具体人物、街区或生活变化建立故事线，设计历史空间与当代表达，确认剧本和样段。"
+      },
+      {
+        "title": "完成影像与审片",
+        "description": "结合史料开展AI影像与后期制作，审核事实与重现内容，交付适用于展陈或传播的影片。"
+      }
+    ],
+    "image": reference(11),
+    "caption": "场景参考图"
+  }
 };
