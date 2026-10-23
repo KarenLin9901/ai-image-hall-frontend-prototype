@@ -7,6 +7,7 @@ import "./app/mobile-first.css";
 import "./app/product-pages.css";
 import "./app/editorial-pages.css";
 import "./app/lightfield.css";
+import "./app/glass-theme.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

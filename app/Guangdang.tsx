@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { asset, reference, categories, categoryById, businessName, illustrativeWorks, publishedWorks, cases, highlights, productPresentations, productBenefits, scenarioExamples, businessApplications, themeImages, getShowcaseSlides, getThemeConfiguration, themeConfigurations, experiencePath, type ThemeConfiguration, type Media, type Business, type Category } from './guangdang-data';
-import LightfieldVisual from './LightfieldVisual';
+import GlassShowcase from './GlassShowcase';
 
 type ThemeDraft={step:number;choices:string[];photo:string;authorized:boolean};
 type ProductSection='experience'|'introduction'|'applications';
@@ -67,7 +67,7 @@ function Empty({title,children}:{title:string;children:ReactNode}) { return <div
 
 function Home({paused}:{paused:boolean}){return <section className="simple-home lightfield-home" aria-label="选择影像服务">
  <div className="home-question"><p className="slogan">属于你的AI片场</p><h1 aria-label="你想如何创作一部AI影像？">你想如何创作<span>一部AI影像？</span></h1><p className="home-service-note">互动生成，还是专属创作？选择适合你的影像服务。</p></div>
- <LightfieldVisual paused={paused}/>
+ <GlassShowcase paused={paused}/>
  <div className="home-choices">
   <a className="home-choice" aria-label="AI影像馆" href="#/hall"><span className="home-choice-no" aria-hidden="true">01</span><div><h2>AI影像馆</h2><span className="home-choice-action">模板化互动影像产品</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
   <a className="home-choice bespoke-choice" aria-label="高定AI影像" href="#/bespoke"><span className="home-choice-no" aria-hidden="true">02</span><div><h2>高定AI影像</h2><span className="home-choice-action">精品AI影像创作服务</span></div><span className="home-choice-arrow" aria-hidden="true"><Icon name="arrow" size={20}/></span></a>
@@ -97,7 +97,19 @@ function Catalogue({business,memory,route}:{business:Business;memory:BrowsingMem
  },[route,business,section,view]);
  useEffect(()=>{
   let frame=0;
-  const update=()=>{frame=0;const offset=(document.querySelector('.topbar')?.getBoundingClientRect().height||68)+(document.querySelector('.editorial-index')?.getBoundingClientRect().height||60)+28;let selected='overview';for(const id of ['overview','benefits','scenes','try']){if((document.getElementById(business+'-'+id)?.getBoundingClientRect().top??Infinity)<=offset)selected=id;}setActiveSection(selected);};
+  const update=()=>{
+   frame=0;
+   const navigationBottom=document.querySelector('.editorial-index')?.getBoundingClientRect().bottom||0;
+   let selected='overview';
+   for(const id of ['overview','benefits','scenes','try']){
+    const target=document.getElementById(business+'-'+id);
+    if(!target)continue;
+    const scrollMargin=parseFloat(getComputedStyle(target).scrollMarginTop)||0;
+    if(target.getBoundingClientRect().top<=Math.max(navigationBottom,scrollMargin)+24)selected=id;
+   }
+   if(scrollY+innerHeight>=document.documentElement.scrollHeight-2)selected='try';
+   setActiveSection(selected);
+  };
   const scroll=()=>{if(!frame)frame=requestAnimationFrame(update);};
   window.addEventListener('scroll',scroll,{passive:true});frame=requestAnimationFrame(update);
   return()=>{window.removeEventListener('scroll',scroll);cancelAnimationFrame(frame);};
@@ -279,7 +291,7 @@ export default function Guangdang(){
  const focusedPath=useRef('');
  const memory=useRef<BrowsingMemory>({carouselIndices:{hall:0,bespoke:0},productViews:{hall:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}},bespoke:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}}},draft:null,inquiryDrafts:{},sampleViews:{hall:{open:false,scroll:0},bespoke:{open:false,scroll:0}}});
  useEffect(()=>{const preference=matchMedia('(prefers-reduced-motion: reduce)');const change=()=>setReduceMotion(preference.matches);preference.addEventListener('change',change);return()=>preference.removeEventListener('change',change);},[]);
- useLayoutEffect(()=>{document.body.classList.add('lightfield-app');document.body.classList.toggle('motion-paused',motionPaused);return()=>{document.body.classList.remove('lightfield-app','motion-paused');};},[motionPaused]);
+ useLayoutEffect(()=>{document.body.classList.add('lightfield-app','glass-app');document.body.classList.toggle('motion-paused',motionPaused);return()=>{document.body.classList.remove('lightfield-app','glass-app','motion-paused');};},[motionPaused]);
  useEffect(()=>{
   if(motionPaused||!('IntersectionObserver' in window))return;
   const animations:Animation[]=[];
@@ -356,6 +368,7 @@ export default function Guangdang(){
  else if(path==='/mine')page=<Mine/>;
  else page=<><Empty title="暂时没有这个页面">这个入口可能已经更新，可以返回首页重新探索。</Empty><LinkButton to="/">返回首页</LinkButton></>;
  return <>
+  <div className="ambient-scene" style={{backgroundImage:`url(${reference(11)})`}} aria-hidden="true"/>
   <a href="#main" className="skip-link" onClick={e=>{e.preventDefault();main.current?.focus();}}>跳到主要内容</a>
   <header className="topbar"><div className="topbar-inner">
    <a className="brand" href="#/" aria-label="咣当首页"><span className="brand-mark"><img className="brand-logo" src={asset('images/brand/guangdang-logo.png')} alt="咣当原品牌Logo"/></span><span className="brand-wordmark"><strong>咣当</strong><small>GUANGDANG</small></span></a>
