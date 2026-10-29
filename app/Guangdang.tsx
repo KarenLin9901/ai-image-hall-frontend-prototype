@@ -33,7 +33,7 @@ function inquiryContext(route:string){
  const returnLabel=source==='samples'?'返回样片专区':source==='theme'?'返回主题配置':source==='application'?'返回应用详情':business?'返回'+businessName(business):'返回首页';
  return {business,direction,theme,section,source,returnTo,returnLabel,key:[business||'all',direction?.id||'',theme?.id||''].join(':')};
 }
-type IconName = 'home'|'works'|'cooperate'|'mine'|'arrow'|'back'|'close'|'play'|'pause'|'check'|'spark'|'copy'|'image';
+type IconName = 'home'|'works'|'cooperate'|'mine'|'arrow'|'back'|'close'|'play'|'pause'|'check'|'spark'|'copy'|'image'|'sun'|'moon';
 function Icon({name,size=22}:{name:IconName;size?:number}) {
  const paths:Record<IconName,ReactNode> = {
   home:<><path d="m3 10 9-7 9 7v10H3Z"/><path d="M9 20v-7h6v7"/></>,
@@ -43,6 +43,7 @@ function Icon({name,size=22}:{name:IconName;size?:number}) {
   arrow:<><path d="M4 12h15m-6-6 6 6-6 6"/></>, back:<path d="m15 5-7 7 7 7"/>,close:<path d="m6 6 12 12M6 18 18 6"/>,
   play:<path d="m9 5 11 7-11 7Z"/>,pause:<><path d="M9 5v14M15 5v14"/></>,check:<path d="m5 12 4 4L19 6"/>, spark:<><path d="m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z"/></>,
   copy:<><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></>,image:<><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="2"/><path d="m3 17 6-5 4 3 3-3 5 5"/></>,
+  sun:<><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/></>,moon:<path d="M20.2 14.2A8.5 8.5 0 0 1 9.8 3.8a8.5 8.5 0 1 0 10.4 10.4Z"/>,
  };
  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
 }
@@ -346,6 +347,7 @@ export default function Guangdang(){
  const [route,setRoute]=useState(getRoute);
  const [reduceMotion,setReduceMotion]=useState(()=>matchMedia('(prefers-reduced-motion: reduce)').matches);
  const [manualPaused,setManualPaused]=useState(false);
+ const [colorMode,setColorMode]=useState<'dark'|'light'>('dark');
  const motionPaused=reduceMotion||manualPaused;
  const routeRef=useRef(route);
  const [share,setShare]=useState('');
@@ -354,6 +356,11 @@ export default function Guangdang(){
  const main=useRef<HTMLElement>(null);
  const focusedPath=useRef('');
  const memory=useRef<BrowsingMemory>({carouselIndices:{hall:0,bespoke:0},productViews:{hall:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}},bespoke:{section:'experience',filter:'all',scroll:{experience:0,introduction:0,applications:0}}},draft:null,inquiryDrafts:{},sampleViews:{hall:{open:false,scroll:0},bespoke:{open:false,scroll:0}}});
+ useLayoutEffect(()=>{
+  const root=document.documentElement;const previous=root.dataset.theme;
+  root.dataset.theme=colorMode;
+  return()=>{if(previous===undefined)delete root.dataset.theme;else root.dataset.theme=previous;};
+ },[colorMode]);
  useEffect(()=>{const preference=matchMedia('(prefers-reduced-motion: reduce)');const change=()=>setReduceMotion(preference.matches);preference.addEventListener('change',change);return()=>preference.removeEventListener('change',change);},[]);
  useLayoutEffect(()=>{document.body.classList.add('lightfield-app','cinema-app');document.body.classList.toggle('motion-paused',motionPaused);return()=>{document.body.classList.remove('lightfield-app','cinema-app','motion-paused');};},[motionPaused]);
  useEffect(()=>{
@@ -437,7 +444,7 @@ export default function Guangdang(){
   <header className="topbar"><div className="topbar-inner">
    <a className="brand" href="#/" aria-label="咣当首页"><span className="brand-mark"><img className="brand-logo" src={asset('images/brand/guangdang-logo.png')} alt="咣当原品牌Logo"/></span><span className="brand-wordmark"><strong>咣当</strong><small>GUANGDANG</small></span></a>
    <nav className="desktop-nav" aria-label="主导航"><a href="#/" className={active==='home'?'active':''} aria-current={active==='home'?'page':undefined}>首页</a><a href="#/works" className={active==='works'?'active':''} aria-current={active==='works'?'page':undefined}>案例分享</a><a href="#/cooperate" className={active==='cooperate'?'active':''} aria-current={active==='cooperate'?'page':undefined}>商务合作</a><a href="#/mine" className={active==='mine'?'active':''} aria-current={active==='mine'?'page':undefined}>我</a></nav>
-   <div className="header-actions"><button className="icon-button about-button" onClick={()=>setAbout(true)} aria-label="关于原型"><Icon name="spark" size={18}/></button><button className="icon-button motion-toggle" onClick={()=>setManualPaused(value=>!value)} disabled={reduceMotion} aria-pressed={motionPaused} aria-label={reduceMotion?'已遵循系统减少动态效果设置':motionPaused?'恢复动效':'暂停动效'} title={reduceMotion?'已遵循系统减少动态效果设置':motionPaused?'恢复动效':'暂停动效'}><Icon name={motionPaused?'play':'pause'} size={18}/></button><button className="icon-button share-button" onClick={sharePage} aria-label="复制当前页面链接"><Icon name="copy" size={19}/></button></div>
+   <div className="header-actions"><button className="icon-button theme-toggle" data-testid="theme-toggle" onClick={()=>setColorMode(value=>value==='dark'?'light':'dark')} aria-label="亮色模式" aria-pressed={colorMode==='light'} title={colorMode==='dark'?'切换到亮色模式':'切换到深色模式'}><Icon name={colorMode==='dark'?'sun':'moon'} size={20}/></button><button className="icon-button about-button" onClick={()=>setAbout(true)} aria-label="关于原型"><Icon name="spark" size={18}/></button><button className="icon-button motion-toggle" onClick={()=>setManualPaused(value=>!value)} disabled={reduceMotion} aria-pressed={motionPaused} aria-label={reduceMotion?'已遵循系统减少动态效果设置':motionPaused?'恢复动效':'暂停动效'} title={reduceMotion?'已遵循系统减少动态效果设置':motionPaused?'恢复动效':'暂停动效'}><Icon name={motionPaused?'play':'pause'} size={18}/></button><button className="icon-button share-button" onClick={sharePage} aria-label="复制当前页面链接"><Icon name="copy" size={19}/></button></div>
   </div></header>
   <main id="main" data-route={path} ref={main} tabIndex={-1} key={path} className={'page-shell compact-shell lightfield-page '+(path==='/'?'is-home':'')+' '+(path==='/hall'||path==='/bespoke'?'is-business':'')}>
    {parts.length>0?<button className="back-button" onClick={()=>{if(parts[0]==='experience')go('/samples/hall?preview=themes');else if(parts[0]==='samples')go('/'+parts[1]+'?section=experience');else if(parts[0]==='theme')go('/category/'+c?.id);else if(parts[0]==='category')go(c?'/'+c.business+'?section=applications':'/');else if(path==='/cooperate')go(inquiryContext(route).returnTo);else go('/');}}><Icon name="back" size={16}/>{path==='/cooperate'?inquiryContext(route).returnLabel:'返回'+(parts[0]==='experience'?'主题配置预览':parts[0]==='samples'?businessName(parts[1] as Business):parts[0]==='category'?businessName(c?.business||'hall'):parts[0]==='theme'?'主题详情':'首页')}</button>:null}{page}

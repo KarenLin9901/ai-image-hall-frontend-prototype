@@ -88,7 +88,7 @@ ID和所属分类不可因排序、文案或换图而重新生成。每个配置
 
 | 文件 | 当前职责 |
 |---|---|
-| [`main.tsx`](../main.tsx) | 加载Guangdang与样式；`mobile-editorial.css`最后加载 |
+| [`main.tsx`](../main.tsx) | 加载Guangdang与样式；依次加载`mobile-editorial.css`、`ui-polish.css`、`color-themes.css` |
 | [`app/Guangdang.tsx`](../app/Guangdang.tsx) | 路由、内存、照片、守卫、样片、图库、需求、弹窗和导航 |
 | [`app/MobileEditorial.tsx`](../app/MobileEditorial.tsx) | 精简首页、两产品页、八方案的图文渲染 |
 | [`app/mobile-editorial-data.ts`](../app/mobile-editorial-data.ts) | 新图文简介/优势/方案，复用稳定分类与部分配置选项 |

@@ -1,17 +1,20 @@
 # 咣当 AI影像前端交接
 
-## 当前开发基线：20261029-dev-handoff
+## 当前开发基线：20261029-light-dark
 
 以当前精简首页原型为准，首页仅短开场和两个产品入口，详细介绍进入产品后查看。两产品保留产品简介、特点优势、场景启发与当前体验段四锚点；八场景直接进入代表方案，九主题ID/选项与标准旧URL保留。前端、后端及验收的现行说明已汇总至[handoff/README.md](handoff/README.md)。
 
-- [在线原型](https://karenlin9901.github.io/ai-image-hall-frontend-prototype/?version=20261029-dev-handoff#/)
+- [在线原型](https://karenlin9901.github.io/ai-image-hall-frontend-prototype/?version=20261029-light-dark#/)
 - [页面与路由/稳定ID](handoff/01-product-and-routes.md)
 - [前端状态与保护](handoff/02-frontend-behavior.md)
 - [后端字段及待补协议](handoff/03-backend-integration.md)
 - [开发验收与已知问题](handoff/04-acceptance-and-issues.md)
 - [源码/素材/构建与验证](handoff/05-assets-and-delivery.md)
 
-当前能浏览、预览本机配置、复制文字摘要；真实生成、上传、账户、订单和咨询尚未接入。概念图不作为真实样片。退休无对应配置，高定是B端委托。2P1/8P2仍待修，业务与接口缺口单列B01–B11；当前可开始研发对齐与契约设计，不能声明真实服务已上线或已经用户验收。
+当前能浏览、预览本机配置、复制文字摘要；真实生成、上传、账户、订单和咨询尚未接入。概念图不作为真实样片。退休无对应配置，高定是B端委托。2P1/4P2仍待修，另4项UI问题本版已处理，业务与接口缺口单列B01–B11；当前可开始研发对齐与契约设计，不能声明真实服务已上线或已经用户验收。
+
+
+深浅色界面与本版UI调整见[06外观与UI](handoff/06-color-themes.md)。
 
 ## 历史变更记录
 

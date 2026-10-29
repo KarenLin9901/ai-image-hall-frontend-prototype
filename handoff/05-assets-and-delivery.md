@@ -1,6 +1,6 @@
 # 05｜素材、源码与交付说明
 
-版本：`20261029-dev-handoff`。在线原型与仓库使用同一生产构建。发布与真实业务验收是两件事；当前未接入的能力与已知问题继续按交接入口和验收清单执行。
+版本：`20261029-light-dark`。在线原型与仓库使用同一生产构建。发布与真实业务验收是两件事；当前未接入的能力与已知问题继续按交接入口和验收清单执行。
 
 ## 源码地图
 
@@ -12,7 +12,8 @@
 | `app/mobile-editorial-data.ts` | 简介、三组优势、八份方案的选项/含义/流程/成果/双方价值 |
 | `app/guangdang-data.ts` | 业务/分类、九主题、配置选项、作品与案例类型及本地空数据 |
 | `app/guangdang-guards.ts` | URL恢复及发布+明确授权的展示守卫 |
-| `app/mobile-editorial.css` | 最后加载，覆盖新图文页面及精简首页 |
+| `app/mobile-editorial.css` | 图文页面及精简首页 |
+| `app/ui-polish.css` / `app/color-themes.css` | 后加载的共用UI修订及亮色配色 |
 | `public/images/` | 可被网页加载的本地图片；不要改文件名却不更新引用 |
 | `tests/` | 当前可运行回归；不读取本机历史outputs作为测试依赖 |
 | `docs/` | Vite生产产物，GitHub Pages发布目录，不直接手改 |
@@ -46,9 +47,9 @@ npm run build
 npm exec vite preview -- --host 127.0.0.1 --port 4193 --strictPort
 ```
 
-基础路径固定为`/ai-image-hall-frontend-prototype/`。`scripts/postbuild.mjs`生成404与保留路径的静态入口。GitHub Pages沿用`main`分支`/docs`；推送本身不代表Pages已成功，需核对构建状态、在线HTML引用的JS/CSS及实际页面。
+基础路径固定为`/ai-image-hall-frontend-prototype/`。`scripts/postbuild.mjs`生成404与保留路径的静态入口；仅重写根相对图片/媒体路径，保留已带基础路径的分享封面绝对地址，避免重复前缀。GitHub Pages沿用`main`分支`/docs`；推送本身不代表Pages已成功，需核对构建状态、在线HTML引用的JS/CSS及实际页面。
 
-线上地址：[20261029开发交接版](https://karenlin9901.github.io/ai-image-hall-frontend-prototype/?version=20261029-dev-handoff#/)；版本参数用于识别分享，页面不携带照片、Blob URL、文字草稿或联系方式。
+线上地址：[20261029开发交接版](https://karenlin9901.github.io/ai-image-hall-frontend-prototype/?version=20261029-light-dark#/)；版本参数用于识别分享，页面不携带照片、Blob URL、文字草稿或联系方式。
 
 ## 精选证据与验证
 
@@ -57,4 +58,4 @@ npm exec vite preview -- --host 127.0.0.1 --port 4193 --strictPort
 - [R02影像馆待开放目的页](evidence/r02-hall-pending.png)
 - [R02高定待开放目的页](evidence/r02-bespoke-pending.png)
 
-本次发布前的生产构建复测与交接链接核验记录将归入本目录`verification-20261029.md`。已知缺陷不因打包、推送或上线预览而自动关闭；真机软键盘、iOS/Android具体WebView与真实接口链路仍需单独验收。
+本次生产构建复测与交接链接核验记录见[深浅色版验证回执](verification-light-dark-20261029.md)。已知缺陷不因打包、推送或上线预览而自动关闭；真机软键盘、iOS/Android具体WebView与真实接口链路仍需单独验收。

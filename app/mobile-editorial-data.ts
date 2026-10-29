@@ -12,6 +12,7 @@ export type EditorialPlan = {
   audience: string;
   image: string;
   imageLabel: string;
+  imageFormat?: 'portrait';
   themeId?: string;
   planned?: boolean;
   choices: EditorialChoice[];
@@ -52,7 +53,7 @@ export const editorialIntroductions: Record<
 
 export const editorialBenefits: Record<
   'hall' | 'bespoke',
-  { title: string; description: string; image: string; imageLabel: string }[]
+  { title: string; description: string; image: string; imageLabel: string; imageFormat?: 'portrait' }[]
 > = {
   hall: [
     {
@@ -66,6 +67,7 @@ export const editorialBenefits: Record<
       description: '将素材要求、内容选项和成果说明组织成清楚的步骤，让参与者知道每一步的意义。',
       image: reference(5),
       imageLabel: '场景参考',
+      imageFormat: 'portrait',
     },
     {
       title: '一个主题，延展不同节点',
@@ -135,6 +137,7 @@ export const editorialPlans: Record<string, EditorialPlan> = {
     audience: '活动主办方、品牌与会务机构发起，现场或线上参与者体验。',
     image: reference(5),
     imageLabel: '场景参考',
+    imageFormat: 'portrait',
     themeId: 'event-0',
     choices: configuredChoices('event-0', [
       '确定活动情境和共同视觉，让个人影像与本次活动产生联系。',

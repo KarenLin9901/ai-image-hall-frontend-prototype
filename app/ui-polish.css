@@ -1,0 +1,49 @@
+/* Shared geometry and static-content cues for both colour themes. */
+body.cinema-app .mobile-editorial-plan .me-plan-status {
+  margin: 0 0 24px;
+  padding: 14px 0;
+  border-block: 1px solid var(--me-line);
+}
+body.cinema-app .me-plan-status .me-status-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--me-cyan);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+body.cinema-app .me-plan-status p { margin: 0; color: var(--me-muted); font-size: 14px; line-height: 1.7; }
+body.cinema-app .mobile-editorial-plan .me-choice-items { align-items: baseline; gap: 5px 10px; }
+body.cinema-app .mobile-editorial-plan .me-choice-items > span {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--me-ink);
+  font-size: 15px;
+  line-height: 1.8;
+}
+body.cinema-app .mobile-editorial-plan .me-choice-items > span:not(:last-child)::after {
+  margin-left: 10px;
+  color: var(--me-dim);
+  content: '·';
+}
+/* This ratio describes the reference picture, not a promised film delivery format. */
+body.cinema-app .me-image.me-portrait-media {
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 2 / 3;
+  margin-inline: auto;
+  justify-self: center;
+}
+body.cinema-app .me-image.me-portrait-media > .me-media-frame { height: 100%; aspect-ratio: 2 / 3; }
+body.cinema-app .me-image.me-portrait-media > .me-media-frame > img { height: 100%; aspect-ratio: auto; object-fit: contain; }
+body.cinema-app .me-result-frame.me-portrait-result { width: 100%; max-width: 240px; margin-inline: auto; justify-self: center; }
+body.cinema-app .me-portrait-result .me-result-picture.me-portrait-media { max-width: none; }
+@media (max-width:700px) and (max-height:700px) {
+  body.cinema-app .mobile-editorial-product .me-product-hero { min-height: 270px; }
+  body.cinema-app .mobile-editorial-product .editorial-heading { padding: 22px 20px; }
+  body.cinema-app .mobile-editorial-product .editorial-heading::before { margin-bottom: 14px; }
+}

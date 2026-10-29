@@ -1,8 +1,8 @@
 # 咣当 AI影像｜原型与开发交接
 
-版本：`20261029-dev-handoff`。当前精简首页版：两个产品入口，进入产品后查看图文简介、特点优势与八份完整场景方案。九个既有主题设置、照片本机预览、配置/需求摘要和原有保护保留。
+版本：`20261029-light-dark`。当前深浅色切换版，保留精简首页：两个产品入口，进入产品后查看图文简介、特点优势与八份完整场景方案。九个既有主题设置、照片本机预览、配置/需求摘要和原有保护保留。
 
-**[在线原型](https://karenlin9901.github.io/ai-image-hall-frontend-prototype/?version=20261029-dev-handoff#/) · [前后端开发交接入口](handoff/README.md)**
+**[在线原型](https://karenlin9901.github.io/ai-image-hall-frontend-prototype/?version=20261029-light-dark#/) · [前后端开发交接入口](handoff/README.md)**
 
 | 开发需要 | 入口 |
 |---|---|
@@ -11,11 +11,12 @@
 | 本地字段、后端接入点与待补协议 | [03 后端接入](handoff/03-backend-integration.md) |
 | 测试、验收与未修问题 | [04 验收与问题](handoff/04-acceptance-and-issues.md) |
 | 源码、素材与构建发布 | [05 素材与交付](handoff/05-assets-and-delivery.md) |
-| 本版验证记录 | [验证回执](handoff/verification-20261029.md) |
+| 深浅色切换及UI调整 | [06 外观与UI](handoff/06-color-themes.md) |
+| 本版验证记录 | [验证回执](handoff/verification-light-dark-20261029.md) |
 
 这是可供前端实现、后端契约设计与评审的开发基线。当前没有可直接联调的业务接口：真实生成、上传、样片、账户、支付、订单和正式咨询尚未接入。照片与需求只在本次浏览内存中处理，不上传、不代发。退休方案没有对应配置；高定保持B端委托创作逻辑。
 
-已知2项P1和8项P2仍待修复，详见[独立UX复查](UX_REVIEW_20261029.md)。业务与接口决策另见[B01–B11](DEVELOPMENT_DECISIONS.md)。六套回归覆盖现有确定行为，不表示探索发现、真实接口或用户验收已经关闭。
+本版已处理4项UI问题；仍有2项P1和4项P2待修复，详见[独立UX复查](UX_REVIEW_20261029.md)。业务与接口决策另见[B01–B11](DEVELOPMENT_DECISIONS.md)。原六套回归与新增主题套件覆盖现有确定行为，不表示探索发现、真实接口或用户验收已经关闭。
 
 ```sh
 npm ci

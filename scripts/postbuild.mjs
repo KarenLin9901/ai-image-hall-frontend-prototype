@@ -21,9 +21,8 @@ async function rewriteAssets(directory) {
       const source = await readFile(path, "utf8");
       await writeFile(
         path,
-        source
-          .replaceAll("/images/", `${basePath}/images/`)
-          .replaceAll("/media/", `${basePath}/media/`),
+        // Rewrite only root-relative path literals; absolute and already-prefixed URLs stay intact.
+        source.replace(/(["'`(])\/(images|media)\//g, `$1${basePath}/$2/`),
       );
     }
   }

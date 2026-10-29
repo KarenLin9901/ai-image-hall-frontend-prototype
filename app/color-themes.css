@@ -1,0 +1,248 @@
+/* Optional light appearance. Dark remains the existing, unmodified default skin. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  color: #163141;
+  background: #f4f7f8;
+}
+html[data-theme="light"] body.lightfield-app.cinema-app {
+  --ink: #163141;
+  --muted: #526976;
+  --line: #254a6026;
+  --orange: #08758f;
+  --green: #0e6b7b;
+  --cyan: #086c86;
+  --cream: #e8f0f3;
+  --surface: #ffffff;
+  color-scheme: light;
+  color: var(--ink);
+  background-color: #f4f7f8;
+  background-image: radial-gradient(ellipse at 98% 0%,#cce6ee61,transparent 54%),radial-gradient(ellipse at 0% 85%,#d6e9e43d,transparent 50%),linear-gradient(150deg,#fcfdfd,#f3f7f9 58%,#f4f7f7);
+}
+html[data-theme="light"] body.cinema-app .aurora-backdrop::before {
+  background: linear-gradient(124deg,transparent 27%,#6199b000 36%,#78a9bb21 44%,#6aa3c21c 48%,#64b4b51c 53%,#8bb9bb00 62%,transparent 71%);
+  filter: blur(34px);
+}
+html[data-theme="light"] body.cinema-app .aurora-backdrop::after {
+  background: radial-gradient(ellipse 60% 12% at 24% 66%,#73a1c01a,transparent 74%),radial-gradient(ellipse 54% 14% at 78% 79%,#79b5ab1c,transparent 74%);
+  filter: blur(32px);
+}
+html[data-theme="light"] body.cinema-app ::selection { color: #102d3b; background: #c5e4ec; }
+html[data-theme="light"] body.cinema-app :is(a,button,summary,input,textarea,select):focus-visible { outline-color: #087993; }
+
+/* Navigation stays quiet and visible on the pale reading surface. */
+html[data-theme="light"] body.cinema-app .topbar { border-bottom-color: #254a601a; background: #f9fbfbee; }
+html[data-theme="light"] body.cinema-app .brand-wordmark strong { color: #163141; }
+html[data-theme="light"] body.cinema-app .brand .brand-wordmark small { color: #526b79; }
+html[data-theme="light"] body.cinema-app .desktop-nav a { color: #536a77; }
+html[data-theme="light"] body.cinema-app .desktop-nav a.active { color: #123b4e; }
+html[data-theme="light"] body.cinema-app .desktop-nav a.active::after { background: #0b7690; }
+html[data-theme="light"] body.cinema-app .header-actions .icon-button { border-color: #2a526525; color: #234c60; background: #ffffff70; }
+html[data-theme="light"] body.cinema-app .header-actions .theme-toggle[aria-pressed="true"] { border-color: #087a9659; color: #086f89; background: #e7f3f6; }
+html[data-theme="light"] body.cinema-app .header-actions .icon-button:disabled { opacity: .5; }
+html[data-theme="light"] body.cinema-app .back-button { color: #526c7c; }
+html[data-theme="light"] body.cinema-app .mobile-nav { border-top-color: #244b601f; background: #f9fbfbf5; }
+html[data-theme="light"] body.cinema-app .mobile-nav > a { color: #5c7280; }
+html[data-theme="light"] body.cinema-app .mobile-nav > a.active { color: #075f79; }
+html[data-theme="light"] body.cinema-app .mobile-nav > a.active::before { background: #08738c; }
+html[data-theme="light"] body.cinema-app .skip-link { color: #ffffff; background: #164d63; }
+
+/* Reading text is dark. Photograph overlays are handled separately below. */
+html[data-theme="light"] body.cinema-app :is(.compact-shell h1,.page-intro h1,.section-line h2,.experience-panel h2,.config-theme-strip h1,.summary-section-heading h3,.project-bridge h3,.cooperate-copy h2,.profile-card h2,.mine-item h3,.content-panel h2,.empty h3) { color: #163141; }
+html[data-theme="light"] body.cinema-app :is(.page-intro p:not(.eyebrow),.theme-material-hint,.application-audience,.cooperate-copy > p,.profile-card p,.mine-item > span,.content-panel p,.empty p,.inquiry-theme-options,.field-hint,.summary-photo p,.project-bridge p,.load-more > span,.gallery-controls > .muted) { color: #526976; }
+html[data-theme="light"] body.cinema-app :is(.muted,.select-filter,.cooperate-direction small) { color: #5d7481; }
+html[data-theme="light"] body.cinema-app :is(.text-link,.summary-section-heading .text-link,.theme-project-link) { color: #086c86; }
+html[data-theme="light"] body.cinema-app .cooperate-direction { border-color: #264c6026; }
+html[data-theme="light"] body.cinema-app .empty-icon { color: #457c91; }
+
+/* The editorial roots own their own tokens in the dark skin. */
+html[data-theme="light"] body.cinema-app :is(.mobile-editorial-home,.mobile-editorial-product,.mobile-editorial-plan) {
+  --me-ink: #153342;
+  --me-muted: #506a78;
+  --me-dim: #607b89;
+  --me-cyan: #0a6e87;
+  --me-line: #284e6429;
+  --me-panel: #edf3f5;
+}
+html[data-theme="light"] body.cinema-app :is(.editorial-product,.samples-page,.application-detail) { --product-accent: #096d86; --product-border: #2c53672b; --product-surface: #f5f8f9; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-home .me-display { color: #153342; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-home .me-display span { color: #08718b; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-home .me-lead { color: #526d7b; }
+html[data-theme="light"] body.cinema-app .me-link { color: #0a6f89; }
+html[data-theme="light"] body.cinema-app .me-media-frame { background: #e7eff2; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .editorial-index { border-color: #2a516529; background: #f6f9faf5; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .editorial-index > button { color: #5a7381; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .editorial-index > button:is(.active,[aria-current="location"]) { color: #075e78; }
+html[data-theme="light"] body.cinema-app .editorial-index > button::after { background: #08718b; }
+html[data-theme="light"] body.cinema-app .buyer-role-grid article { border-color: #254f642d; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .me-intro-copy .buyer-role-grid article { border-color: #254f642d; }
+html[data-theme="light"] body.cinema-app .buyer-role-grid h3 { color: #24485b; }
+html[data-theme="light"] body.cinema-app .buyer-role-grid p { color: #526d7b; }
+html[data-theme="light"] body.cinema-app .me-flow-line li { border-color: #284f6530; }
+html[data-theme="light"] body.cinema-app .me-flow-line li b { border-color: #477e9240; color: #126c84; background: #f8fcfd; }
+html[data-theme="light"] body.cinema-app .me-flow-line li span { color: #415f70; }
+html[data-theme="light"] body.cinema-app .me-benefit-details > summary { color: #395c6e; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .me-benefit-details dt { color: #0b6f88; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .scenario-card h3 { color: #0c6d85; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .scenario-card .me-scenario-title { color: #193b4d; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .scenario-card-action { color: #0b6c86; }
+html[data-theme="light"] body.cinema-app .me-plan-facts span { color: #466c7f; }
+html[data-theme="light"] body.cinema-app .me-choice-items > :is(span,.chip) { border-color: #47758a35; background: transparent; color: #3f6375; }
+html[data-theme="light"] body.cinema-app .me-plan-process li > b { border-color: #49809645; color: #126c85; background: #f8fcfd; }
+html[data-theme="light"] body.cinema-app .me-process-panel { border-color: #51859932; background: linear-gradient(125deg,#f5fafb,#eaf2f5); }
+html[data-theme="light"] body.cinema-app .me-process-panel:not(:last-child)::after { background: #638fa64d; }
+html[data-theme="light"] body.cinema-app .me-process-panel .me-process-label { color: #246a84; }
+html[data-theme="light"] body.cinema-app .me-process-panel strong { color: #20485d; }
+html[data-theme="light"] body.cinema-app .me-process-panel small { color: #536f80; }
+html[data-theme="light"] body.cinema-app .me-process-panel .me-process-thumb { border-color: #477e922e; }
+html[data-theme="light"] body.cinema-app .me-result-frame { border-color: #426c802e; background: #f9fcfc; }
+html[data-theme="light"] body.cinema-app .me-result-picture { background: #e8f0f3; }
+html[data-theme="light"] body.cinema-app .me-result-caption { color: #285366; }
+html[data-theme="light"] body.cinema-app .me-result-meta { color: #5a7483; }
+html[data-theme="light"] body.cinema-app .me-value-grid > article > span { color: #146a84; }
+html[data-theme="light"] body.cinema-app .me-plan-preparation li { color: #506c7c; }
+html[data-theme="light"] body.cinema-app .me-plan-status p { color: #587383; }
+html[data-theme="light"] body.cinema-app :is(.mobile-editorial-home,.mobile-editorial-product,.mobile-editorial-plan) :is(.me-state,.me-local-note) { color: #567281; }
+html[data-theme="light"] body.cinema-app .me-state::before { background: #147d93; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-plan .application-tags > span { border-color: #4e7c902b; background: #ecf3f5; color: #3d6377; }
+html[data-theme="light"] body.cinema-app :is(.me-portrait-media,.me-portrait-result) { background-color: #e8f0f3; }
+
+/* Details and the retained numeric-theme pages use the same reading palette. */
+html[data-theme="light"] body.cinema-app .simple-fold { border-color: #2a51662b; background: #f7fafb; }
+html[data-theme="light"] body.cinema-app .simple-fold summary { color: #294c60; }
+html[data-theme="light"] body.cinema-app .simple-fold summary svg { color: #30728c; }
+html[data-theme="light"] body.cinema-app .fold-content { color: #506d7d; }
+html[data-theme="light"] body.cinema-app .fold-content :is(h2,h3,h4) { color: #21465b; }
+html[data-theme="light"] body.cinema-app :is(.feature-card,.workflow-list li,.application-detail-section,.scenario-example,.scenario-production,.project-bridge) { border-color: #294e6426; }
+html[data-theme="light"] body.cinema-app :is(.feature-card p,.workflow-list p,.scope-note,.application-benefits p,.scenario-example p,.scenario-production p,.application-detail-section > p) { color: #526d7c; }
+html[data-theme="light"] body.cinema-app :is(.scenario-example > h3,.scenario-production h4,.application-detail-section > h2,.scenario-production > h2) { color: #234a5f; }
+html[data-theme="light"] body.cinema-app .workflow-list li > b,
+html[data-theme="light"] body.cinema-app .scenario-production li::before { border-color: #4e80983d; color: #1c718a; background: #f8fcfd; }
+html[data-theme="light"] body.cinema-app .application-cover { border-color: #345e7329; background: #e7eff3; }
+html[data-theme="light"] body.cinema-app .scenario-template figcaption { color: #5d7786; }
+html[data-theme="light"] body.cinema-app .application-tags > span { border-color: #47768a2b; background: #edf4f6; color: #426779; }
+
+/* Primary actions use blue ink; secondary actions retain clear outlines. */
+html[data-theme="light"] body.cinema-app .button { border-color: #154b61; color: #ffffff; background: #154b61; box-shadow: none; }
+html[data-theme="light"] body.cinema-app .button.secondary,
+html[data-theme="light"] body.cinema-app .button.light { border-color: #496f824a; color: #28576c; background: #ffffffb3; }
+html[data-theme="light"] body.cinema-app .button:disabled { border-color: #bfcfd7; color: #657c89; background: #e5edf0; opacity: 1; }
+html[data-theme="light"] body.cinema-app :is(.chip,.theme-picker-button) { border-color: #4a758b38; color: #4e6d7e; background: #ffffff7d; }
+html[data-theme="light"] body.cinema-app .chip:is(.active,[aria-pressed="true"]) { border-color: #187c9680; color: #09617b; background: #e1f0f4; }
+html[data-theme="light"] body.cinema-app :is(.status-tag,.config-state) { border-color: #3f7b913b; color: #35667a; background: #edf5f7; }
+
+/* Sample shelves and empty states remain honest but easy to read. */
+html[data-theme="light"] body.cinema-app .samples-page > header > p { color: #597381; }
+html[data-theme="light"] body.cinema-app .samples-pending { border-color: #32596d26; background: #f9fbfc; }
+html[data-theme="light"] body.cinema-app .samples-pending h2 { color: #1e4358; }
+html[data-theme="light"] body.cinema-app .samples-pending > div > p { color: #526e7e; }
+html[data-theme="light"] body.cinema-app :is(.theme-card,.theme-picker-card) { border-color: #345f752b; background: #fbfdfd; }
+html[data-theme="light"] body.cinema-app .theme-card.last-used { border-color: #39869d9c; }
+html[data-theme="light"] body.cinema-app .theme-card-copy h3 { color: #234a60; }
+html[data-theme="light"] body.cinema-app .theme-card-action { color: #0d718c; }
+html[data-theme="light"] body.cinema-app .legacy-theme-library .fold-content > p { color: #567382; }
+html[data-theme="light"] body.cinema-app .empty { border-color: #3c667b30; background: #f8fbfc; }
+
+/* All three steps, including their inactive, selected and disabled states. */
+html[data-theme="light"] body.cinema-app .theme-config .experience-panel { border-color: #385f732b; background: #fbfdfd; }
+html[data-theme="light"] body.cinema-app .config-theme-strip { border-color: #345e7429; }
+html[data-theme="light"] body.cinema-app .config-theme-strip > img { border-color: #426d8133; }
+html[data-theme="light"] body.cinema-app .theme-config .step-tabs { border-color: #335e7329; }
+html[data-theme="light"] body.cinema-app .theme-config .step-tabs > button { color: #5d7887; background: transparent; }
+html[data-theme="light"] body.cinema-app .step-tabs b { color: #4e7285; background: #e5eef2; }
+html[data-theme="light"] body.cinema-app .theme-config .step-tabs > button.current { color: #125c77; background: #eaf4f7; }
+html[data-theme="light"] body.cinema-app .theme-config .step-tabs .current b { color: #ffffff; background: #1a6d88; }
+html[data-theme="light"] body.cinema-app .theme-config .step-tabs > button.complete { color: #356f86; }
+html[data-theme="light"] body.cinema-app .theme-config .step-tabs > button.complete b { color: #1e607b; background: #d8ebf2; }
+html[data-theme="light"] body.cinema-app .theme-config .step-tabs > button:disabled { color: #6e838f; opacity: 1; }
+html[data-theme="light"] body.cinema-app .theme-config .option { border-color: #537f9438; color: #446778; background: #f4f8f9; }
+html[data-theme="light"] body.cinema-app .theme-config .option.selected { border-color: #1a7a968f; color: #0d5f7a; background: #e0eff4; }
+html[data-theme="light"] body.cinema-app .theme-config .upload-box { border-color: #487d954d; color: #3c6a80; background: #f1f7f9; }
+html[data-theme="light"] body.cinema-app .upload-box small { color: #587482; }
+html[data-theme="light"] body.cinema-app .check-label { color: #345c70; }
+html[data-theme="light"] body.cinema-app .check-label input { accent-color: #14728e; }
+html[data-theme="light"] body.cinema-app :is(.summary-placeholder,.config-summary) { border-color: #426e8436; color: #4e778d; background: #eaf3f6; }
+html[data-theme="light"] body.cinema-app .summary-list > div { border-color: #345d7229; }
+html[data-theme="light"] body.cinema-app .summary-list dt { color: #5a7585; }
+html[data-theme="light"] body.cinema-app .summary-list dd { color: #224c62; }
+html[data-theme="light"] body.cinema-app .summary-photo strong { color: #244d61; }
+
+/* Gallery filters, cards and media viewing. */
+html[data-theme="light"] body.cinema-app .segmented { border-color: #456f8430; background: #edf3f6; }
+html[data-theme="light"] body.cinema-app .segmented > button { color: #5a7685; background: transparent; }
+html[data-theme="light"] body.cinema-app .segmented > button.active { color: #155c76; background: #ffffff; box-shadow: 0 1px 5px #254e6810; }
+html[data-theme="light"] body.cinema-app .select-filter select { border-color: #416e843d; color: #355e74; background: #fbfdfd; }
+html[data-theme="light"] body.cinema-app :is(.select-filter option,.demand-form option,.demand-form optgroup) { color: #254c63; background: #ffffff; }
+html[data-theme="light"] body.cinema-app .work-card { border-color: #315c7226; color: #254a5f; background: #fbfdfd; }
+html[data-theme="light"] body.cinema-app .work-copy > span { color: #1b738e; }
+html[data-theme="light"] body.cinema-app .work-copy h3 { color: #21495f; }
+html[data-theme="light"] body.cinema-app .work-copy p { color: #5e7988; }
+html[data-theme="light"] body.cinema-app .work-open { color: #f1f8fa; background: #0a263a63; }
+
+/* Cooperation and visitor surfaces. */
+html[data-theme="light"] body.cinema-app .inquiry-context > div > span { border-color: #4a7c9238; color: #286b85; background: #eaf4f7; }
+html[data-theme="light"] body.cinema-app .inquiry-context strong { color: #234b61; }
+html[data-theme="light"] body.cinema-app .notice { border-color: #38748d30; color: #3d677b; background: #eaf3f7; }
+html[data-theme="light"] body.cinema-app .demand-form { border-color: #3a657a2e; background: #fbfdfd; }
+html[data-theme="light"] body.cinema-app .demand-form > label,
+html[data-theme="light"] body.cinema-app .form-pair > label { color: #2c5268; }
+html[data-theme="light"] body.cinema-app .demand-form :is(input,textarea,select) { border-color: #49768c42; color: #244b62; background: #f6fafb; }
+html[data-theme="light"] body.cinema-app .demand-form :is(input,textarea,select):focus { border-color: #1c7d99a6; }
+html[data-theme="light"] body.cinema-app .demand-form :is(input,textarea)::placeholder { color: #627d8b; }
+html[data-theme="light"] body.cinema-app .demand-form :is(input,textarea,select)[aria-invalid="true"] { border-color: #ae594879; }
+html[data-theme="light"] body.cinema-app .field-error { color: #9d3c2b; }
+html[data-theme="light"] body.cinema-app .profile-card { border-color: #325f752b; background: transparent; }
+html[data-theme="light"] body.cinema-app .avatar { color: #33738e; background: #e2eef3; }
+html[data-theme="light"] body.cinema-app .mine-item { border-color: #3d687f2b; background: transparent; }
+html[data-theme="light"] body.cinema-app .content-panel { border-color: #416c8230; background: #f7fbfc; }
+
+/* Dialogs, copy fallback and feedback are light surfaces, not dark holdovers. */
+html[data-theme="light"] body.cinema-app dialog { border-color: #345f752b; color: #254a60; background: #fbfdfd; box-shadow: 0 25px 80px #18394d24; }
+html[data-theme="light"] body.cinema-app dialog::backdrop { background: #16334566; }
+html[data-theme="light"] body.cinema-app .modal-head h2,
+html[data-theme="light"] body.cinema-app dialog > h3 { color: #224a60; }
+html[data-theme="light"] body.cinema-app .modal-head .icon-button { border-color: #396c8338; color: #2b647e; background: #f2f8fa; }
+html[data-theme="light"] body.cinema-app :is(dialog > p,.copy-panel > p) { color: #577483; }
+html[data-theme="light"] body.cinema-app .summary-text { border-color: #416f8640; color: #2d546a; background: #f4f9fb; }
+html[data-theme="light"] body.cinema-app .toast { border-color: #7eb4c73d; color: #f3fafc; background: #214f65; box-shadow: 0 10px 30px #1d43592b; }
+html[data-theme="light"] body.cinema-app .image-fallback { color: #4b7388; background: #e5eff3; }
+html[data-theme="light"] body.cinema-app .picture-loading[role="status"] { color: #254f66; background: #edf5f7d9; }
+
+/* These labels sit over actual photographs and intentionally keep their dark protection. */
+html[data-theme="light"] body.cinema-app .me-home-compact .me-product-card { background: #0a1722; }
+html[data-theme="light"] body.cinema-app .me-home-compact .me-product-copy h2 { color: #f5f7f3; }
+html[data-theme="light"] body.cinema-app .me-home-compact .me-product-copy .me-product-kind { color: #d4e2e8; }
+html[data-theme="light"] body.cinema-app .me-home-compact .me-product-copy .me-link { color: #c9f0f3; }
+html[data-theme="light"] body.cinema-app .me-home-compact .me-product-copy .me-number { color: #d6e8ee; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .editorial-heading h1 { color: #f9f8f1; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .editorial-heading .definition { color: #dee9eb; }
+html[data-theme="light"] body.cinema-app .mobile-editorial-product .editorial-heading .me-eyebrow { color: #d1ebef; }
+html[data-theme="light"] body.cinema-app .editorial-heading::before { background: #d6e8e99c; }
+html[data-theme="light"] body.cinema-app :is(.me-image-label,.me-card-label,.editorial-hero-image > span,.photo-caption) { border-color: #d5e9ee3d; color: #e1eef1; background: #071923c9; }
+html[data-theme="light"] body.cinema-app .me-media-tags > span,
+html[data-theme="light"] body.cinema-app .me-selection-chips > span { border-color: #d5e8ed4a; color: #e4f1f3; background: #061b26d9; }
+html[data-theme="light"] body.cinema-app .me-selection-caption { color: #e7f2f4; }
+html[data-theme="light"] body.cinema-app .me-home-compact .me-card-image .picture-loading[role="status"],
+html[data-theme="light"] body.cinema-app .editorial-hero-image .picture-loading[role="status"] { color: #e2f0f3; background: #102b3acc; }
+html[data-theme="light"] body.cinema-app .me-home-compact .me-card-image .image-fallback { color: #b8d4df; background: #16384a; }
+
+@media (hover:hover) and (pointer:fine) {
+  html[data-theme="light"] body.cinema-app .header-actions .icon-button:hover { border-color: #2b7a9660; background: #e9f3f6; }
+  html[data-theme="light"] body.cinema-app .editorial-index > button:hover { color: #17617c; background: #d9ebf23d; }
+  html[data-theme="light"] body.cinema-app .button:hover:not(:disabled) { border-color: #0e5d78; background: #0e5d78; }
+  html[data-theme="light"] body.cinema-app .button.secondary:hover,
+  html[data-theme="light"] body.cinema-app .button.light:hover { border-color: #33809b80; background: #e9f4f8; }
+  html[data-theme="light"] body.cinema-app .chip:hover { border-color: #43879d73; color: #1b657f; }
+  html[data-theme="light"] body.cinema-app .simple-fold summary:hover { background: #dfedf43d; }
+  html[data-theme="light"] body.cinema-app :is(.theme-card,.theme-picker-card):hover { border-color: #347a9563; background: #f0f8fb; }
+  html[data-theme="light"] body.cinema-app .theme-picker-button:hover { border-color: #42829b73; background: #eaf5f8; }
+  html[data-theme="light"] body.cinema-app .theme-config .step-tabs > button:not(:disabled):hover { background: #dceef440; }
+  html[data-theme="light"] body.cinema-app .work-card:hover { border-color: #3b829d63; }
+  html[data-theme="light"] body.cinema-app .me-home-compact .me-product-card:hover .me-link { color: #ffffff; }
+}
+
+/* Published sample cards share the same body palette when real cases are added. */
+html[data-theme="light"] body.cinema-app .sample-card { border-color: #315b7229; background: #fbfdfd; }
+html[data-theme="light"] body.cinema-app .sample-card-copy h3 { color: #163747; }
+html[data-theme="light"] body.cinema-app .sample-card-copy p { color: #506b79; }
+html[data-theme="light"] body.cinema-app .sample-card-media { background: #e6eff2; }
+html[data-theme="light"] body.cinema-app .scene-advantages > div + div { border-color: #315b7229; }

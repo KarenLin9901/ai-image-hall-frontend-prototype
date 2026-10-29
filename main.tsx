@@ -11,6 +11,8 @@ import "./app/cinema-theme.css";
 import "./app/cinema-home.css";
 import "./app/cinema-typography.css";
 import "./app/mobile-editorial.css";
+import "./app/ui-polish.css";
+import "./app/color-themes.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

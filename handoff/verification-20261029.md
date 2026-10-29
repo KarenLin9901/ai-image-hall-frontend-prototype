@@ -28,3 +28,5 @@
 - 本机Chrome模拟不替代真机、系统软键盘、具体WebView、iOS返回缓存、真实接口或用户验收。
 
 优先处理项及修后标准见[04验收与问题](04-acceptance-and-issues.md)。页面发布用于研发查看与对齐，不代表生成、正式咨询、账户、支付或订单服务已经上线。
+
+后续深浅色版验证见[verification-light-dark-20261029.md](verification-light-dark-20261029.md)；本文件保留a1accfb交接基线当时的检查结果。

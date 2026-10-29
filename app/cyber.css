@@ -59,9 +59,11 @@ body {
 .guide-strip .button.light { background:#1d2b49; color:#d6e7ff; border-color:#819bd344; }
 .guide-strip p { color:#9faed0; }
 .button { background:linear-gradient(110deg,#4b61ce,#7148c5); border:1px solid #9aabff60; color:#fff; box-shadow:0 5px 22px #4b4bd51a; }
-.button:hover:not(:disabled) { background:linear-gradient(110deg,#566fdf,#8254da); }
 .button.secondary,.button.light { background:#16223c; color:#c9d9ff; border-color:#7e9edc45; box-shadow:none; }
-.button.secondary:hover,.button.light:hover { background:#233356; }
+@media (hover:hover) and (pointer:fine) {
+  .button:hover:not(:disabled) { background:linear-gradient(110deg,#566fdf,#8254da); }
+  .button.secondary:hover,.button.light:hover { background:#233356; }
+}
 .button:disabled { opacity:.48; }
 .chip.active { background:#263d79; border-color:#7998f888; color:#e7f0ff; }
 .chip:hover { border-color:#8ca7e077; }
