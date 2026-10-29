@@ -15,7 +15,8 @@ const scenarios = {
   hall: [['brand', '品牌推广与主题传播'], ['event', '活动互动与用户体验'], ['team', '企业文化与员工关怀'], ['campus', '校园与社群纪念']],
   bespoke: [['person', '人物故事'], ['family', '家庭记忆'], ['enterprise', '企业故事'], ['city', '城市与历史']],
 };
-const report = { base: base.href, status: 'running', viewports: [], anchors: [], scenarios: [], motion: [], productEntries: [], photoEntryInteractions: [], nativeScroll: [], backgrounds: [], globalSurfaces: [], typography: [], sharedLinks: [], pages: [], screenshots: [], errors: [], missingAssets: [], failedRequests: [] };
+const planTitles={brand:'我为品牌代言',event:'我的活动高光时刻',team:'退休员工纪念',campus:'我的毕业纪念影像',person:'一位人物的职业故事',family:'一段跨代的家庭记忆',enterprise:'企业周年记忆影片',city:'一条街区的城市记忆'};
+const report = { base: base.href, status: 'running', viewports: [], anchors: [], scenarios: [], motion: [], productEntries: [], photoEntryInteractions: [], nativeScroll: [], compactHomes: [], backgrounds: [], globalSurfaces: [], typography: [], sharedLinks: [], pages: [], screenshots: [], errors: [], missingAssets: [], failedRequests: [] };
 let browser;
 let activePage;
 await mkdir('outputs', { recursive: true });
@@ -73,60 +74,52 @@ async function hitTarget(locator, label) {
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
     const hit = document.elementFromPoint(x, y);
-    return { x, y, width: rect.width, height: rect.height, exposed: !!hit && (hit === element || element.contains(hit)), hit: hit?.tagName + '.' + hit?.className };
+    const owner=element.matches('img')?element.closest('a')||element:element;
+    return { x, y, width: rect.width, height: rect.height, exposed: !!hit && (hit === owner || owner.contains(hit)), hit: hit?.tagName + '.' + hit?.className };
   });
   assert.ok(result.width > 0 && result.height > 0 && result.exposed, `${label}: decoration must not cover the interactive target ${JSON.stringify(result)}`);
   return result;
 }
 
+async function expose(page, locator, label) {
+  await locator.evaluate(element=>{const box=element.getBoundingClientRect(),top=document.querySelector('.topbar').getBoundingClientRect().bottom,bottom=document.querySelector('.mobile-nav')?.getBoundingClientRect().top||innerHeight;scrollBy({top:box.top+box.height/2-(top+bottom)/2,behavior:'instant'});});
+  await frames(page);
+  const result=await locator.evaluate(element=>{const box=element.getBoundingClientRect(),top=document.querySelector('.topbar').getBoundingClientRect().bottom,bottom=document.querySelector('.mobile-nav')?.getBoundingClientRect().top||innerHeight;return {top:box.top,bottom:box.bottom,headerBottom:top,navTop:bottom};});
+  assert.ok(result.top>=result.headerBottom-1&&result.bottom<=result.navTop+1,`${label}: content reachable above fixed navigation ${JSON.stringify(result)}`);
+  return hitTarget(locator,label);
+}
+
 async function cinematicEntries(page, label) {
-  assert.equal(await page.locator('.glass-showcase,.lf-visual').count(), 0, `${label}: the old decorative photo gallery should not remain in the home flow`);
-  assert.equal(await page.locator('.simple-home button').count(), 0, `${label}: the home should not add decorative carousel controls`);
-  const entries = page.locator('.home-choice');
-  assert.equal(await entries.count(), 2, `${label}: both image-led product entries should remain present`);
-  for (const [business, name] of Object.entries(products)) {
-    const entry = page.getByRole('link', { name, exact: true });
-    const image = entry.locator('img.home-choice-image');
-    assert.equal(await image.count(), 1, `${label} ${business}: each product entry needs one full photograph`);
-    const presentation = await entry.evaluate(element => {
-      const image = element.querySelector('img.home-choice-image');
-      const entryBox = element.getBoundingClientRect();
-      const imageBox = image.getBoundingClientRect();
-      const imageStyle = getComputedStyle(image);
-      const before = getComputedStyle(element, '::before');
-      const after = getComputedStyle(element, '::after');
-      const overlayGradients = [getComputedStyle(element).backgroundImage, before.backgroundImage, after.backgroundImage, ...[...element.querySelectorAll('div,span')].map(child => getComputedStyle(child).backgroundImage)].filter(value => /gradient\(/.test(value));
-      const text = [...element.querySelectorAll('h2,.home-choice-action')].map(child => {
-        const box = child.getBoundingClientRect(); const style = getComputedStyle(child);
-        return { value: child.textContent?.trim(), left: box.left, right: box.right, top: box.top, bottom: box.bottom, color: style.color };
-      });
-      return { href: element.getAttribute('href'), naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight, imageFit: imageStyle.objectFit, source: image.currentSrc || image.src, entry: { left: entryBox.left, right: entryBox.right, top: entryBox.top, bottom: entryBox.bottom, width: entryBox.width, height: entryBox.height }, image: { left: imageBox.left, right: imageBox.right, top: imageBox.top, bottom: imageBox.bottom, width: imageBox.width, height: imageBox.height }, overlayGradients, text };
+  assert.equal(await page.locator('.glass-showcase,.lf-visual').count(),0,`${label}: superseded decorative gallery should not remain`);
+  assert.equal(await page.locator('.mobile-editorial-home button').count(),0,`${label}: products are direct entries without an extra scroll-control step`);
+  assert.equal(await page.locator('.home-choice').count(),2,`${label}: both image-led products remain present`);
+  assert.equal(await page.locator('.mobile-editorial-home.me-home-compact > section').count(),2);assert.equal(await page.locator('.me-home-hero img,.me-home-featured,.me-outcome-band,.me-contact-band,.me-scroll-cue').count(),0);assert.equal(await page.locator('#home-products[aria-label="选择影像服务"] img').count(),2);
+  for(const [business,name] of Object.entries(products)){
+    const entry=page.getByRole('link',{name,exact:true});const image=entry.locator('.me-card-image img');assert.equal(await image.count(),1,`${label} ${business}: one image tied to the product`);
+    const presentation=await entry.evaluate(element=>{
+      const image=element.querySelector('img'),frame=image.closest('.me-media-frame'),entryBox=element.getBoundingClientRect(),imageBox=image.getBoundingClientRect(),frameBox=frame.getBoundingClientRect(),imageStyle=getComputedStyle(image);
+      const text=[...element.querySelectorAll('h2,.me-product-kind')].map(child=>{const box=child.getBoundingClientRect(),style=getComputedStyle(child);return {value:child.textContent?.trim(),left:box.left,right:box.right,top:box.top,bottom:box.bottom,color:style.color};});
+      const box=value=>({left:value.left,right:value.right,top:value.top,bottom:value.bottom,width:value.width,height:value.height});
+      const darkOverlay=getComputedStyle(element.querySelector('.me-card-image'),'::after').backgroundImage;
+      return {href:element.getAttribute('href'),naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight,imageFit:imageStyle.objectFit,source:image.currentSrc||image.src,entry:box(entryBox),image:box(imageBox),frame:box(frameBox),darkOverlay,text};
     });
-    assert.equal(presentation.href, '#/' + business, `${label}: image entry should lead directly to its own product`);
-    assert.ok(presentation.naturalWidth >= 800 && presentation.naturalHeight > 0, `${label} ${business}: product photography must decode at a useful resolution`);
-    assert.equal(presentation.imageFit, 'cover', `${label} ${business}: product photograph should fill its entry without distortion`);
-    assert.ok(presentation.image.left <= presentation.entry.left + 4 && presentation.image.right >= presentation.entry.right - 4 && presentation.image.top <= presentation.entry.top + 4 && presentation.image.bottom >= presentation.entry.bottom - 4, `${label} ${business}: photograph should cover the full entry instead of a small thumbnail, allowing slow image zoom`);
-    const hasDarkGradient = presentation.overlayGradients.some(gradient => [...gradient.matchAll(/rgba?\(([^)]+)\)/g)].some(match => {
-      const channels = match[1].match(/[\d.]+/g)?.map(Number) || [];
-      return channels.length >= 3 && Math.max(...channels.slice(0, 3)) < 100 && (channels.length < 4 || channels[3] >= .25);
-    }));
-    assert.ok(hasDarkGradient, `${label} ${business}: image needs a dark gradient layer behind overlaid text`);
-    assert.equal(presentation.text.length, 2, `${label} ${business}: product name and concise service description should remain present`);
-    assert.ok(presentation.text.every(text => Math.max(...(text.color.match(/[\d.]+/g)?.slice(0, 3).map(Number) || [])) >= 160), `${label} ${business}: image text should retain a light foreground colour`);
-    assert.ok(presentation.text.every(text => text.value && text.left >= presentation.image.left - 1 && text.right <= presentation.image.right + 1 && text.top >= presentation.image.top - 1 && text.bottom <= presentation.image.bottom + 1), `${label} ${business}: both text lines should sit clearly inside the full photograph`);
-    report.productEntries.push({ label, business, ...presentation });
+    assert.equal(presentation.href,'#/'+business);assert.ok(presentation.naturalWidth>=800&&presentation.naturalHeight>0,`${label} ${business}: useful image resolution`);assert.equal(presentation.imageFit,'cover');
+    assert.ok(presentation.image.width>=presentation.entry.width-4&&presentation.image.height>=presentation.entry.height-4,`${label} ${business}: image fills the full product card`);assert.match(presentation.darkOverlay,/gradient\(/,`${label} ${business}: image has a dark text-protection layer`);
+    assert.ok(presentation.image.left<=presentation.frame.left+2&&presentation.image.right>=presentation.frame.right-2&&presentation.image.top<=presentation.frame.top+2&&presentation.image.bottom>=presentation.frame.bottom-2,`${label} ${business}: image fills its own media frame`);
+    assert.equal(presentation.text.length,2);assert.ok(presentation.text.every(text=>Math.max(...(text.color.match(/[\d.]+/g)?.slice(0,3).map(Number)||[]))>=150),`${label} ${business}: readable light text`);
+    assert.ok(presentation.text.every(text=>text.value&&text.left>=presentation.entry.left-1&&text.right<=presentation.entry.right+1&&text.top>=presentation.image.top-1&&text.bottom<=presentation.image.bottom+1),`${label} ${business}: product title and service label stay inside the full-bleed card without clipping`);
+    await expose(page,entry.locator('h2'),`${label} ${business} heading`);report.productEntries.push({label,business,...presentation});
   }
+  await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await frames(page);
 }
 
 async function homeTypography(page, label) {
-  const hierarchy = await page.locator('.home-question h1').evaluate(heading => {
-    const emphasis = heading.querySelector('span');
-    const font = element => { const style = getComputedStyle(element); return { size: parseFloat(style.fontSize), weight: parseFloat(style.fontWeight) }; };
-    return { text: heading.textContent, heading: font(heading), emphasis: emphasis ? font(emphasis) : null, products: [...document.querySelectorAll('.home-choice')].map(entry => ({ name: entry.getAttribute('aria-label'), title: font(entry.querySelector('h2')), description: font(entry.querySelector('.home-choice-action')) })) };
+  const hierarchy=await page.locator('.me-home-hero h1').evaluate(heading=>{
+    const font=element=>{const style=getComputedStyle(element);return {size:parseFloat(style.fontSize),weight:parseFloat(style.fontWeight)};};
+    return {text:heading.textContent.replace(/\s+/g,''),heading:font(heading),products:[...document.querySelectorAll('.home-choice')].map(entry=>({name:entry.getAttribute('aria-label'),title:font(entry.querySelector('h2')),description:font(entry.querySelector('.me-product-kind')),action:font(entry.querySelector('.me-link'))}))};
   });
-  assert.equal(hierarchy.text, '你想如何创作一部AI影像？', `${label}: typographic emphasis should preserve the approved home statement`);
-  assert.ok(hierarchy.emphasis && hierarchy.emphasis.size > hierarchy.heading.size, `${label}: the second title line should have stronger visual scale than the opening line`);
-  assert.ok(hierarchy.products.every(product => product.title.weight > product.description.weight), `${label}: product names should carry more weight than service descriptions`);
+  assert.equal(hierarchy.text,'让参与成为影像，让故事被看见。',`${label}: approved home statement`);
+  assert.ok(hierarchy.products.every(product=>hierarchy.heading.size>=product.title.size&&product.title.size>product.description.size&&product.description.size>=13&&product.action.size>=13&&product.title.weight>product.description.weight),`${label}: short brand statement, product title, service label and action form a useful hierarchy`);
   report.typography.push({label,...hierarchy});
 }
 
@@ -146,7 +139,7 @@ async function auroraSemantics(page, label) {
     const top = document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0;
     const parse = value => (value.match(/[\d.]+/g) || []).map(Number);
     const luminance = rgb => rgb.slice(0,3).map(value => { const channel = value / 255; return channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4; }).reduce((sum,value,index) => sum + value * [.2126,.7152,.0722][index],0);
-    const texts = [...document.querySelectorAll('main h1,main h2,main h3,main p,main label,main .home-choice-action')].filter(child => { const box = child.getBoundingClientRect(); const css = getComputedStyle(child); return child.textContent?.trim() && box.width > 2 && box.height > 2 && box.bottom > top && box.top < bottom && css.visibility !== 'hidden' && css.display !== 'none'; }).map(child => { const css = getComputedStyle(child); const color = parse(css.color); return { text: child.textContent?.trim().slice(0,50), color: css.color, luminance: luminance(color), alpha: color.length < 4 ? 1 : color[3], fontSize: parseFloat(css.fontSize) }; });
+    const texts = [...document.querySelectorAll('main h1,main h2,main h3,main p,main label,main .me-product-kind')].filter(child => { const box = child.getBoundingClientRect(); const css = getComputedStyle(child); return child.textContent?.trim() && box.width > 2 && box.height > 2 && box.bottom > top && box.top < bottom && css.visibility !== 'hidden' && css.display !== 'none'; }).map(child => { const css = getComputedStyle(child); const color = parse(css.color); return { text: child.textContent?.trim().slice(0,50), color: css.color, luminance: luminance(color), alpha: color.length < 4 ? 1 : color[3], fontSize: parseFloat(css.fontSize) }; });
     const body = getComputedStyle(document.body);
     const root = getComputedStyle(document.documentElement);
     const over = (foreground, background) => { const alpha = foreground.length < 4 ? 1 : foreground[3]; return [0,1,2].map(index => foreground[index] * alpha + background[index] * (1-alpha)); };
@@ -214,47 +207,32 @@ async function touchGesture(page, from, to) {
 }
 
 async function tapProductPhoto(page, business, label) {
-  const entry = page.getByRole('link', { name: products[business], exact: true });
-  const photoTarget = await entry.evaluate(element => {
-    const rect = element.getBoundingClientRect();
-    const x = rect.left + rect.width * .78;
-    const y = rect.top + rect.height * .3;
-    const hit = document.elementFromPoint(x, y);
-    return { x, y, exposed: !!hit && (hit === element || element.contains(hit)), localX: rect.width * .78, localY: rect.height * .3 };
-  });
-  assert.ok(photoTarget.exposed, `${label} ${business}: full photo area should be a usable product entry`);
-  await entry.tap({ position: { x: photoTarget.localX, y: photoTarget.localY } });
-  await waitRoute(page, '/' + business);
-  assert.equal(await page.locator('main h1').innerText(), products[business]);
-  report.photoEntryInteractions.push({ label, business, nativeTap: true, ...photoTarget });
+  const image=page.getByRole('link',{name:products[business],exact:true}).locator('.me-card-image img');
+  const photoTarget=await expose(page,image,`${label} ${business} image`);
+  await page.touchscreen.tap(photoTarget.x,photoTarget.y);await waitRoute(page,'/'+business);assert.equal(await page.locator('main h1').innerText(),products[business]);report.photoEntryInteractions.push({label,business,nativeTap:true,...photoTarget});
 }
 
 async function homeVerticalScroll(page, label) {
-  // The real home fits one screen. A temporary inert spacer allows an actual
-  // browser touch scroll to verify that image entries do not swallow pan-y.
-  const originalRoute = page.url();
-  await page.evaluate(() => {
-    const spacer = document.createElement('div');
-    spacer.dataset.qaScrollSpacer = 'true';
-    spacer.setAttribute('aria-hidden', 'true');
-    spacer.style.height = '900px';
-    document.body.append(spacer);
-    scrollTo({ top: 0, behavior: 'instant' });
-  });
-  let finalScroll = 0;
-  try {
-    const bounds = await page.locator('.home-choice').first().boundingBox();
-    assert.ok(bounds, `${label}: image entry bounds required for native vertical gesture`);
-    const start = { x: bounds.x + bounds.width * .75, y: bounds.y + bounds.height * .7 };
-    await touchGesture(page, start, { x: start.x + 3, y: start.y - 80 });
-    await page.waitForFunction(() => scrollY > 15);
-    finalScroll = await page.evaluate(() => scrollY);
-    assert.equal(page.url(), originalRoute, `${label}: a vertical gesture should scroll without following a product link`);
-  } finally {
-    await page.evaluate(() => { document.querySelector('[data-qa-scroll-spacer]')?.remove(); scrollTo({ top: 0, behavior: 'instant' }); });
-    await frames(page);
-  }
-  report.nativeScroll.push({ label, finalScroll, routeUnchanged: true });
+  const originalRoute=page.url();await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await frames(page);
+  const maxScroll=await page.evaluate(()=>document.documentElement.scrollHeight-innerHeight);
+  const image=page.locator('.home-choice .me-card-image img').first();
+  const bounds=await image.boundingBox();assert.ok(bounds);
+  const safe=await page.evaluate(()=>({top:document.querySelector('.topbar').getBoundingClientRect().bottom+20,bottom:document.querySelector('.mobile-nav').getBoundingClientRect().top-20}));
+  const start={x:bounds.x+bounds.width*.75,y:Math.min(safe.bottom,Math.max(safe.top,bounds.y+bounds.height*.65))};
+  const before=await page.evaluate(()=>scrollY);await touchGesture(page,start,{x:start.x+3,y:Math.max(safe.top,start.y-150)});
+  if(maxScroll>15)await page.waitForFunction(previous=>scrollY>previous+5,before);
+  const finalScroll=await page.evaluate(()=>scrollY);assert.equal(page.url(),originalRoute,`${label}: vertical touch on a product card does not follow its link`);
+  assert.ok(finalScroll>=0&&finalScroll<=Math.max(0,maxScroll)+1,`${label}: native scrolling stays inside the compact page`);
+  if(maxScroll<=1)assert.equal(finalScroll,0,`${label}: a fitting home need not manufacture scrolling`);
+  await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await frames(page);report.nativeScroll.push({label,before,finalScroll,maxScroll,routeUnchanged:true});
+}
+
+async function compactHomeAccess(page, label) {
+  const geometry=await page.evaluate(()=>({height:innerHeight,scrollHeight:document.documentElement.scrollHeight,sections:document.querySelectorAll('.mobile-editorial-home > section').length,cards:document.querySelectorAll('#home-products .home-choice').length}));
+  assert.equal(geometry.sections,2);assert.equal(geometry.cards,2);assert.ok(geometry.scrollHeight<=geometry.height*2,`${label}: only a short opening and two products remain ${JSON.stringify(geometry)}`);
+  assert.equal(await page.locator('.me-scroll-cue').count(),0);
+  for(const [business,name] of Object.entries(products))await expose(page,page.getByRole('link',{name,exact:true}).locator('h2'),`${label} direct ${business}`);
+  report.compactHomes.push({label,...geometry});await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await frames(page);
 }
 
 async function screenshot(page, name) {
@@ -284,7 +262,7 @@ async function assertAnchors(page, business, viewport) {
     }, label);
     const activeLabel = (await index.locator('[aria-current="location"]').innerText()).trim();
     assert.equal(activeLabel, label, `${business} ${label}: navigation highlight should match the section reached, including the final viewport-clamped experience section`);
-    const geometry = await page.locator(`#${business}-${id} > h2, #${business}-${id} .editorial-experience-copy > h2`).first().evaluate(element => {
+    const geometry = await page.locator(`#${business}-${id} h2`).first().evaluate(element => {
       const box = element.getBoundingClientRect(); return { top: box.top, bottom: box.bottom };
     });
     report.anchors.push({ business, label, activeLabel, viewport, ...geometry });
@@ -311,17 +289,18 @@ try {
     await homeTypography(page, `${viewport.width} home`);
     await cinematicBackground(page, `${viewport.width} home`);
     await homeVerticalScroll(page, `${viewport.width} default`);
+    await compactHomeAccess(page,`${viewport.width} default`);
     const heading = await page.locator('main h1').innerText();
-    assert.equal(await page.locator('main h1').getAttribute('aria-label'), '你想如何创作一部AI影像？');
+    assert.equal((await page.locator('main h1').textContent()).replace(/\s+/g,''),'让参与成为影像，让故事被看见。');
     assert.ok(heading.trim().length > 5, 'home needs a meaningful customer-facing statement');
     const nav = page.getByRole('navigation', { name: '底部导航', exact: true });
     assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '案例分享', '商务合作', '我']);
     const geometry = await page.evaluate(() => ({ height: innerHeight, scrollHeight: document.documentElement.scrollHeight, headerBottom: document.querySelector('.topbar').getBoundingClientRect().bottom, navTop: document.querySelector('.mobile-nav').getBoundingClientRect().top, cards: [...document.querySelectorAll('.home-choice')].map(element => { const r = element.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right }; }) }));
     assert.equal(geometry.cards.length, 2, 'both product entries must remain present');
-    assert.ok(geometry.scrollHeight <= geometry.height + 1, `${viewport.width}: the home should fit the initial mobile viewport ${JSON.stringify(geometry)}`);
-    assert.ok(geometry.cards.every(card => card.top >= geometry.headerBottom - 1 && card.bottom <= geometry.navTop + 1), `${viewport.width}: both products must be visible above bottom navigation`);
+    assert.ok(geometry.scrollHeight<=geometry.height*2,`${viewport.width}: compact home stays within two screens ${JSON.stringify(geometry)}`);
     await hitTarget(page.getByRole('link', { name: '咣当首页', exact: true }), 'brand');
-    for (const [business, name] of Object.entries(products)) await hitTarget(page.getByRole('link', { name, exact: true }), `${viewport.width} ${business}`);
+    for(const [business,name] of Object.entries(products))await expose(page,page.getByRole('link',{name,exact:true}).locator('h2'),`${viewport.width} ${business}`);
+    await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await frames(page);
     for (const link of await nav.getByRole('link').all()) await hitTarget(link, `${viewport.width} bottom navigation`);
     await noOverflow(page, `${viewport.width} home`);
     await screenshot(page, `${viewport.width}-home`);
@@ -355,8 +334,8 @@ try {
       const card = page.locator(`.scenario-card[href="#/category/${id}"]`);
       await card.click();
       await waitRoute(page, '/category/' + id);
-      assert.equal(await page.locator('main h1').innerText(), title);
-      assert.equal(await page.locator('.scenario-production li').count(), 3);
+      assert.equal(await page.locator('main h1').innerText(),planTitles[id]);assert.match(await page.locator('.me-plan-hero .me-eyebrow').innerText(),new RegExp(title));assert.equal(await page.locator('.me-choice-card').count(),3);assert.equal(await page.locator('.me-value-grid article').count(),2);assert.ok((await page.locator('.me-result-copy').innerText()).length>40);
+      assert.equal(await page.locator('.scenario-production li').count(),3);assert.equal(await page.locator('.scenario-production li h3').count(),3);
       await imagesDecode(page);
       await noOverflow(page, `${business} scenario ${id}`);
       await page.getByRole('button', { name: '返回' + products[business], exact: true }).click();
@@ -468,7 +447,7 @@ try {
   assert.deepEqual(report.missingAssets, [], 'no missing same-origin assets');
   assert.deepEqual(report.failedRequests, [], 'no failed resources');
   report.status = 'passed';
-  console.log(`Cinematic visual/mobile checks passed: ${report.viewports.length} viewports, ${report.productEntries.length} full-photo entries, ${report.photoEntryInteractions.length} native product-entry taps, ${report.nativeScroll.length} native scroll checks, ${report.anchors.length} product anchors, ${report.scenarios.length} scenarios, motion controls, and ${report.sharedLinks.length} followed share links.`);
+  console.log(`Cinematic visual/mobile checks passed: ${report.viewports.length} viewports, ${report.productEntries.length} full-photo entries, ${report.photoEntryInteractions.length} native product-entry taps, ${report.nativeScroll.length} native scroll checks, ${report.compactHomes.length} compact direct-entry homes, ${report.anchors.length} product anchors, ${report.scenarios.length} scenarios, motion controls, and ${report.sharedLinks.length} followed share links.`);
 } catch (error) {
   report.status = 'failed';
   report.failure = { message: error.message, stack: error.stack, url: activePage && !activePage.isClosed() ? activePage.url() : null };

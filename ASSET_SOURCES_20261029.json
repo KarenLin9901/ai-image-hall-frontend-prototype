@@ -1,0 +1,196 @@
+{
+  "createdAt": "2026-10-29T08:43:16.313860+00:00",
+  "mode": "built-in image_gen",
+  "assetCount": 6,
+  "expectedCount": 6,
+  "status": "complete",
+  "assets": [
+    {
+      "name": "home-hero",
+      "source": "built-in image_gen; original returned file exec-3a3fc567-8d3c-4889-88a6-2430dc3100b5.png",
+      "prompt": "Use case: ads-marketing. Asset type: a real photographic cinematic hero image for a Chinese AI-image storytelling website, not a screenshot or web mockup. Create one coherent wide 3:2 scene: a single adult Chinese woman in simple contemporary dark clothing, centered in a tasteful conceptual film studio, walking into her own story. A few restrained freestanding cinematic picture frames in space show different human story settings: a warm city street, a professional portrait, a personal celebration. The woman and physical studio are photorealistic with natural skin and fabric texture; only the floating image frames are subtle polished 3D elements. Black and deep navy environment, controlled cyan-blue cinematic rim light with a little warm light inside the story images. Quiet, refined, editorial, believable photography, generous dark breathing room, no busy machinery. Keep the main subject and meaningful story frames inside the middle 65% of the composition for a mobile crop. Moderate wide camera at human height, elegant depth, premium film still, clean silhouettes. Absolutely no words, letters, numbers, logos, brand marks, watermarks, buttons, dashboards or UI. Do not create a tiled collage or multiple-panel layout. This is a clearly conceptual illustration of entering a film story, not a real customer case.",
+      "inspection": "Accepted: single centered adult protagonist in a coherent cinematic frame installation; dark navy/cyan with warm narrative images; no lettering or logos.",
+      "mode": "built-in image_gen",
+      "isConceptual": true,
+      "notCustomerCase": true,
+      "originalWidth": 1536,
+      "originalHeight": 1024,
+      "originalSha256": "6522e44c0b4bb989903dd9f4b6113c5f11a0400d368c92dc0a74fac738abba98",
+      "processing": "Whole-image proportional Lanczos resampling and WebP encoding only; 1920-wide version is a resampled derivative of the 1536-wide generated original, not native 1920 detail. No cropping or content edits.",
+      "versions": [
+        {
+          "path": "public/images/editorial-20261029/home-hero-1920.webp",
+          "width": 1920,
+          "height": 1280,
+          "bytes": 220134,
+          "sha256": "0482d16eff03e30bfcd916661261f3af2cc268372f33b70452adebad0ab73fc3"
+        },
+        {
+          "path": "public/images/editorial-20261029/home-hero-800.webp",
+          "width": 800,
+          "height": 533,
+          "bytes": 67086,
+          "sha256": "cf65aade72bd17a3e69459963944cf600ac2d97e08cb5594d3dd0e3f8fea8df3"
+        }
+      ],
+      "originalLocalOnly": true,
+      "originalLocalArchive": "outputs/mobile-h5-redesign-20261029/assets/originals/home-hero.png"
+    },
+    {
+      "name": "brand-story",
+      "source": "built-in image_gen; original returned file exec-333bf461-f5d3-4565-8728-a87fec2a889f.png",
+      "prompt": "Use case: ads-marketing. Asset type: cinematic photographic concept image for a Chinese AI-image brand-participation product, wide 3:2. One adult Chinese woman around 30 is the clear protagonist, confident and approachable, holding a simple unbranded matte object like a small product box in a restrained modern launch-event studio. Natural face, realistic hands and materials, elegant contemporary clothing. Behind her, a minimal stage and a few subtle cinematic light planes suggest an event theme built around the participant. It must read as a personal brand ambassador film still, not an audience snapshot. Photorealism dominates; very restrained polished 3D stage accents only. Deep navy-black background, soft cyan-blue edge light, warm natural key light, quiet premium composition. Keep face, hands, object and main story inside the central 65% for mobile cropping; generous clean breathing room. No words, letters, numbers, logos, trademark packaging, watermarks, interfaces, buttons or fake statistics. Single coherent scene, no collage or multipanel layout. No celebrities and no identifiable real customer.",
+      "inspection": "Accepted: centered adult brand-participation protagonist holding an unbranded box; modern launch setting, clear natural face and hands; no words or identifiers.",
+      "mode": "built-in image_gen",
+      "isConceptual": true,
+      "notCustomerCase": true,
+      "originalWidth": 1536,
+      "originalHeight": 1024,
+      "originalSha256": "7af84ef27d57995016de059a97b1abd21bedb72ba661d4af726bf3b50d03b93c",
+      "processing": "Whole-image proportional Lanczos resampling and WebP encoding only; 1920-wide version is a resampled derivative of the 1536-wide generated original, not native 1920 detail. No cropping or content edits.",
+      "versions": [
+        {
+          "path": "public/images/editorial-20261029/brand-story-1920.webp",
+          "width": 1920,
+          "height": 1280,
+          "bytes": 95342,
+          "sha256": "c8e788552dbb9fcac79dfc78ef45ea83b62aa29b825834040263d22dec7f3035"
+        },
+        {
+          "path": "public/images/editorial-20261029/brand-story-800.webp",
+          "width": 800,
+          "height": 533,
+          "bytes": 31440,
+          "sha256": "b002b2138e9f15f879bec500232f2f1e9269b5cf231dfc51091db4519b377d40"
+        }
+      ],
+      "originalLocalOnly": true,
+      "originalLocalArchive": "outputs/mobile-h5-redesign-20261029/assets/originals/brand-story.png"
+    },
+    {
+      "name": "bespoke-story",
+      "source": "built-in image_gen; original returned file exec-8a6408e3-86e7-4101-ac0b-86f42158b546.png",
+      "prompt": "Use case: ads-marketing. Asset type: premium photographic conceptual image for commissioned AI film storytelling, wide 3:2. A coherent cinematic studio still life: a dark wooden editing/creative table holds a few unlettered paper documents, a tasteful fictional family photograph and a small photographic portrait; above the table an elegant physical cinema picture frame reveals a moving-looking but still human story scene with an adult Chinese person in warm natural light. Visual idea: scattered personal story materials becoming a thoughtfully composed film. The documents are blank, not legible writing. Natural paper grain, realistic wood, photographic skin; subtle 3D framing only, no giant digital dashboard. Deep navy-black space with controlled cyan-blue illumination and warm amber story light, contemplative and polished editorial photography. The important table materials and picture frame are centered safely for a mobile crop, with clean negative space. No words, numbers, letters, date marks, logos, watermarks, buttons, movie UI or multiple-panel collage. It is a fictional concept illustration, not an actual person's archive or historic evidence.",
+      "inspection": "Accepted: blank paper, fictional photographs and a cinema-like framed story image explain materials-to-film; no legible writing or customer identity.",
+      "mode": "built-in image_gen",
+      "isConceptual": true,
+      "notCustomerCase": true,
+      "originalWidth": 1536,
+      "originalHeight": 1024,
+      "originalSha256": "8534d9b8690640ab7f1bb1694eacbe8e8764665302351571cc12f4167a097201",
+      "processing": "Whole-image proportional Lanczos resampling and WebP encoding only; 1920-wide version is a resampled derivative of the 1536-wide generated original, not native 1920 detail. No cropping or content edits.",
+      "versions": [
+        {
+          "path": "public/images/editorial-20261029/bespoke-story-1920.webp",
+          "width": 1920,
+          "height": 1280,
+          "bytes": 221508,
+          "sha256": "4b587d1e5f473bb7e8eb2e97599ae6f4b92307b89aa98d8a30a2dafd25250434"
+        },
+        {
+          "path": "public/images/editorial-20261029/bespoke-story-800.webp",
+          "width": 800,
+          "height": 533,
+          "bytes": 67170,
+          "sha256": "8d3cb40d140e411b6d17356d90caae904a72a239179b5b9a4ab88468cae4e8f2"
+        }
+      ],
+      "originalLocalOnly": true,
+      "originalLocalArchive": "outputs/mobile-h5-redesign-20261029/assets/originals/bespoke-story.png"
+    },
+    {
+      "name": "retirement-story",
+      "source": "built-in image_gen; original returned file exec-2da9eba0-d851-4ebe-9bfb-9b42d1b713a8.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: cinematic concept photograph for a retirement employee commemorative AI film, wide 3:2. A single Chinese man around 60, a dignified retired engineer or skilled frontline worker, stands with a relaxed warm expression in a calm workshop-to-new-life setting. He has natural wrinkles, silvering hair, believable hands and understated dark work clothing. A few simple worn engineering tools and a closed unmarked photo album on a nearby bench suggest years of contribution; softly glowing garden and daylight in the distance suggest a hopeful new chapter. One coherent human-centered film still, no double exposure or tiled past/future montage. Realistic portrait photography, tactile tools and fabric, deep navy shadows, gentle cyan rim light with warm gold skin tones, respectful and optimistic rather than melancholy. Keep protagonist and meaningful objects in central 65% so phone cropping preserves them; leave clean breathing room. No company identifiers, recognizable employers, words, numerals, letters, captions, logos, medals with text, watermarks, screens or interface elements. Fictional person, concept scene, not an actual employee testimonial.",
+      "inspection": "Accepted: one older worker with workshop tools, unmarked album and hopeful garden light; respectful realistic portrait; no employer marks or text.",
+      "mode": "built-in image_gen",
+      "isConceptual": true,
+      "notCustomerCase": true,
+      "originalWidth": 1536,
+      "originalHeight": 1024,
+      "originalSha256": "90ea416c11fb6a8dc98de96df7ec6d24d7f09af8f277643387740f42665c96eb",
+      "processing": "Whole-image proportional Lanczos resampling and WebP encoding only; 1920-wide version is a resampled derivative of the 1536-wide generated original, not native 1920 detail. No cropping or content edits.",
+      "versions": [
+        {
+          "path": "public/images/editorial-20261029/retirement-story-1920.webp",
+          "width": 1920,
+          "height": 1280,
+          "bytes": 238714,
+          "sha256": "06f6a57d932e4a99337917b8de8c89121515379bb5ea7c5ffa8a52cfc06ce9c3"
+        },
+        {
+          "path": "public/images/editorial-20261029/retirement-story-800.webp",
+          "width": 800,
+          "height": 533,
+          "bytes": 81260,
+          "sha256": "b9bfa8c3e00f60473e9fc20271499fe11a9cb69597ec9ddc6432e4505643d3cd"
+        }
+      ],
+      "originalLocalOnly": true,
+      "originalLocalArchive": "outputs/mobile-h5-redesign-20261029/assets/originals/retirement-story.png"
+    },
+    {
+      "name": "enterprise-story",
+      "source": "built-in image_gen; original returned file exec-3dcb87be-2055-49e8-aafa-81297fb45a4b.png",
+      "prompt": "Use case: ads-marketing. Asset type: a cinematic photographic concept image about an enterprise anniversary memory film, wide 3:2. One coherent scene in a refined Chinese engineering company's creative workshop: a thoughtful Chinese founder around 55 stands at a large worktable with a small early mechanical prototype, well-used simple tools and an open archive box containing a few unmarked monochrome photographs. In the softly focused background a small contemporary team works together around a modern project model and clean architectural plans without lettering. The visual connects humble beginnings, people and current work through physical depth, not through a timeline infographic. Photorealistic people and tactile materials, understated cinematic composition, deep navy shadows and controlled blue-cyan window light with a warm key light across the archive. Keep the founder, archive and prototype in the central 65% for mobile cropping, do not make the composition busy. No identifiable real company, brand, famous building or actual historic assertion. Absolutely no words, letters, dates, numbers, logos, watermark, interface, graph or screen controls. No tiled collage and no split panels. This is an editorial concept scene, not a real customer case or company archive.",
+      "inspection": "Accepted: founder, unmarked fictional archive photographs and workshop prototype connect with a modern team in one photographic scene; no readable date, brand or company identity.",
+      "mode": "built-in image_gen",
+      "isConceptual": true,
+      "notCustomerCase": true,
+      "originalWidth": 1536,
+      "originalHeight": 1024,
+      "originalSha256": "6adbcd72b69babf9fdef0cf8e3fcda804c3d1ccb49e10d20547dfc5ff1217e42",
+      "processing": "Whole-image proportional Lanczos resampling and WebP encoding only; 1920-wide version is a resampled derivative of the 1536-wide generated original, not native 1920 detail. No cropping or content edits.",
+      "versions": [
+        {
+          "path": "public/images/editorial-20261029/enterprise-story-1920.webp",
+          "width": 1920,
+          "height": 1280,
+          "bytes": 213282,
+          "sha256": "424f863b23e83d3d1935a78b93ccdfca6d9851a8cf61678c60fb45c1f96f566e"
+        },
+        {
+          "path": "public/images/editorial-20261029/enterprise-story-800.webp",
+          "width": 800,
+          "height": 533,
+          "bytes": 70058,
+          "sha256": "6e3370d1c4d03f50470de36e2a0d7cb8e3d119993e50bb9d502f189977510466"
+        }
+      ],
+      "originalLocalOnly": true,
+      "originalLocalArchive": "outputs/mobile-h5-redesign-20261029/assets/originals/enterprise-story.png"
+    },
+    {
+      "name": "city-story",
+      "source": "built-in image_gen; original returned file exec-3dfb5623-eda9-424c-9b0b-72443591ec0f.png",
+      "prompt": "Use case: ads-marketing. Asset type: a cinematic photographic concept image for an urban memory film, wide 3:2. One coherent eye-level street scene in a fictional southern Chinese neighborhood: textured old brick and pale plaster arcades, modest everyday doorways and a narrow lived-in lane open into a distant contemporary city skyline. Two ordinary adult residents walking naturally give the place human life. Old neighborhood space and contemporary urban space belong in one believable layered perspective, not a before-and-after collage. Storefront fasciae and walls are plain and unlettered; no signs or advertisements. Photorealistic architectural texture, damp stone reflections, quiet cinematic dusk, deep navy and cyan shadows balanced with warm window light. Keep the important lane, person and skyline within the central 65% for a phone crop; uncluttered foreground and airy perspective. No recognizable Dongmen location or named historic landmark; do not claim a particular date or actual archival reconstruction. Absolutely no text, letters, numerals, dates, logos, watermark, maps, UI or panels. This is a respectful fictional concept illustration of city memory, not documentary evidence.",
+      "inspection": "Accepted: ordinary residents in a fictional layered old lane and contemporary skyline; no text, named location or historical assertion; coherent photographic concept.",
+      "mode": "built-in image_gen",
+      "isConceptual": true,
+      "notCustomerCase": true,
+      "originalWidth": 1536,
+      "originalHeight": 1024,
+      "originalSha256": "2f9ffa1f86b5a3dde073bf5c58108b598ae2b99fa6cf08b2e8c540aca4355272",
+      "processing": "Whole-image proportional Lanczos resampling and WebP encoding only; 1920-wide version is a resampled derivative of the 1536-wide generated original, not native 1920 detail. No cropping or content edits.",
+      "versions": [
+        {
+          "path": "public/images/editorial-20261029/city-story-1920.webp",
+          "width": 1920,
+          "height": 1280,
+          "bytes": 426378,
+          "sha256": "59e257595c0cc49909e2220516c1632e6263749d35e7854967d4688ed2779c8d"
+        },
+        {
+          "path": "public/images/editorial-20261029/city-story-800.webp",
+          "width": 800,
+          "height": 533,
+          "bytes": 128600,
+          "sha256": "8a064d2e93402d08218ded575eea724250c65454ca98999f8fdd31a91c8085cf"
+        }
+      ],
+      "originalLocalOnly": true,
+      "originalLocalArchive": "outputs/mobile-h5-redesign-20261029/assets/originals/city-story.png"
+    }
+  ],
+  "recordPurpose": "Repository asset provenance. WebP derivatives are included; original PNGs and full local logs remain in the local ignored outputs archive."
+}

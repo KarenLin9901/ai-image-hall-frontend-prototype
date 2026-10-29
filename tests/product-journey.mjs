@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { chromium } from 'playwright-core';
@@ -90,7 +91,8 @@ try {
 
   await route('/');
   assert.equal(await page.locator('.home-choice').count(), 2);
-  await page.getByRole('heading', { name: '你想如何创作一部AI影像？', exact: true }).waitFor();
+  assert.equal((await page.locator('.me-home-hero h1').textContent()).replace(/\s+/g,''),'让参与成为影像，让故事被看见。');
+  assert.equal(await page.locator('.mobile-editorial-home.me-home-compact > section').count(),2);assert.equal(await page.locator('.me-home-hero img,.me-home-featured,.me-outcome-band,.me-contact-band,.me-scroll-cue').count(),0);assert.equal(await page.locator('#home-products img').count(),2);
   assert.match(await page.locator('.home-choice[href="#/hall"]').innerText(), /模板化互动影像产品/);
   assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /精品AI影像创作服务/);
   const nav = page.getByRole('navigation', { name: '底部导航' });
@@ -100,14 +102,16 @@ try {
   assert.equal(await nav.getByRole('link', { name: '影像作品', exact: true }).count(), 0);
   for (const viewport of [{ width: 360, height: 640 }, { width: 390, height: 844 }]) {
     await page.setViewportSize(viewport);
-    const layout = await page.evaluate(() => ({
-      height: innerHeight,
-      scrollHeight: document.documentElement.scrollHeight,
-      navTop: document.querySelector('.mobile-nav').getBoundingClientRect().top,
-      choicesBottom: document.querySelector('.home-choice:last-child').getBoundingClientRect().bottom,
-    }));
-    assert.ok(layout.scrollHeight <= layout.height + 1, `Four-item navigation must preserve one-screen home: ${JSON.stringify({ viewport, ...layout })}`);
-    assert.ok(layout.choicesBottom <= layout.navTop, `Home actions must remain clear of four-item navigation: ${JSON.stringify({ viewport, ...layout })}`);
+    await route('/');
+    const layout=await page.evaluate(()=>({height:innerHeight,scrollHeight:document.documentElement.scrollHeight}));
+    assert.ok(layout.scrollHeight<=layout.height*2,`Home stays compact while keeping both products reachable: ${JSON.stringify({viewport,...layout})}`);
+    for(const business of ['hall','bespoke']){
+      const title=page.locator(`.home-choice[href="#/${business}"] h2`);
+      await title.evaluate(el=>{const b=el.getBoundingClientRect(),top=document.querySelector('.topbar').getBoundingClientRect().bottom,bottom=document.querySelector('.mobile-nav').getBoundingClientRect().top;scrollBy({top:b.top+b.height/2-(top+bottom)/2,behavior:'instant'});});
+      const target=await title.evaluate(el=>{const b=el.getBoundingClientRect(),hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return {hit:el===hit||el.contains(hit),top:b.top,bottom:b.bottom,headerBottom:document.querySelector('.topbar').getBoundingClientRect().bottom,navTop:document.querySelector('.mobile-nav').getBoundingClientRect().top};});
+      assert.ok(target.hit&&target.top>=target.headerBottom&&target.bottom<=target.navTop,`${viewport.width} ${business}: entry reachable above navigation ${JSON.stringify(target)}`);
+      await title.tap();await waitRoute('/'+business);await route('/');
+    }
     await assertNoOverflow(`Home ${viewport.width}x${viewport.height}`);
   }
   await nav.getByRole('link', { name: '我', exact: true }).tap();
@@ -120,7 +124,7 @@ try {
   await waitRoute('/');
   assert.deepEqual(await nav.locator('a.active').allTextContents(), ['首页']);
   await screenshot('home');
-  report.checks.push('Home remains one screen at 360x640 and 390x844; four primary links include the exact label 我, which opens the pending account page, highlights correctly, and returns home');
+  report.checks.push('Home contains only a short brand opening and two direct image-led products at 360x640 and 390x844; both product entries are individually reachable above fixed navigation; four primary links include the exact label 我, which opens the pending account page, highlights correctly, and returns home');
 
   // The illustrated product page leads to scene details and honest sample preparation states.
   await route('/hall?section=applications');
@@ -128,7 +132,8 @@ try {
   assert.equal(await page.getByRole('tab').count(), 0);
   await page.locator('a.scenario-card[href="#/category/event"]').tap();
   await waitRoute('/category/event');
-  await page.getByRole('heading', { name: '活动互动与用户体验', exact: true }).waitFor();
+  await page.getByRole('heading', { name: '我的活动高光时刻', exact: true, level: 1 }).waitFor();
+  assert.match(await page.locator('.me-plan-hero .me-eyebrow').innerText(),/活动互动与用户体验/);assert.equal(await page.locator('.me-choice-card').count(),3);
   await page.locator('.back-button').tap(); await waitRoute('/hall');
   assert.equal(await page.locator('.scenario-grid a.scenario-card').count(), 4);
   await page.locator('.editorial-experience').getByRole('link', { name: '立即体验', exact: true }).tap();
@@ -221,7 +226,8 @@ try {
 
   // A buyer can carry a chosen theme into a project without exposing the local participant photo.
   await page.getByRole('button', { name: '修改照片', exact: true }).tap();
-  await page.getByLabel('选择照片', { exact: true }).setInputFiles('public/images/v4/live-futian.jpg');
+  await page.getByLabel('选择照片', { exact: true }).setInputFiles(fileURLToPath(new URL('../public/images/v4/live-futian.jpg',import.meta.url)));
+  await page.getByText('正在检查照片…', { exact: true }).waitFor({ state: 'hidden' });
   const projectPhoto = await page.locator('.upload-box img').getAttribute('src');
   assert.match(projectPhoto, /^blob:/);
   await page.getByRole('checkbox', { name: '我确认已获得这张照片的使用授权', exact: true }).check();

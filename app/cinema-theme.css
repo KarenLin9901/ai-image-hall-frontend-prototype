@@ -342,3 +342,13 @@ body.cinema-app.motion-paused *,body.cinema-app.motion-paused *::before,body.cin
 @media (prefers-reduced-motion:reduce) {
   body.cinema-app *,body.cinema-app *::before,body.cinema-app *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Local readiness fixes, 2026-10-27: preserve existing image and page geometry. */
+body.cinema-app :is(.samples-pending,.theme-card-media,.application-cover,.config-theme-strip,.work-image):has(> .picture-loading) { position: relative; }
+body.cinema-app .picture-loading[role="status"] { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; width: auto; max-width: none; margin: 0; padding: 12px; border: 0; border-radius: inherit; background: #080d1166; color: #e3e5df; font-size: 14px; line-height: 1.6; pointer-events: none; }
+body.cinema-app .work-image:has(> img[aria-busy="true"]) { min-height: 160px; }
+body.cinema-app .field-error { margin-block: 12px; color: #f4c7aa; line-height: 1.8; }
+body.cinema-app .demand-form :is(input,textarea,select) { scroll-margin-top: calc(var(--header-height) + 12px); scroll-margin-bottom: calc(var(--nav-height) + 12px); }
+@media (min-width: 901px) {
+  body.cinema-app .desktop-nav a { min-width: 44px; text-align: center; }
+}

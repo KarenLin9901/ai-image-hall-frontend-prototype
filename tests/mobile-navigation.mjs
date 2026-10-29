@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { chromium } from 'playwright-core';
@@ -116,6 +117,7 @@ try {
     };
     const preparePhoto = async file => {
       await page.getByLabel('选择照片', { exact: true }).setInputFiles(file);
+      await page.getByText('正在检查照片…', { exact: true }).waitFor({ state: 'hidden' });
       const photo = await page.locator('.upload-box img').getAttribute('src');
       await page.getByRole('checkbox', { name: '我确认已获得这张照片的使用授权', exact: true }).check();
       return photo;
@@ -156,7 +158,7 @@ try {
       const option = row.getByRole('button').first(); choices.push(await option.textContent()); await option.tap();
     }
     await bottomTap('下一步：准备照片', 'content to photo');
-    const firstPhoto = await preparePhoto('public/images/v4/live-futian.jpg');
+    const firstPhoto = await preparePhoto(fileURLToPath(new URL('../public/images/v4/live-futian.jpg',import.meta.url)));
     await bottomTap('下一步：确认信息', 'photo to confirmation');
     await assertConfirmation(theme, choices, firstPhoto);
     await bottomTap('修改照片', 'confirmation to photo');
@@ -166,7 +168,8 @@ try {
     assert.deepEqual(await page.locator('.option.selected').allTextContents(), choices);
     await bottomTap('下一步：准备照片', 'content to retained photo');
     assert.equal(await page.getByRole('checkbox').isChecked(), true);
-    await page.getByLabel('选择照片', { exact: true }).setInputFiles('public/images/v4/live-longhua.jpg');
+    await page.getByLabel('选择照片', { exact: true }).setInputFiles(fileURLToPath(new URL('../public/images/v4/live-longhua.jpg',import.meta.url)));
+    await page.getByText('正在检查照片…', { exact: true }).waitFor({ state: 'hidden' });
     const secondPhoto = await page.locator('.upload-box img').getAttribute('src');
     assert.notEqual(secondPhoto, firstPhoto);
     assert.ok(await page.evaluate(url => window.__revokedObjectUrls.includes(url), firstPhoto), 'Replacing a photo must release the previous blob URL');
@@ -215,7 +218,7 @@ try {
     assert.equal(await page.locator('.option.selected').count(), 0, 'Only one theme draft is retained; changing back starts clean');
     for (const row of await page.locator('.option-row').all()) await row.getByRole('button').first().tap();
     await bottomTap('下一步：准备照片', 'fresh theme photo');
-    const refreshPhoto = await preparePhoto('public/images/v4/live-futian.jpg');
+    const refreshPhoto = await preparePhoto(fileURLToPath(new URL('../public/images/v4/live-futian.jpg',import.meta.url)));
     await bottomTap('下一步：确认信息', 'fresh theme confirmation');
     await assertConfirmation(theme, choices, refreshPhoto);
     await page.reload(); await waitRoute(pathFor(theme)); await atTop('refresh clears draft');

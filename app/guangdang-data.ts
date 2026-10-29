@@ -1,6 +1,8 @@
+import { isPublishedAndAuthorized } from './guangdang-guards';
+
 export type Business = 'hall' | 'bespoke';
 export type Media = { type:'image'|'video'; src:string; poster?:string; width:number; height:number; alt:string };
-export type CaseRecord = { id:string; title:string; categoryId:string; themeId:string; background:string; objective:string; media:Media[]; status:'draft'|'published' };
+export type CaseRecord = { id:string; title:string; categoryId:string; themeId:string; background:string; objective:string; media:Media[]; status:'draft'|'published'; displayAuthorized?:boolean };
 export type ThemeRecord = { id:string; categoryId:string; title:string; image:string; caseIds:string[]; templateId?:string; status:'example'|'published' };
 export type PublishedWork = { id:string; title:string; categoryId:string; business:Business; themeId?:string; caseId?:string; templateId?:string; media:Media; source:string; displayAuthorized:boolean; status:'draft'|'published'; sort:number; publishedAt:string };
 export type Category = { id: string; business: Business; title: string; short: string; intro: string; audience: string; image: number; themes: string[]; };
@@ -30,13 +32,14 @@ export const categories: Category[] = [
   { id:'event',business:'hall',title:'活动互动与用户体验',short:'活动互动',intro:'把现场的参与感，变成可以带走的专属记忆。',audience:'活动主办方、品牌营销部门、展会及会务机构',image:5,themes:['我的活动高光时刻','专属节日影像'] },
   { id:'team',business:'hall',title:'企业文化与员工关怀',short:'员工关怀',intro:'记录每一份投入，也看见团队里的每一个人。',audience:'企业人力资源部门、工会、品牌文化部门',image:6,themes:['我的职场成长影像','我们团队的专属记忆'] },
   { id:'campus',business:'hall',title:'校园与社群纪念',short:'校园纪念',intro:'让一起走过的日子，有值得珍藏的影像。',audience:'学校、教育机构、社群及相关组织',image:7,themes:['我的毕业纪念影像','我们的校园记忆'] },
-  { id:'person',business:'bespoke',title:'人物故事',short:'人物故事',intro:'那些经历、选择与热爱，值得被认真讲述。',audience:'希望记录个人经历、成长历程与人物精神的个人或机构',image:8,themes:[] },
-  { id:'family',business:'bespoke',title:'家庭记忆',short:'家庭记忆',intro:'把家人之间的爱，与共同走过的时间留在影像里。',audience:'希望记录亲情、成长与重要人生回忆的家庭',image:9,themes:[] },
+  { id:'person',business:'bespoke',title:'人物故事',short:'人物故事',intro:'那些经历、选择与热爱，值得被认真讲述。',audience:'企业品牌、文化与人力资源团队，人物所属机构',image:8,themes:[] },
+  { id:'family',business:'bespoke',title:'家庭记忆',short:'家庭记忆',intro:'把家人之间的爱，与共同走过的时间留在影像里。',audience:'工会、员工关怀团队及家庭服务机构',image:9,themes:[] },
   { id:'enterprise',business:'bespoke',title:'企业故事',short:'企业故事',intro:'从一个起点到一段历程，讲述企业自己的故事。',audience:'希望呈现发展历程、品牌精神与项目成果的企业',image:10,themes:[] },
   { id:'city',business:'bespoke',title:'城市与历史',short:'城市与历史',intro:'让城市的记忆，在今天继续被看见。',audience:'关注城市记忆、地方文化、历史叙事与文化传承的机构',image:11,themes:[] },
 ];
 export const categoryById = new Map(categories.map(c => [c.id,c]));
 export const themeImages:Record<string,string>={
+ 'shenzhen-belike':reference(4),
  'brand-0':asset('images/themes-v3/shenzhen-arrival-1920.webp'),
  'brand-1':asset('images/themes-v3/brand-star-1920.webp'),
  'event-0':reference(5),
@@ -46,7 +49,19 @@ export const themeImages:Record<string,string>={
  'campus-0':reference(7),
  'campus-1':asset('images/themes-v3/campus-memory-1920.webp'),
 };
-export const themes:ThemeRecord[] = categories.flatMap(c=>c.themes.map((title,i)=>({id:`${c.id}-${i}`,categoryId:c.id,title,image:themeImages[`${c.id}-${i}`],caseIds:[],status:'example'})));
+// Stable local content IDs. Keep existing IDs/URLs when ordering or wording changes.
+// Category.themes retains the original ordered labels for legacy numeric URLs.
+export const themes:ThemeRecord[] = [
+ {id:'shenzhen-belike',categoryId:'brand',title:'我的深圳生活 belike'},
+ {id:'brand-0',categoryId:'brand',title:'来了就是深圳人'},
+ {id:'brand-1',categoryId:'brand',title:'我为品牌代言'},
+ {id:'event-0',categoryId:'event',title:'我的活动高光时刻'},
+ {id:'event-1',categoryId:'event',title:'专属节日影像'},
+ {id:'team-0',categoryId:'team',title:'我的职场成长影像'},
+ {id:'team-1',categoryId:'team',title:'我们团队的专属记忆'},
+ {id:'campus-0',categoryId:'campus',title:'我的毕业纪念影像'},
+ {id:'campus-1',categoryId:'campus',title:'我们的校园记忆'},
+].map(theme=>({...theme,image:themeImages[theme.id],caseIds:[],status:'example'}));
 export const cases:CaseRecord[]=[];
 export const publishedWorks:PublishedWork[]=[];
 export const businessName = (b: Business) => b === 'hall' ? 'AI影像馆' : '高定AI影像';
@@ -158,7 +173,7 @@ export const businessApplications:Record<Business,BusinessApplication[]>={
    extension:'可延展为人物志、人生阶段纪念片与职业故事，记录一个人的不同人生篇章。',
   },
   {
-   categoryId:'family',title:'家庭记忆',audience:'工会、员工关怀团队、家庭服务机构及家庭委托方',
+   categoryId:'family',title:'家庭记忆',audience:'工会、员工关怀团队及家庭服务机构',
    scenes:['家庭故事','亲情纪念','成长记录','重要人生回忆'],
    value:'以真实家庭关系为主线，串联家人之间的情感与共同经历。',
    extension:'从一张老照片、一段口述回忆出发，延展长辈回忆录、家庭纪念片与跨代故事。',
@@ -180,7 +195,7 @@ export const businessApplications:Record<Business,BusinessApplication[]>={
 export type ShowcaseSlide={id:string;title:string;image:string;to:string;action:string;media?:Media;pending?:boolean};
 export function getShowcaseSlides(business:Business):ShowcaseSlide[]{
  if(business==='hall')return themeConfigurations.map(theme=>({id:theme.id,title:theme.title,image:theme.image,to:experiencePath(theme.categoryId,theme.id),action:'立即体验'}));
- const ready=publishedWorks.filter(w=>w.business==='bespoke'&&w.displayAuthorized&&w.status==='published'&&w.media.type==='video');
+ const ready=publishedWorks.filter(w=>w.business==='bespoke'&&isPublishedAndAuthorized(w)&&w.media.type==='video');
  if(ready.length)return ready.map(w=>({id:w.id,title:w.title,image:w.media.poster||reference(categoryById.get(w.categoryId)?.image||8),to:`/category/${w.categoryId}`,action:'观看样品',media:w.media}));
  return categories.filter(c=>c.business==='bespoke').map(c=>({id:`pending-${c.id}`,title:c.title,image:reference(c.image),to:`/category/${c.id}`,action:'了解创作',pending:true}));
 }
@@ -249,7 +264,6 @@ const configurationMaterialHints:Record<string,string>={
 };
 export type ThemeConfiguration={id:string;categoryId:string;title:string;image:string;options:OptionGroup[];participation:'单人主角';materialHint:string};
 export const themeConfigurations:ThemeConfiguration[]=[
- {id:'shenzhen-belike',categoryId:'brand',title:'我的深圳生活 belike',image:reference(4),options:exampleOptions,participation:'单人主角',materialHint:configurationMaterialHints['shenzhen-belike']},
  ...themes.map(theme=>({id:theme.id,categoryId:theme.categoryId,title:theme.title,image:theme.image,options:configurationOptions[theme.id],participation:'单人主角' as const,materialHint:configurationMaterialHints[theme.id]})),
 ];
 const defaultConfigurationIds:Record<string,string>={brand:'shenzhen-belike',event:'event-0',team:'team-0',campus:'campus-0'};
