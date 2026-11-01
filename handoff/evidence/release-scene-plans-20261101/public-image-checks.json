@@ -1,0 +1,82 @@
+[
+  {
+    "heroImages": [
+      {
+        "loaded": true,
+        "src": "https://karenlin9901.github.io/ai-image-hall-frontend-prototype/images/guangdang-v2/brand-800.webp"
+      }
+    ],
+    "id": "brand",
+    "overflow": false
+  },
+  {
+    "heroImages": [
+      {
+        "loaded": true,
+        "src": "https://karenlin9901.github.io/ai-image-hall-frontend-prototype/images/guangdang-v2/event-800.webp"
+      }
+    ],
+    "id": "event",
+    "overflow": false
+  },
+  {
+    "heroImages": [
+      {
+        "loaded": true,
+        "src": "https://karenlin9901.github.io/ai-image-hall-frontend-prototype/images/editorial-20261029/retirement-story-800.webp"
+      }
+    ],
+    "id": "team",
+    "overflow": false
+  },
+  {
+    "heroImages": [
+      {
+        "loaded": true,
+        "src": "https://karenlin9901.github.io/ai-image-hall-frontend-prototype/images/guangdang-v2/campus-800.webp"
+      }
+    ],
+    "id": "campus",
+    "overflow": false
+  },
+  {
+    "heroImages": [
+      {
+        "loaded": true,
+        "src": "https://karenlin9901.github.io/ai-image-hall-frontend-prototype/images/guangdang-v2/person-800.webp"
+      }
+    ],
+    "id": "person",
+    "overflow": false
+  },
+  {
+    "heroImages": [
+      {
+        "loaded": true,
+        "src": "https://karenlin9901.github.io/ai-image-hall-frontend-prototype/images/guangdang-v2/family-800.webp"
+      }
+    ],
+    "id": "family",
+    "overflow": false
+  },
+  {
+    "heroImages": [
+      {
+        "loaded": true,
+        "src": "https://karenlin9901.github.io/ai-image-hall-frontend-prototype/images/editorial-20261029/enterprise-story-800.webp"
+      }
+    ],
+    "id": "enterprise",
+    "overflow": false
+  },
+  {
+    "heroImages": [
+      {
+        "loaded": true,
+        "src": "https://karenlin9901.github.io/ai-image-hall-frontend-prototype/images/editorial-20261029/city-story-800.webp"
+      }
+    ],
+    "id": "city",
+    "overflow": false
+  }
+]

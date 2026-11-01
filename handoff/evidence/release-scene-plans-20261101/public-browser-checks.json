@@ -1,0 +1,74 @@
+[
+  {
+    "heroLoaded": false,
+    "id": "brand",
+    "overflow": false,
+    "poster": false,
+    "selection": "这组选择，将得到\n家庭相伴短片\n\n围绕家庭陪伴，连接城市生活、共同成长与更好的未来。\n\n深圳湾\n福田 CBD\n\n主题统一，个人故事与画面随选择变化。",
+    "title": "与深圳 共成长",
+    "width": 390
+  },
+  {
+    "heroLoaded": false,
+    "id": "event",
+    "overflow": false,
+    "poster": false,
+    "selection": "行业展会\n\n以主题展区为背景，留下个人参与这次展会的纪念。\n\n精彩登场\n\n短片以个人登场为高光，适合留下一次醒目的活动亮相。\n\n热烈动感\n\n个人高光呈现活力感，活动主题以鲜明节奏贯穿。",
+    "title": "我的活动高光时刻",
+    "width": 390
+  },
+  {
+    "heroLoaded": false,
+    "id": "team",
+    "overflow": false,
+    "poster": false,
+    "selection": "并肩协作\n\n以一次真实协作为记忆重点，留下人与团队的相互支持。\n\n感谢伙伴\n\n在岗位回忆之后向伙伴致谢，突出彼此陪伴的意义。\n\n旅行生活\n\n以旅行期待结束岗位故事，让纪念带着向前看的心情。",
+    "title": "退休员工纪念",
+    "width": 390
+  },
+  {
+    "heroLoaded": false,
+    "id": "campus",
+    "overflow": false,
+    "poster": false,
+    "selection": "高中毕业\n\n以校园成长为主线留下毕业纪念，素材与公开使用另行确认。\n\n毕业礼堂\n\n个人主角进入礼堂主题画面，留下正式而鲜明的毕业纪念。\n\n青春热血\n\n以明快表达突出青春力量，形成面向下一阶段的个人短片。",
+    "title": "我的毕业纪念影像",
+    "width": 390
+  },
+  {
+    "heroLoaded": true,
+    "id": "person",
+    "overflow": false,
+    "poster": false,
+    "selection": "职业选择\n\n围绕一个关键选择展开，让人物的价值判断成为影片中心。\n\n人物讲述\n\n保留人物自己的表达，让影片更接近一份自述。\n\n活动播放\n\n让人物主线与现场环节相接，播放规格在制作前确认。",
+    "title": "一位人物的职业故事",
+    "width": 390
+  },
+  {
+    "heroLoaded": true,
+    "id": "family",
+    "overflow": false,
+    "poster": false,
+    "selection": "家庭成长\n\n以共同经历连接不同代际，让家庭变化形成一条连续主线。\n\n老照片\n\n沿照片顺序组织故事，让静态画面有清楚的背景和关系。\n\n关怀活动\n\n按家人同意的范围组织活动播放，保留对个人故事的尊重。",
+    "title": "一段跨代的家庭记忆",
+    "width": 390
+  },
+  {
+    "heroLoaded": false,
+    "id": "enterprise",
+    "overflow": false,
+    "poster": false,
+    "selection": "关键人物\n\n通过人物经历呈现组织精神，让发展故事更容易被理解。\n\n周年活动\n\n让影片与周年活动节奏衔接，形成共同回顾企业历程的内容。\n\n完整主片\n\n集中完成故事主片，先确认片长、画幅与播放规格。",
+    "title": "企业周年记忆影片",
+    "width": 390
+  },
+  {
+    "heroLoaded": false,
+    "id": "city",
+    "overflow": false,
+    "poster": false,
+    "selection": "一个地标\n\n围绕同一地点连接不同时期的资料，讲清它为什么被记住。\n\n空间重现\n\n在有依据的范围内规划空间表达，并将AI重现与原始资料分开标识。\n\n展陈观看\n\n按展陈条件规划观看结构，播放规格与是否循环单独确认。",
+    "title": "一条街区的城市记忆",
+    "width": 390
+  }
+]
