@@ -1,0 +1,42 @@
+[
+  {
+    "cards": 4,
+    "hash": "#/works?product=hall",
+    "id": "brand"
+  },
+  {
+    "cards": 4,
+    "hash": "#/works?product=hall",
+    "id": "event"
+  },
+  {
+    "cards": 4,
+    "hash": "#/works?product=hall",
+    "id": "team"
+  },
+  {
+    "cards": 4,
+    "hash": "#/works?product=hall",
+    "id": "campus"
+  },
+  {
+    "cards": 4,
+    "hash": "#/works?product=bespoke",
+    "id": "person"
+  },
+  {
+    "cards": 4,
+    "hash": "#/works?product=bespoke",
+    "id": "family"
+  },
+  {
+    "cards": 4,
+    "hash": "#/works?product=bespoke",
+    "id": "enterprise"
+  },
+  {
+    "cards": 4,
+    "hash": "#/works?product=bespoke",
+    "id": "city"
+  }
+]

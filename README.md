@@ -1,37 +1,39 @@
 # 咣当 AI影像｜原型与开发交接
 
-版本：`20261029-light-dark`。当前深浅色切换版，保留精简首页：两个产品入口，进入产品后查看图文简介、特点优势与八份完整场景方案。九个既有主题设置、照片本机预览、配置/需求摘要和原有保护保留。
+[线上原型](https://karenlin9901.github.io/ai-image-hall-frontend-prototype/?version=scene-plans-20261101#/) · [前后端开发交接](handoff/README.md) · [提交与线上验证](handoff/release-scene-plans-20261101.md)
 
-**[在线原型](https://karenlin9901.github.io/ai-image-hall-frontend-prototype/?version=20261029-light-dark#/) · [前后端开发交接入口](handoff/README.md)**
+发布版本：`scene-plans-20261101`。用户已授权将当前手机图解版和开发文档发布到原仓库，GitHub Pages沿用`main`分支的`/docs`。本地实现与本轮已执行工程验证完成；提交、部署状态与线上核验以发布回执为准，用户验收仍待确认。
 
-| 开发需要 | 入口 |
-|---|---|
-| 页面职责、路由、八方案与九主题映射 | [01 产品与路由](handoff/01-product-and-routes.md) |
-| 前端交互、表单、照片、草稿与返回 | [02 前端行为](handoff/02-frontend-behavior.md) |
-| 本地字段、后端接入点与待补协议 | [03 后端接入](handoff/03-backend-integration.md) |
-| 测试、验收与未修问题 | [04 验收与问题](handoff/04-acceptance-and-issues.md) |
-| 源码、素材与构建发布 | [05 素材与交付](handoff/05-assets-and-delivery.md) |
-| 深浅色切换及UI调整 | [06 外观与UI](handoff/06-color-themes.md) |
-| 本版验证记录 | [验证回执](handoff/verification-light-dark-20261029.md) |
+**这个 H5 主要向 B 端介绍两类影像产品，C 端能力体验用于帮助项目方理解参与方式。** AI影像馆由项目方组织主题互动；高定AI影像由团队承接资料与需求，沟通方案和报价后创作。
 
-这是可供前端实现、后端契约设计与评审的开发基线。当前没有可直接联调的业务接口：真实生成、上传、样片、账户、支付、订单和正式咨询尚未接入。照片与需求只在本次浏览内存中处理，不上传、不代发。退休方案没有对应配置；高定保持B端委托创作逻辑。
+- [10 完整场景策划与手机图解](handoff/10-mobile-scene-plans-20261101.md)：本轮优先，含八案具体玩法、双方所得、图文对应与交互边界。
+- [本轮验证回执](handoff/verification-scene-plans-20261101.md)：记录本轮16项内容守卫、112组布局与选择／导航检查；服务证据收尾状态另列，不沿用旧通过数。
+- [09 官网式UI与返回规则](handoff/09-apple-story-and-interactions-20261101.md)：保留来源、返回与原图边界；默认阅读密度由10覆盖。
+- [08 B端产品定义与结构](handoff/08-b2b-product-structure-20261101.md)：保留产品定位与两产品分工。
+- [完整开发交接入口](handoff/README.md) · [页面与路由](handoff/01-product-and-routes.md)
+- [业务与接口缺口](DEVELOPMENT_DECISIONS.md)：B01–B13；高定按需求报价，不虚构金额和服务接入。
+- [上一轮官网式改版回执](handoff/verification-apple-story-20261101.md)：只证明`apple-story-20261101`，不证明本轮通过。
 
-本版已处理4项UI问题；仍有2项P1和4项P2待修复，详见[独立UX复查](UX_REVIEW_20261029.md)。业务与接口决策另见[B01–B11](DEVELOPMENT_DECISIONS.md)。原六套回归与新增主题套件覆盖现有确定行为，不表示探索发现、真实接口或用户验收已经关闭。
+主导航为**首页 / 应用方案 / 能力体验 / 合作咨询**。主线是“了解产品→看场景策划→判断成果与范围→咨询”；体验为可选支线，高定不走自助生成。
+
+手机默认展示关系图、短句、可选内容和双方成果；亮点、完整结构、流程与准备资料按需展开。七案的3组单选与品牌配置仅解释方案，不绑定API，不改变模板／自定义体验草稿。旧九主题ID、URL、照片授权与刷新清空边界保留。原工行海报只作资料，不展示或提供原图入口。
 
 ```sh
 npm ci
 npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 npm run typecheck
-npm test
+npm run test:content
 ```
 
-开发地址：`http://127.0.0.1:5173/ai-image-hall-frontend-prototype/#/`。已实测Node 22.22.1；依赖锁定于`package-lock.json`。浏览器测试当前使用macOS Google Chrome标准路径。`npm test`会先重建`docs/`，不会自动推送。GitHub Pages沿用`main`分支`/docs`；请区分构建、公开预览、真实联调和用户验收。
+开发者本机预览：`http://127.0.0.1:4197/ai-image-hall-frontend-prototype/?version=scene-plans-20261101#/works`；输出目录`outputs/scene-plans-20261101/`。最终服务、受测构建与回归状态以本轮回执为准，查询参数本身不证明代码已更新。
 
-原始Logo与素材保留；新概念图来源、提示词和校验见[ASSET_SOURCES_20261029.json](ASSET_SOURCES_20261029.json)。下方历史记录与`handoff-history/`只供追溯，不能代替当前开发说明。
+`npm run build`生成`docs/`用于本次授权发布；`npm test`还会运行浏览器套件，实际执行范围和结果以回执为准。相关断言已同步新版图解与折叠，未执行的套件不计为通过。真实服务、真机和用户验收分别记录。
+
+原素材与历史来源记录保留；当前场景内容及阅读方式以10和最终源码为准。
 
 ## 历史变更记录
 
-以下记录描述各轮当时行为，保留追溯。旧一屏首页、双产品轮播、简介/优势两折叠结构和旧导航排列均不作为现状说明；现状以本文件2026年10月29日当前章节及源码为准。
+以下记录描述各轮当时行为，保留追溯。旧一屏首页、双产品轮播、简介/优势两折叠结构和旧导航排列均不作为现状说明；现状以本文件2026年11月1日发布版本说明及源码为准。
 
 ### 历史：2026年10月21日《1021修改文档》
 

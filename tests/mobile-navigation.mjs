@@ -1,3 +1,4 @@
+import { openProductDetails } from './b2b-assertions.mjs';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -138,7 +139,7 @@ try {
     await page.goto(base);
     await page.locator('.home-choice[href="#/hall"]').tap();
     await waitRoute('/hall');
-    await page.locator('.editorial-experience').getByRole('link', { name: '立即体验', exact: true }).tap();
+    await openProductDetails(page);await page.locator('.px-samples-compact a').tap();
     await waitRoute('/samples/hall');
     for (const theme of themes) {
       let position = await enter(theme);
@@ -182,7 +183,7 @@ try {
     result.checks.push('All step transitions reset scroll; previous choices, photo, and consent survive previous/modify actions');
     await screenshot('confirmation');
 
-    for (const destination of [{ title: '首页', path: '/' }, { title: '案例分享', path: '/works' }, { title: '商务合作', path: '/cooperate' }, { title: '我', path: '/mine' }]) {
+    for (const destination of [{ title: '首页', path: '/' }, { title: '应用方案', path: '/works' }, { title: '能力体验', path: '/experience-center' }, { title: '合作咨询', path: '/cooperate' }]) {
       await page.getByRole('navigation', { name: '底部导航' }).getByRole('link', { name: destination.title, exact: true }).tap();
       await waitRoute(destination.path); await atTop(`bottom navigation to ${destination.path}`);
       assert.deepEqual(await page.getByRole('navigation', { name: '底部导航' }).locator('a.active').allTextContents(), [destination.title]);
@@ -193,7 +194,7 @@ try {
       assert.equal(await page.getByRole('checkbox').isChecked(), true);
       await bottomTap('下一步：确认信息', `confirm retained draft after ${destination.path}`);
     }
-    result.checks.push('Bottom navigation to Home, Case Sharing, Cooperation, and Mine followed by browser Back preserves the same complete draft');
+    result.checks.push('Bottom navigation to Home, Applications, Capability Demo, and Consultation followed by browser Back preserves the same complete draft');
     await page.getByRole('link', { name: '更换主题', exact: true }).tap(); await waitRoute('/samples/hall');
     const guardedPosition = await moveTo(themes[1]);
     await page.getByRole('link', { name: '使用主题：' + themes[1].title, exact: true }).tap();

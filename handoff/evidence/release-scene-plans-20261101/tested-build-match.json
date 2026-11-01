@@ -1,0 +1,17 @@
+[
+  {
+    "file": "index.html",
+    "matchesTestedBuild": true,
+    "sha256": "49107fbd7ae4a9b49e5cf517f3470c3b5bf572f619e915b92d830c94133ca2a3"
+  },
+  {
+    "file": "assets/index-Cd0wc01r.css",
+    "matchesTestedBuild": true,
+    "sha256": "26a9bd87e26958575404f03e15c8cb3ed1300d4b6cb20fc18aa84a683db7b1ea"
+  },
+  {
+    "file": "assets/index-BQUEDjgy.js",
+    "matchesTestedBuild": true,
+    "sha256": "47c09055416640a58d0b0092936cb0c571241dbc74fea1af8d68a10bf360fb58"
+  }
+]

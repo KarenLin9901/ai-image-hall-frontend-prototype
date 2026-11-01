@@ -1,3 +1,4 @@
+import { navigationLabels, productSections, openHeaderMore, assertPlanContent } from './b2b-assertions.mjs';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
@@ -15,7 +16,7 @@ const scenarios = {
   hall: [['brand', '品牌推广与主题传播'], ['event', '活动互动与用户体验'], ['team', '企业文化与员工关怀'], ['campus', '校园与社群纪念']],
   bespoke: [['person', '人物故事'], ['family', '家庭记忆'], ['enterprise', '企业故事'], ['city', '城市与历史']],
 };
-const planTitles={brand:'我为品牌代言',event:'我的活动高光时刻',team:'退休员工纪念',campus:'我的毕业纪念影像',person:'一位人物的职业故事',family:'一段跨代的家庭记忆',enterprise:'企业周年记忆影片',city:'一条街区的城市记忆'};
+const planTitles={brand:'与深圳 共成长',event:'我的活动高光时刻',team:'退休员工纪念',campus:'我的毕业纪念影像',person:'一位人物的职业故事',family:'一段跨代的家庭记忆',enterprise:'企业周年记忆影片',city:'一条街区的城市记忆'};
 const report = { base: base.href, status: 'running', viewports: [], anchors: [], scenarios: [], motion: [], productEntries: [], photoEntryInteractions: [], nativeScroll: [], compactHomes: [], backgrounds: [], globalSurfaces: [], typography: [], sharedLinks: [], pages: [], screenshots: [], errors: [], missingAssets: [], failedRequests: [] };
 let browser;
 let activePage;
@@ -118,7 +119,7 @@ async function homeTypography(page, label) {
     const font=element=>{const style=getComputedStyle(element);return {size:parseFloat(style.fontSize),weight:parseFloat(style.fontWeight)};};
     return {text:heading.textContent.replace(/\s+/g,''),heading:font(heading),products:[...document.querySelectorAll('.home-choice')].map(entry=>({name:entry.getAttribute('aria-label'),title:font(entry.querySelector('h2')),description:font(entry.querySelector('.me-product-kind')),action:font(entry.querySelector('.me-link'))}))};
   });
-  assert.equal(hierarchy.text,'让参与成为影像，让故事被看见。',`${label}: approved home statement`);
+  assert.equal(hierarchy.text,'让用户参与，让品牌被看见。',`${label}: approved home statement`);
   assert.ok(hierarchy.products.every(product=>hierarchy.heading.size>=product.title.size&&product.title.size>product.description.size&&product.description.size>=13&&product.action.size>=13&&product.title.weight>product.description.weight),`${label}: short brand statement, product title, service label and action form a useful hierarchy`);
   report.typography.push({label,...hierarchy});
 }
@@ -243,7 +244,7 @@ async function screenshot(page, name) {
 
 async function assertAnchors(page, business, viewport) {
   const index = page.getByRole('navigation', { name: '产品内容导航', exact: true });
-  const entries = [['overview', '产品简介'], ['benefits', '特点优势'], ['scenes', '场景启发'], ['try', '立即体验']];
+  const entries = productSections(business);
   for (const [id, label] of entries) {
     await index.getByRole('button', { name: label, exact: true }).click();
     await page.waitForFunction(target => {
@@ -291,10 +292,10 @@ try {
     await homeVerticalScroll(page, `${viewport.width} default`);
     await compactHomeAccess(page,`${viewport.width} default`);
     const heading = await page.locator('main h1').innerText();
-    assert.equal((await page.locator('main h1').textContent()).replace(/\s+/g,''),'让参与成为影像，让故事被看见。');
+    assert.equal((await page.locator('main h1').textContent()).replace(/\s+/g,''),'让用户参与，让品牌被看见。');
     assert.ok(heading.trim().length > 5, 'home needs a meaningful customer-facing statement');
     const nav = page.getByRole('navigation', { name: '底部导航', exact: true });
-    assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '案例分享', '商务合作', '我']);
+    assert.deepEqual(await nav.getByRole('link').allTextContents(), navigationLabels);
     const geometry = await page.evaluate(() => ({ height: innerHeight, scrollHeight: document.documentElement.scrollHeight, headerBottom: document.querySelector('.topbar').getBoundingClientRect().bottom, navTop: document.querySelector('.mobile-nav').getBoundingClientRect().top, cards: [...document.querySelectorAll('.home-choice')].map(element => { const r = element.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right }; }) }));
     assert.equal(geometry.cards.length, 2, 'both product entries must remain present');
     assert.ok(geometry.scrollHeight<=geometry.height*2,`${viewport.width}: compact home stays within two screens ${JSON.stringify(geometry)}`);
@@ -334,8 +335,7 @@ try {
       const card = page.locator(`.scenario-card[href="#/category/${id}"]`);
       await card.click();
       await waitRoute(page, '/category/' + id);
-      assert.equal(await page.locator('main h1').innerText(),planTitles[id]);assert.match(await page.locator('.me-plan-hero .me-eyebrow').innerText(),new RegExp(title));assert.equal(await page.locator('.me-choice-card').count(),3);assert.equal(await page.locator('.me-value-grid article').count(),2);assert.ok((await page.locator('.me-result-copy').innerText()).length>40);
-      assert.equal(await page.locator('.scenario-production li').count(),3);assert.equal(await page.locator('.scenario-production li h3').count(),3);
+      await assertPlanContent(page,id);
       await imagesDecode(page);
       await noOverflow(page, `${business} scenario ${id}`);
       await page.getByRole('button', { name: '返回' + products[business], exact: true }).click();
@@ -369,7 +369,7 @@ try {
     });
     assert.ok(Math.abs(overlayPosition.bottom - overlayPosition.expected) < 1, 'finished page transitions must keep fixed feedback inside the viewport');
     const expected = page.url();
-    await page.getByRole('button', { name: '复制当前页面链接', exact: true }).click();
+    await openHeaderMore(page);await page.getByRole('button', { name: '复制当前页面链接', exact: true }).click();
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     assert.equal(copied, expected, 'copied URL must retain the selected product and release version');
     assert.equal(new URL(copied).searchParams.get('version'), base.searchParams.get('version'));
@@ -396,8 +396,8 @@ try {
     return timing && (timing.iterations === Infinity || timing.activeDuration === Infinity) && animation.playState === 'running';
   }));
   report.motion.push({ state: 'default', running: await continuousAnimations(page) });
-  await page.getByRole('button', { name: '暂停动效', exact: true }).click();
-  await page.getByRole('button', { name: '恢复动效', exact: true }).waitFor();
+  await openHeaderMore(page);await page.getByRole('button', { name: '暂停动效', exact: true }).click();
+  await page.getByRole('button', { name: '恢复动效', exact: true }).waitFor();await page.locator('.header-more > summary').click();
   await frames(page);
   assert.deepEqual(await continuousAnimations(page), [], 'global pause must stop continuous animations');
   await homeVerticalScroll(page, 'manual pause');
@@ -406,7 +406,7 @@ try {
     await tapProductPhoto(page, business, 'manual pause');
     await frames(page);
     assert.deepEqual(await continuousAnimations(page), [], `${business}: pause should survive route changes`);
-    await page.getByRole('button', { name: '场景启发', exact: true }).click();
+    await page.getByRole('button', { name: business==='hall'?'应用方案':'价格说明', exact: true }).click();
     await frames(page);
     const immediateScroll = await page.evaluate(() => scrollY);
     await page.waitForTimeout(100);
@@ -415,7 +415,7 @@ try {
     await waitRoute(page, '/');
   }
   report.motion.push({ state: 'paused', running: await continuousAnimations(page) });
-  await page.getByRole('button', { name: '恢复动效', exact: true }).click();
+  await openHeaderMore(page);await page.getByRole('button', { name: '恢复动效', exact: true }).click();
   await page.getByRole('button', { name: '暂停动效', exact: true }).waitFor();
   assert.ok((await continuousAnimations(page)).length > 0, 'resume should restore motion when the system allows it');
   report.motion.push({ state: 'resumed', running: await continuousAnimations(page) });

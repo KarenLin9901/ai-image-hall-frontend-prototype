@@ -1,0 +1,142 @@
+[
+  {
+    "path": "/ai-image-hall-frontend-prototype/",
+    "status": 200,
+    "bytes": 1298,
+    "matchesBuild": true,
+    "sha256": "49107fbd7ae4a9b49e5cf517f3470c3b5bf572f619e915b92d830c94133ca2a3"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/assets/index-BQUEDjgy.js",
+    "status": 200,
+    "bytes": 404155,
+    "matchesBuild": true,
+    "sha256": "47c09055416640a58d0b0092936cb0c571241dbc74fea1af8d68a10bf360fb58"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/assets/index-Cd0wc01r.css",
+    "status": 200,
+    "bytes": 360283,
+    "matchesBuild": true,
+    "sha256": "26a9bd87e26958575404f03e15c8cb3ed1300d4b6cb20fc18aa84a683db7b1ea"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/guangdang-v2/brand-1920.webp",
+    "status": 200,
+    "bytes": 472404,
+    "matchesBuild": true,
+    "sha256": "07d7a5c86be4506f18872841532ee5701dd4e1b0059666dedede82cd98d3d4ef"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/guangdang-v2/person-1920.webp",
+    "status": 200,
+    "bytes": 126316,
+    "matchesBuild": true,
+    "sha256": "25de7da8c8460bedb5294700e5f89966c715da1732efc22a7a12d50a33d1b571"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/guangdang-v2/event-1920.webp",
+    "status": 200,
+    "bytes": 114866,
+    "matchesBuild": true,
+    "sha256": "3f2fa5a05ecb9cdba7a28fd53a9df93dabeafd5b4dffa04befbde0c3179be08a"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/guangdang-v2/hero-interactive-1920.webp",
+    "status": 200,
+    "bytes": 611342,
+    "matchesBuild": true,
+    "sha256": "22447d6d0343d8c7c48ae057d6b454c4cd88775bfffbfafb8b651df9d5d0a129"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/themes-v3/festival-1920.webp",
+    "status": 200,
+    "bytes": 193254,
+    "matchesBuild": true,
+    "sha256": "6bd0f2e887698acf06fe1ead6002b585a9402ea59a9ef0dce6582a1787bf45fd"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/editorial-20261029/retirement-story-1920.webp",
+    "status": 200,
+    "bytes": 238714,
+    "matchesBuild": true,
+    "sha256": "06f6a57d932e4a99337917b8de8c89121515379bb5ea7c5ffa8a52cfc06ce9c3"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/guangdang-v2/craft-1920.webp",
+    "status": 200,
+    "bytes": 110914,
+    "matchesBuild": true,
+    "sha256": "cd3485561bf8dd5396b951ac00da2951d47b038c77a4e51639e93605ac2c87b8"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/guangdang-v2/team-1920.webp",
+    "status": 200,
+    "bytes": 169256,
+    "matchesBuild": true,
+    "sha256": "821877e700692f6c5d22c81ad73c69925a03f4a9ed4faea96a004b969ef7ba2c"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/guangdang-v2/campus-1920.webp",
+    "status": 200,
+    "bytes": 201874,
+    "matchesBuild": true,
+    "sha256": "e3af0d815f8ea5a2fc495142eae1b51f5ca35e34c136bb63a04eab33192e05d3"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/themes-v3/campus-memory-1920.webp",
+    "status": 200,
+    "bytes": 320064,
+    "matchesBuild": true,
+    "sha256": "ce98a24592157d55b22e80416f5c900dd0062f111c097c8b00af48e6295645d7"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/editorial-20261029/bespoke-story-1920.webp",
+    "status": 200,
+    "bytes": 221508,
+    "matchesBuild": true,
+    "sha256": "4b587d1e5f473bb7e8eb2e97599ae6f4b92307b89aa98d8a30a2dafd25250434"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/guangdang-v2/family-1920.webp",
+    "status": 200,
+    "bytes": 394890,
+    "matchesBuild": true,
+    "sha256": "cfab192f2c49405323796aa60edb27ab857c2a9bc71674843787ba2e6acce1c1"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/editorial-20261029/enterprise-story-1920.webp",
+    "status": 200,
+    "bytes": 213282,
+    "matchesBuild": true,
+    "sha256": "424f863b23e83d3d1935a78b93ccdfca6d9851a8cf61678c60fb45c1f96f566e"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/guangdang-v2/enterprise-1920.webp",
+    "status": 200,
+    "bytes": 561594,
+    "matchesBuild": true,
+    "sha256": "2124dba27b63cf67bb262a38b1571452b0a15b8c63dc254929683169d45fe6ed"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/editorial-20261029/city-story-1920.webp",
+    "status": 200,
+    "bytes": 426378,
+    "matchesBuild": true,
+    "sha256": "59e257595c0cc49909e2220516c1632e6263749d35e7854967d4688ed2779c8d"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/dongmen-history/dongmen-street-1920.webp",
+    "status": 200,
+    "bytes": 199864,
+    "matchesBuild": true,
+    "sha256": "354d814d2203d465acf04427c56b1b1697d1a5e4863052cb8b82bc63f03fee46"
+  },
+  {
+    "path": "/ai-image-hall-frontend-prototype/images/dongmen-history/dongmen-panorama-1920.webp",
+    "status": 200,
+    "bytes": 250098,
+    "matchesBuild": true,
+    "sha256": "b522b784ca4616a6d2b52932402c9f6610285afa60fc4c4a9f2f1ad477809e78"
+  }
+]

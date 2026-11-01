@@ -1,6 +1,8 @@
-# 06｜深浅色界面与本版UI调整
+# 06｜深浅色行为与UI实现约束
 
-版本：`20261029-light-dark`。在精简首页、双产品与八方案的同一原型中，新增顶部深浅色切换。本版不改变产品、主题ID、业务路线或接口参数。
+2026-11-01发布版本：`scene-plans-20261101`。用户已授权发布到原仓库，提交与线上验证见[发布回执](release-scene-plans-20261101.md)。保留冷蓝/紫色与深浅色切换；八案图解与折叠阅读以[10](10-mobile-scene-plans-20261101.md)优先，[09](09-apple-story-and-interactions-20261101.md)保留官网式图文和来源规则。本页切换、状态及可访问性约束继续适用，真实服务边界不因视觉改版改变。
+
+本轮验证以[2026-11-01回执](verification-scene-plans-20261101.md)为准；[10月30日回执](verification-local-20261030.md)及下方20261029-light-dark的152项检查是历史证据，不证明新方案/导航已通过。发布状态另见[发布回执](release-scene-plans-20261101.md)。
 
 ## 用户行为
 
@@ -16,15 +18,18 @@
 | 文件 | 职责 |
 |---|---|
 | `app/Guangdang.tsx` | 根`colorMode: 'dark' or 'light'`状态；独立useLayoutEffect更新`html[data-theme]`；不改变main/page的key与路由 |
-| `app/color-themes.css` | 最后加载的亮色语义配色，覆盖文字、表面、控件、选中/禁用、弹窗、空态与图片叠字 |
+| `app/color-themes.css` | 亮色语义配色基线，覆盖文字、表面、控件、选中/禁用、弹窗、空态与图片叠字；本轮后置样式必须同时适配 |
 | `app/ui-polish.css` | 两版共用的短屏几何、说明标签和图片自然比例，不处理业务状态 |
 | `app/mobile-editorial-data.ts` | `imageFormat?: 'portrait'`仅标记参考图片自然比例，不是后端参数或约定成片画幅 |
 | `app/guangdang.css`、`app/cyber.css` | 旧按钮hover限定精细指针，避免触屏点击后残留旧背景 |
-| `tests/color-themes.mjs` | 深浅两版的表面与状态保留回归 |
+| `app/b2b-refinement.css` | 上一轮方案专页/索引和四导航的深浅色基础 |
+| `app/apple-editorial.css` | 官网式留白、图文叙事和控件基础，深浅两版同步 |
+| `app/scenario-plans.css` / `app/brand-mobile-story.css` | 最终手机方案样式层：三节点图解、选择反馈、短句层级、双端成果与折叠内容 |
+| `tests/color-themes.mjs` | 深浅色回归脚本已同步新版DOM/图解/折叠断言；实际是否执行以对应回执为准 |
 
-样式顺序：保留原有基础样式 → `mobile-editorial.css` → `ui-polish.css` → `color-themes.css`。不要用整站filter反相、替换路由、给页面增加主题key或重新初始化草稿来实现切换。
+样式顺序：基础样式 → `mobile-editorial.css` → `ui-polish.css` → `color-themes.css` → `product-experience.css` → `experience-center.css` → `consultation-pages.css` → `b2b-refinement.css` → `apple-editorial.css` → `scenario-plans.css` → `brand-mobile-story.css`，以 `main.tsx` 为准。不要用整站filter反相、替换路由、给页面增加主题key或重新初始化草稿来实现切换。
 
-## 本版已处理的UI问题
+## 2026-10-29历史UI修复及后续复验
 
 | 原编号 | 调整与核验 |
 |---|---|
@@ -33,21 +38,16 @@
 | R09 | 320×568短屏产品主视觉270px，四锚点425–481px，位于底栏502px上方；大屏不套此规则 |
 | R10 | 两层旧hover均限定精细指针；深浅两版真触点复制后配色稳定，复制反馈保留 |
 
-R01/R02两个P1与R03/R05/R06/R07四个P2仍待处理，见[验收与问题](04-acceptance-and-issues.md)。B01–B11的真实业务和接口缺口继续保留。
+旧R01/R05/R06保护已在10月30日修订；本轮R02按B端主动作重定义，R03/R07有长页导航与内容精简调整，其本地自检结果与范围见最新回执，详见[04](04-acceptance-and-issues.md)。业务缺口更新为B01–B13；B12按需求报价已确认，待定的是每项目金额与范围。
 
-## 本版测试
+## 历史测试与本轮检查边界
 
-`npm test`现在包含原六套浏览器检查、内容单测及新增主题套件。可单独运行：
+`color-themes.mjs`覆盖表面和状态保护，新版导航、图解及折叠断言已同步并完成语法检查；是否执行整套浏览器测试及结果单列回执。本轮本地由CUA检查深浅色、选择反馈、锚点、长中文和折叠展开，不沿用历史通过数。
 
-```sh
-npm run build
-npm run test:themes
-```
-
-也可使用`PREVIEW_URL`对已启动生产构建检查，`THEME_OUTPUT`指定报告位置。没有PREVIEW_URL时，新套件自行启动并关闭4201预览；浏览器路径沿用本机Chrome配置。
+以下是2026-10-29深浅色版的历史结果：
 
 新增主题检查152/152通过：4档宽度×18页面×深浅两版共144项表面，加8项状态/交互。包含节点与表单/照片授权/步骤/滚动保留、键盘焦点、跨路由、弹窗、真触点、刷新回默认及零存储；无脚本错误、意外资源失败或上传/接口请求。模拟图片失败另作为预期降级用例记录。最终回归与发布结果见[本版验证](verification-light-dark-20261029.md)。真机及用户验收单独记录。
 
-![亮色手机首页](evidence/theme-light-home-390.png)
+![历史亮色手机首页](evidence/theme-light-home-390.png)
 
-![深色手机首页](evidence/theme-dark-home-390.png)
+![历史深色手机首页](evidence/theme-dark-home-390.png)

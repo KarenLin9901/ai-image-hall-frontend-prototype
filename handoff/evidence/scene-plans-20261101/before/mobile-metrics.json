@@ -1,0 +1,42 @@
+[
+  {
+    "id": "brand",
+    "height": 6941,
+    "visibleChars": 1675
+  },
+  {
+    "id": "event",
+    "height": 5594,
+    "visibleChars": 1005
+  },
+  {
+    "id": "team",
+    "height": 5085,
+    "visibleChars": 977
+  },
+  {
+    "id": "campus",
+    "height": 5172,
+    "visibleChars": 993
+  },
+  {
+    "id": "person",
+    "height": 5085,
+    "visibleChars": 984
+  },
+  {
+    "id": "family",
+    "height": 5085,
+    "visibleChars": 983
+  },
+  {
+    "id": "enterprise",
+    "height": 5085,
+    "visibleChars": 1001
+  },
+  {
+    "id": "city",
+    "height": 5085,
+    "visibleChars": 987
+  }
+]

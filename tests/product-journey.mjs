@@ -1,3 +1,4 @@
+import { navigationLabels, navigationHrefs, openProductDetails } from './b2b-assertions.mjs';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -91,13 +92,13 @@ try {
 
   await route('/');
   assert.equal(await page.locator('.home-choice').count(), 2);
-  assert.equal((await page.locator('.me-home-hero h1').textContent()).replace(/\s+/g,''),'让参与成为影像，让故事被看见。');
+  assert.equal((await page.locator('.me-home-hero h1').textContent()).replace(/\s+/g,''),'让用户参与，让品牌被看见。');
   assert.equal(await page.locator('.mobile-editorial-home.me-home-compact > section').count(),2);assert.equal(await page.locator('.me-home-hero img,.me-home-featured,.me-outcome-band,.me-contact-band,.me-scroll-cue').count(),0);assert.equal(await page.locator('#home-products img').count(),2);
-  assert.match(await page.locator('.home-choice[href="#/hall"]').innerText(), /模板化互动影像产品/);
-  assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /精品AI影像创作服务/);
+  assert.match(await page.locator('.home-choice[href="#/hall"]').innerText(), /为品牌活动，设计人人可参与的影像体验/);
+  assert.match(await page.locator('.home-choice[href="#/bespoke"]').innerText(), /从需求与资料出发，由团队完成专属影片/);
   const nav = page.getByRole('navigation', { name: '底部导航' });
-  assert.deepEqual(await nav.getByRole('link').allTextContents(), ['首页', '案例分享', '商务合作', '我']);
-  assert.deepEqual(await nav.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href'))), ['#/', '#/works', '#/cooperate', '#/mine']);
+  assert.deepEqual(await nav.getByRole('link').allTextContents(), navigationLabels);
+  assert.deepEqual(await nav.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href'))), navigationHrefs);
   assert.equal(await nav.getByRole('link', { name: '我的', exact: true }).count(), 0);
   assert.equal(await nav.getByRole('link', { name: '影像作品', exact: true }).count(), 0);
   for (const viewport of [{ width: 360, height: 640 }, { width: 390, height: 844 }]) {
@@ -114,17 +115,18 @@ try {
     }
     await assertNoOverflow(`Home ${viewport.width}x${viewport.height}`);
   }
-  await nav.getByRole('link', { name: '我', exact: true }).tap();
-  await waitRoute('/mine');
-  await page.getByRole('heading', { name: '我的', exact: true }).waitFor();
-  assert.deepEqual(await nav.locator('a.active').allTextContents(), ['我']);
-  assert.equal(await nav.getByRole('link', { name: '我', exact: true }).getAttribute('aria-current'), 'page');
+  for(const [label,path] of [['首页','/'],['应用方案','/works'],['能力体验','/experience-center'],['合作咨询','/cooperate']]){
+    await nav.getByRole('link',{name:label,exact:true}).tap();await waitRoute(path);
+    assert.deepEqual(await nav.locator('a.active').allTextContents(),[label]);assert.equal(await nav.locator('[aria-current=page]').count(),1);
+  }
+  await route('/mine');await page.getByRole('heading',{name:'我的',exact:true}).waitFor();
+  assert.equal(await nav.getByRole('link',{name:'我',exact:true}).count(),0);assert.equal(await nav.locator('a.active,[aria-current=page]').count(),0);
   assert.equal(await page.locator('.mine-item').getByText('暂未开放', { exact: true }).count(), 2);
   await page.getByRole('button', { name: '返回首页', exact: true }).tap();
   await waitRoute('/');
   assert.deepEqual(await nav.locator('a.active').allTextContents(), ['首页']);
   await screenshot('home');
-  report.checks.push('Home contains only a short brand opening and two direct image-led products at 360x640 and 390x844; both product entries are individually reachable above fixed navigation; four primary links include the exact label 我, which opens the pending account page, highlights correctly, and returns home');
+  report.checks.push('Home contains only a short brand opening and two direct image-led products at 360x640 and 390x844; both product entries are individually reachable above fixed navigation; four primary B2B links navigate and highlight uniquely; the pending account page remains available by its compatibility URL and returns home');
 
   // The illustrated product page leads to scene details and honest sample preparation states.
   await route('/hall?section=applications');
@@ -133,21 +135,21 @@ try {
   await page.locator('a.scenario-card[href="#/category/event"]').tap();
   await waitRoute('/category/event');
   await page.getByRole('heading', { name: '我的活动高光时刻', exact: true, level: 1 }).waitFor();
-  assert.match(await page.locator('.me-plan-hero .me-eyebrow').innerText(),/活动互动与用户体验/);assert.equal(await page.locator('.me-choice-card').count(),3);
+  assert.match(await page.locator('.sp-hero .sp-eyebrow').innerText(),/AI影像馆.*方案示例/);assert.equal(await page.getByTestId('scenario-configurator').locator('fieldset').count(),3);assert.equal(await page.getByTestId('scenario-planning-details').getAttribute('open'),null);
   await page.locator('.back-button').tap(); await waitRoute('/hall');
   assert.equal(await page.locator('.scenario-grid a.scenario-card').count(), 4);
-  await page.locator('.editorial-experience').getByRole('link', { name: '立即体验', exact: true }).tap();
+  await openProductDetails(page);await page.locator('.px-samples-compact a').tap();
   await waitRoute('/samples/hall');
   assert.equal(await page.locator('.legacy-theme-library').getAttribute('open'), null, 'theme configuration starts as a secondary disclosure');
   await page.getByRole('heading', { name: '样片制作中', exact: true }).waitFor();
   assert.equal(await page.locator('video').count(), 0);
   await page.locator('.legacy-theme-library summary').tap();
   assert.notEqual(await page.locator('.legacy-theme-library').getAttribute('open'), null);
-  await nav.getByRole('link', { name: '案例分享', exact: true }).tap(); await waitRoute('/works');
-  await page.getByRole('heading', { name: '案例分享', exact: true }).waitFor();
+  await nav.getByRole('link', { name: '应用方案', exact: true }).tap(); await waitRoute('/works');
+  await page.getByRole('heading', { name: '应用方案', exact: true }).waitFor();
   await page.goBack(); await waitRoute('/samples/hall');
   assert.notEqual(await page.locator('.legacy-theme-library').getAttribute('open'), null, 'Returning to samples keeps the explicitly opened preview');
-  report.checks.push('Illustrated product and scenario pages lead to the pending sample area; the legacy preview stays secondary and keeps its expanded state after Case Sharing and native Back');
+  report.checks.push('The explicitly named samples link and scenario pages lead to the pending sample area; the legacy preview stays secondary and keeps its expanded state after Applications and native Back');
 
   // Every theme is visible in the catalogue and enters its own configuration in one action.
   for (const theme of themes) {
@@ -232,7 +234,7 @@ try {
   assert.match(projectPhoto, /^blob:/);
   await page.getByRole('checkbox', { name: '我确认已获得这张照片的使用授权', exact: true }).check();
   await page.getByRole('button', { name: '下一步：确认信息', exact: true }).tap();
-  const bridge = page.locator('.project-bridge').getByRole('link', { name: '整理合作需求', exact: true });
+  const bridge = page.locator('.project-bridge').getByRole('link', { name: /^(整理合作需求|咨询定制|项目合作咨询|整理咨询需求)$/, exact: true }).first();
   await assertCooperationLink(bridge, { product: 'hall', direction: theme.category, theme: theme.id, source: 'theme' });
   await bridge.tap(); await waitRoute('/cooperate');
   await assertDirections('hall');
@@ -267,7 +269,7 @@ try {
   await page.getByRole('heading', { name: '确认你的选择', exact: true }).waitFor();
   assert.deepEqual(await page.locator('.summary-list dd').allTextContents(), choices);
   assert.equal(await page.locator('.summary-photo img').getAttribute('src'), projectPhoto, 'Returning to participant configuration preserves its local photo');
-  await page.locator('.project-bridge').getByRole('link', { name: '整理合作需求', exact: true }).tap();
+  await page.locator('.project-bridge').getByRole('link', { name: /^(整理合作需求|咨询定制|项目合作咨询|整理咨询需求)$/, exact: true }).first().tap();
   await waitRoute('/cooperate'); await assertInquiryValues(buyerFields);
   await screenshot('theme-project-context');
   await page.locator('.back-button').tap(); await waitRoute(themePath(theme));
@@ -300,12 +302,12 @@ try {
   await page.getByRole('heading', { name: '样片制作中', exact: true }).waitFor();
   assert.equal(await page.locator('.samples-page video').count(), 0);
   assert.equal(await page.locator('.samples-page > header p').textContent(), '企业故事');
-  const sampleInquiry = page.getByRole('link', { name: '整理合作需求', exact: true });
+  const sampleInquiry = page.getByRole('link', { name: /^(整理合作需求|咨询定制|项目合作咨询|整理咨询需求)$/, exact: true }).first();
   await assertCooperationLink(sampleInquiry, { product: 'bespoke', direction: 'enterprise', source: 'samples' });
   await sampleInquiry.tap();
   await waitRoute('/cooperate');
-  await page.getByRole('heading', { name: '合作需求', exact: true }).waitFor();
-  assert.equal(await page.locator('.page-intro p').textContent(), '明确项目目标，整理合作范围。');
+  await page.getByRole('heading', { name: '高定创作咨询', exact: true }).waitFor();
+  assert.equal(await page.locator('.page-intro p').textContent(), '从故事、资料和用途开始，整理你的专属影片需求。');
   assert.equal(await page.locator('.consultation-state').textContent(), '可先整理并复制需求，正式咨询待开放。');
   assert.equal(await page.locator('.demand-form .field-hint').textContent(), '仅本机临时保留，刷新后清空。不会上传或发送。');
   assert.equal(await page.locator('input[name="name"]').getAttribute('required'), null);
@@ -330,13 +332,13 @@ try {
 
   await page.locator('.back-button').tap(); await waitRoute('/samples/bespoke');
   assert.equal(await page.locator('.samples-page > header p').textContent(), '企业故事');
-  await page.getByRole('link', { name: '整理合作需求', exact: true }).tap();
+  await page.getByRole('link', { name: /^(整理合作需求|咨询定制|项目合作咨询|整理咨询需求)$/, exact: true }).first().tap();
   await waitRoute('/cooperate');
   assert.equal(await page.locator('textarea[name="description"]').inputValue(), description, 'The same sample-direction context restores the buyer draft');
 
   // A product introduction and a commercial application each return to their own source.
   await route('/hall?section=introduction');
-  const productInquiry = page.locator('.editorial-experience').getByRole('link', { name: '整理合作需求', exact: true }).first();
+  const productInquiry = page.locator('.editorial-experience').getByRole('link', { name: /^(整理合作需求|咨询定制|项目合作咨询|整理咨询需求)$/, exact: true }).first();
   await assertCooperationLink(productInquiry, { product: 'hall', source: 'product', section: 'introduction' });
   await productInquiry.tap(); await waitRoute('/cooperate'); await assertDirections('hall');
   assert.equal(await page.locator('textarea[name="description"]').inputValue(), '', 'A new hall product context must not inherit an unrelated bespoke inquiry');
@@ -348,7 +350,7 @@ try {
   await page.waitForFunction(() => window.location.hash === '#/hall?section=introduction');
   assert.equal(await page.locator('.editorial-product[data-business="hall"]').count(), 1);
   assert.ok((await page.locator('.editorial-overview').innerText()).length > 50);
-  await page.locator('.editorial-experience').getByRole('link', { name: '整理合作需求', exact: true }).first().tap();
+  await page.locator('.editorial-experience').getByRole('link', { name: /^(整理合作需求|咨询定制|项目合作咨询|整理咨询需求)$/, exact: true }).first().tap();
   await waitRoute('/cooperate');
   assert.equal(await page.locator('textarea[name="description"]').inputValue(), productDescription);
   assert.ok((await selectedDirection()).includes('尚未确定'));
@@ -358,14 +360,14 @@ try {
   await buyerSummary.getByRole('button', { name: '返回修改', exact: true }).tap();
 
   await route('/category/city');
-  const applicationInquiry = page.getByRole('link', { name: '整理合作需求', exact: true }).first();
+  const applicationInquiry = page.getByRole('link', { name: /^(整理合作需求|咨询定制|项目合作咨询|整理咨询需求)$/, exact: true }).first();
   await assertCooperationLink(applicationInquiry, { product: 'bespoke', direction: 'city', source: 'application' });
   await applicationInquiry.tap(); await waitRoute('/cooperate'); await assertDirections('bespoke');
   assert.equal(await selectedDirection(), '城市与历史');
   const cityDescription = '测试项目：围绕街区历史策划一部城市记忆影片。';
   await page.locator('textarea[name="description"]').fill(cityDescription);
   await page.locator('.back-button').tap(); await waitRoute('/category/city');
-  await page.getByRole('link', { name: '整理合作需求', exact: true }).first().tap();
+  await page.getByRole('link', { name: /^(整理合作需求|咨询定制|项目合作咨询|整理咨询需求)$/, exact: true }).first().tap();
   await waitRoute('/cooperate');
   assert.equal(await page.locator('textarea[name="description"]').inputValue(), cityDescription);
   await page.reload(); await waitRoute('/cooperate');

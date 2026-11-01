@@ -1,0 +1,58 @@
+[
+  {
+    "chars": 676,
+    "height": 3575,
+    "id": "brand",
+    "open": 0,
+    "overflow": false
+  },
+  {
+    "chars": 781,
+    "height": 3636,
+    "id": "event",
+    "open": 0,
+    "overflow": false
+  },
+  {
+    "chars": 801,
+    "height": 3625,
+    "id": "team",
+    "open": 0,
+    "overflow": false
+  },
+  {
+    "chars": 820,
+    "height": 3719,
+    "id": "campus",
+    "open": 0,
+    "overflow": false
+  },
+  {
+    "chars": 782,
+    "height": 3569,
+    "id": "person",
+    "open": 0,
+    "overflow": false
+  },
+  {
+    "chars": 808,
+    "height": 3619,
+    "id": "family",
+    "open": 0,
+    "overflow": false
+  },
+  {
+    "chars": 809,
+    "height": 3619,
+    "id": "enterprise",
+    "open": 0,
+    "overflow": false
+  },
+  {
+    "chars": 824,
+    "height": 3619,
+    "id": "city",
+    "open": 0,
+    "overflow": false
+  }
+]

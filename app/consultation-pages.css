@@ -1,0 +1,36 @@
+body.cinema-app .consultation-page{--cp-bg:#10202a;--cp-soft:#172d37;--cp-ink:#edf6f5;--cp-muted:#afc3c7;--cp-line:#31464f;--cp-accent:#a4dad7;--cp-on:#12383d;color:var(--cp-ink)}
+html[data-theme="light"] body.cinema-app .consultation-page{--cp-bg:#fff;--cp-soft:#edf5f4;--cp-ink:#183b43;--cp-muted:#526e74;--cp-line:#d8e5e4;--cp-accent:#26777e;--cp-on:#fff}
+body.cinema-app .consultation-page .page-intro h1{color:var(--cp-ink);font-size:clamp(28px,5vw,42px);line-height:1.25}
+body.cinema-app .consultation-page .page-intro p{color:var(--cp-muted);max-width:620px;font-size:16px;line-height:1.8}
+body.cinema-app .consultation-page .inquiry-context{background:var(--cp-soft);border:1px solid var(--cp-line);color:var(--cp-ink);border-radius:16px;margin:22px 0}
+body.cinema-app .consultation-page .inquiry-context span,body.cinema-app .consultation-page .inquiry-theme-options{color:var(--cp-muted)}
+body.cinema-app .consultation-page .cooperate-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,1fr);gap:28px;align-items:start}
+body.cinema-app .consultation-page:not(.bespoke-consultation) .cooperate-grid{display:block;max-width:780px;margin-inline:auto}
+body.cinema-app .consultation-page .consultation-state{grid-column:1/-1;margin:0;background:var(--cp-soft);color:var(--cp-muted);border:1px solid var(--cp-line);font-size:14px;line-height:1.7}
+body.cinema-app .consultation-page .demand-form{min-width:0;background:var(--cp-bg);border:1px solid var(--cp-line);border-radius:20px;padding:26px;color:var(--cp-ink)}
+body.cinema-app .consultation-page .demand-form h2{color:var(--cp-ink);font-size:22px;line-height:1.5}
+body.cinema-app .consultation-page .demand-form label{color:var(--cp-ink);font-size:14px;line-height:1.6}
+body.cinema-app .consultation-page .demand-form input,body.cinema-app .consultation-page .demand-form select,body.cinema-app .consultation-page .demand-form textarea{color:var(--cp-ink);background:var(--cp-soft);border-color:var(--cp-line);font-size:16px;min-height:48px}
+body.cinema-app .consultation-page .demand-form input::placeholder,body.cinema-app .consultation-page .demand-form textarea::placeholder{color:var(--cp-muted);opacity:1}
+body.cinema-app .consultation-page .field-hint{color:var(--cp-muted);line-height:1.75}
+body.cinema-app .consultation-page .button:not(.secondary){background:var(--cp-accent);color:var(--cp-on);border-color:var(--cp-accent)}
+body.cinema-app .consultation-page .button.secondary{background:var(--cp-soft);color:var(--cp-ink);border-color:var(--cp-line)}
+body.cinema-app .consultation-page .button:disabled{opacity:.6}
+body.cinema-app .consultation-guide{border:1px solid var(--cp-line);background:var(--cp-bg);border-radius:20px;overflow:hidden;min-width:0;padding:0 24px 24px}
+body.cinema-app .consultation-visual{height:178px;margin:0 -24px 23px;position:relative;overflow:hidden;background:var(--cp-soft)}
+body.cinema-app .consultation-visual img{width:100%;height:100%;object-fit:cover;display:block}
+body.cinema-app .consultation-visual>span{position:absolute;left:15px;bottom:13px;background:#10262bd9;color:#fff;padding:4px 8px;border-radius:5px;font-size:11px}
+body.cinema-app .consultation-guide>h2{font-size:21px;line-height:1.5;color:var(--cp-ink)}
+body.cinema-app .consultation-guide ol{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:19px}
+body.cinema-app .consultation-guide li{display:flex;gap:12px;align-items:flex-start}
+body.cinema-app .consultation-guide li>span{font-size:11px;font-weight:600;width:29px;height:29px;border-radius:50%;background:var(--cp-soft);color:var(--cp-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+body.cinema-app .consultation-guide h3{font-size:15px;line-height:1.6;margin:0;color:var(--cp-ink)}
+body.cinema-app .consultation-guide p{font-size:13px;line-height:1.8;color:var(--cp-muted);margin:4px 0 0}
+body.cinema-app .consultation-channel{border-top:1px solid var(--cp-line);margin-top:24px;padding-top:22px}
+body.cinema-app .consultation-channel .button{margin-top:15px;min-height:46px;font-size:13px}
+body.cinema-app .consultation-channel .text-link{display:inline-flex;align-items:center;gap:7px;min-height:44px;margin-top:9px;color:var(--cp-accent);font-size:13px}
+body.cinema-app .sample-entry-actions{margin:22px 0}
+body.cinema-app .sample-category-context{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:16px 0 20px}
+body.cinema-app .sample-category-context p{margin:0}
+body.cinema-app .sample-category-context .text-link{min-height:44px;display:inline-flex;align-items:center;gap:8px}
+@media(max-width:760px){body.cinema-app .consultation-page .cooperate-grid{grid-template-columns:1fr;gap:20px}body.cinema-app .consultation-page .demand-form{padding:20px 17px;border-radius:16px}body.cinema-app .consultation-page .demand-form h2{font-size:20px}body.cinema-app .consultation-guide{padding:0 19px 23px;border-radius:16px}body.cinema-app .consultation-visual{margin-inline:-19px;height:164px}body.cinema-app .consultation-page .inquiry-context{padding:17px}body.cinema-app .sample-entry-actions .button{width:100%;justify-content:center}}

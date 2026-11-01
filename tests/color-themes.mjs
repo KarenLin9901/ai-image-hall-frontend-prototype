@@ -1,3 +1,4 @@
+import { productSections, openHeaderMore, openProductDetails, assertHallPrimaryAction } from './b2b-assertions.mjs';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -101,33 +102,53 @@ async function surface(p, viewport, path, mode) {
   const geometry = await p.evaluate(() => {
     const rect = el => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height }; };
     const visible = el => { const r = el.getBoundingClientRect(), css = getComputedStyle(el); return r.width > 0 && r.height > 0 && css.visibility !== 'hidden' && css.display !== 'none'; };
-    const buttons = [...document.querySelectorAll('.header-actions > button')].filter(visible).map(el => {
+    const buttons = [...document.querySelectorAll('.header-actions > button,.header-more > summary')].filter(visible).map(el => {
       const r = rect(el), hit = document.elementFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2);
       return { name: el.getAttribute('aria-label'), ...r, exposed: hit === el || el.contains(hit) };
     });
     return { width: innerWidth, scrollWidth: document.documentElement.scrollWidth, bodyWidth: document.body.scrollWidth, brand: rect(document.querySelector('.brand')), buttons, scheme: getComputedStyle(document.body).colorScheme };
   });
   assert.ok(geometry.scrollWidth <= geometry.width + 1 && geometry.bodyWidth <= geometry.width + 1, 'no horizontal overflow ' + JSON.stringify(geometry));
-  assert.equal(geometry.buttons.length, 3, 'three visible header controls');
+  assert.equal(geometry.buttons.length, 2, 'appearance and secondary-options controls remain visible');
   assert.ok(geometry.buttons.every(b => b.width >= 43.5 && b.height >= 43.5 && b.exposed && b.left >= 0 && b.right <= geometry.width), 'header controls retain their hit areas ' + JSON.stringify(geometry));
   assert.ok(geometry.brand.right <= Math.min(...geometry.buttons.map(b => b.left)) + 1, 'brand and header controls do not overlap');
   assert.ok(geometry.scheme.includes(mode), 'native controls use ' + mode + ' color scheme');
+  await openHeaderMore(p);
+  const motionLabel=await p.locator('.motion-toggle').innerText();assert.ok(['暂停动效','恢复动效','遵循系统减少动态效果'].includes(motionLabel));
+  assert.deepEqual(await p.locator('.header-more-panel button').allTextContents(), ['关于产品与预览', motionLabel, '复制当前页面链接']);
+  const secondary = await p.locator('.header-more-panel button').evaluateAll(buttons => buttons.map(el => { const r=el.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return {width:r.width,height:r.height,left:r.left,right:r.right,top:r.top,bottom:r.bottom,hit:hit===el||el.contains(hit)}; }));
+  assert.equal(secondary.length,3);assert.ok(secondary.every(r=>r.width>=44&&r.height>=44&&r.left>=0&&r.right<=viewport.width&&r.top>=0&&r.bottom<=viewport.height&&r.hit),'secondary header actions remain reachable: '+JSON.stringify(secondary));
+  await p.locator('.header-more > summary').click();assert.equal(await p.locator('.header-more').getAttribute('open'),null);
+
   const foundation = await palette(p, 'body');
   const lum = rgb => rgb.map(v => { const c = v / 255; return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4; }).reduce((a, v, i) => a + v * [.2126, .7152, .0722][i], 0);
   assert.ok(mode === 'light' ? lum(foundation.background) > .65 : lum(foundation.background) < .15, mode + ' foundation remains intentional');
   assert.ok(foundation.contrast >= 4.5, 'default body text contrasts with its solid foundation ' + JSON.stringify(foundation));
-  const copySelector = path === '/' ? '.me-hero-copy .me-lead' : path === '/hall' || path === '/bespoke' ? '.me-section-heading p,.me-intro-copy > p' : path.startsWith('/category/') ? '.me-plan-lead' : path.startsWith('/samples/') ? '.samples-pending p' : path === '/works' ? '.page-intro p' : path === '/cooperate' ? '.page-intro p' : path === '/mine' ? '.page-intro p' : path.startsWith('/experience/') ? 'fieldset legend' : '.empty p';
+  const copySelector = path === '/' ? '.me-hero-copy .me-lead' : path === '/hall' || path === '/bespoke' ? '.me-section-heading p,.me-intro-copy > p' : path.startsWith('/category/') ? '.sp-lead,.me-plan-lead' : path.startsWith('/samples/') ? '.samples-pending p' : path === '/works' ? '.b2b-page-heading p' : path === '/cooperate' ? '.page-intro p' : path === '/mine' ? '.page-intro p' : path.startsWith('/experience/') ? 'fieldset legend' : '.empty p';
   assert.ok(await p.locator(copySelector).count(), 'representative readable copy exists: ' + path);
   const copy = await palette(p, copySelector);
   assert.ok(copy.contrast >= 4.5, 'representative body copy has readable solid-surface contrast ' + JSON.stringify(copy));
-  if (path === '/' || path === '/hall' || path === '/bespoke') {
-    const photoText = await p.locator(path === '/' ? '.me-product-copy h2' : '.editorial-heading h1').evaluateAll(items => items.map(el => {
-      const rgb = getComputedStyle(el).color.match(/[\d.]+/g)?.slice(0, 3).map(Number) || [];
-      const card = el.closest('.me-product-card,.editorial-hero');
-      const overlay = card?.querySelector('.me-card-image,.editorial-hero-image');
-      return { text: el.textContent?.trim(), color: getComputedStyle(el).color, channels: rgb, overlay: overlay ? getComputedStyle(overlay, '::after').backgroundImage : '' };
+  if (path === '/') {
+    const titlePalette = await palette(p, '.me-product-copy h2');
+    assert.ok(titlePalette.contrast >= 4.5, 'home product copy contrasts with its separate solid surface');
+    const textAreas = await p.locator('.me-product-copy h2').evaluateAll(items => items.map(el => {
+      const text = el.getBoundingClientRect(), image = el.closest('.me-product-card').querySelector('.me-card-image').getBoundingClientRect();
+      return { text: el.textContent.trim(), overlapsImage: Math.min(text.right, image.right) > Math.max(text.left, image.left) && Math.min(text.bottom, image.bottom) > Math.max(text.top, image.top) };
     }));
-    assert.ok(photoText.every(x => x.channels.length === 3 && Math.min(...x.channels) > 170 && /gradient\(/.test(x.overlay)), 'photograph text keeps a light foreground and a gradient guard ' + JSON.stringify(photoText));
+    assert.ok(textAreas.every(item => !item.overlapsImage), 'home cards separate readable titles from photography ' + JSON.stringify(textAreas));
+  }
+  if (path === '/hall' || path === '/bespoke') {
+    // The approved product hero now places copy beside/before the photo on a solid surface.
+    // Home cards also keep their copy on a solid surface separate from the photograph.
+    assert.equal(await p.locator('.px-product-hero').count(), 1);
+    const hero = await p.locator('.px-product-hero').evaluate(el => {
+      const copy = el.querySelector('.editorial-heading').getBoundingClientRect(), image = el.querySelector('.editorial-hero-image').getBoundingClientRect();
+      return { copy: { x: copy.x, y: copy.y, width: copy.width, height: copy.height }, image: { x: image.x, y: image.y, width: image.width, height: image.height }, overlap: Math.max(0, Math.min(copy.right, image.right) - Math.max(copy.left, image.left)) * Math.max(0, Math.min(copy.bottom, image.bottom) - Math.max(copy.top, image.top)) };
+    });
+    assert.ok(hero.copy.width > 0 && hero.copy.height > 0 && hero.image.width > 0 && hero.image.height > 0 && hero.overlap <= 1, 'product hero copy and image occupy distinct visible regions ' + JSON.stringify(hero));
+    for (const selector of ['.px-product-hero .editorial-heading h1', '.px-product-hero .definition']) {
+      const paletteValue = await palette(p, selector); assert.ok(paletteValue.contrast >= 4.5, 'product hero copy/control contrasts with its solid surface ' + selector + ' ' + JSON.stringify(paletteValue));
+    }
   }
   const imageCount = await decodeImages(p);
   report.surfaces.push({ viewport, path, mode, geometry, foundation, copy, imageCount });
@@ -240,36 +261,59 @@ try {
     await p.setViewportSize({ width: 320, height: 568 });
     const checks = [];
     for (const mode of ['dark', 'light']) {
-      await goto(p, '/hall', mode);
-      const nav = await p.locator('.editorial-index').evaluate(el => {
-        const r = el.getBoundingClientRect(), bottom = document.querySelector('.mobile-nav').getBoundingClientRect().top;
-        return { top: r.top, bottom: r.bottom, navTop: bottom, buttons: [...el.querySelectorAll('button')].map(b => { const box = b.getBoundingClientRect(), hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2); return hit === b || b.contains(hit); }) };
-      });
-      assert.ok(nav.bottom <= nav.navTop + 1 && nav.buttons.every(Boolean), 'product chapter navigation appears in the short first viewport ' + JSON.stringify(nav));
+      const productChecks = [];
+      for (const business of ['hall', 'bespoke']) {
+        await goto(p, '/' + business, mode);
+        const primary = p.getByTestId('product-primary-action');
+        const actionBox = await primary.evaluate(el => { const r = el.getBoundingClientRect(), header = document.querySelector('.topbar').getBoundingClientRect(), bottom = document.querySelector('.mobile-nav').getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return { top: r.top, bottom: r.bottom, height: r.height, headerBottom: header.bottom, navTop: bottom.top, exposed: hit === el || el.contains(hit), scrollY }; });
+        assert.ok(actionBox.scrollY === 0 && actionBox.top >= actionBox.headerBottom - 1 && actionBox.bottom <= actionBox.navTop - 1 && actionBox.height >= 43.5 && actionBox.exposed, 'the primary product action is reachable in the short initial viewport ' + JSON.stringify({ business, ...actionBox }));
+        if (business === 'hall') await assertHallPrimaryAction(p, { tap: true });
+        else { await primary.tap(); await p.locator('main[data-route="/cooperate"]').waitFor(); assert.ok(await p.getByRole('heading', { name: '高定创作咨询', exact: true }).isVisible()); }
+        await goto(p, '/' + business, mode); await p.locator('.editorial-index').evaluate(el => el.scrollIntoView({ block: 'start', behavior: 'instant' })); await frames(p);
+        const nav = await p.locator('.editorial-index').evaluate(el => { const r = el.getBoundingClientRect(), bottom = document.querySelector('.mobile-nav').getBoundingClientRect().top; return { top: r.top, bottom: r.bottom, navTop: bottom, buttons: [...el.querySelectorAll('button')].map(b => { const box = b.getBoundingClientRect(), hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2); return hit === b || b.contains(hit); }) }; });
+        assert.ok(nav.bottom <= nav.navTop + 1 && nav.buttons.length === 4 && nav.buttons.every(Boolean), 'all product chapters are reachable after scrolling ' + JSON.stringify(nav));
+        const entries = productSections(business);
+        for (const [section, label] of entries) {
+          await p.getByRole('navigation', { name: '产品内容导航', exact: true }).getByRole('button', { name: label, exact: true }).tap();
+          await p.waitForFunction(expected => document.activeElement?.id === expected, business + '-' + section);
+          await p.waitForFunction(expected => document.querySelector('.editorial-index [aria-current="location"]')?.textContent.trim() === expected, label);
+          const target = await p.locator('#' + business + '-' + section + ' h2').first().evaluate(el => { const r = el.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, headerBottom: Math.max(document.querySelector('.topbar').getBoundingClientRect().bottom, document.querySelector('.editorial-index').getBoundingClientRect().bottom), navTop: document.querySelector('.mobile-nav').getBoundingClientRect().top }; });
+          assert.ok(target.top >= target.headerBottom - 1 && target.bottom < target.navTop, 'short-screen chapter heading remains readable ' + JSON.stringify({ business, section, ...target }));
+        }
+        productChecks.push({ business, primary: actionBox, nav });
+      }
       await goto(p, '/category/team', mode);
-      const notice = await p.locator('.me-plan-status').evaluate(el => ({ text: el.textContent, y: el.getBoundingClientRect().top + scrollY }));
-      const choiceY = await p.locator('.me-choice-card').first().evaluate(el => el.getBoundingClientRect().top + scrollY);
-      assert.ok(notice.y < choiceY && /方案示意|尚未开放/.test(notice.text), 'planned options are labelled before they appear');
-      const options = await p.locator('.me-choice-items > span').evaluateAll(items => items.map(el => ({ tag: el.tagName, role: el.getAttribute('role'), tabIndex: el.tabIndex, border: getComputedStyle(el).borderStyle, background: getComputedStyle(el).backgroundColor })));
-      assert.equal(options.length, 9); assert.ok(options.every(el => el.tag === 'SPAN' && !el.role && el.tabIndex < 0));
-      checks.push({ mode, nav, notice, choiceY });
+      const notice = await p.locator('.sp-planned-note').evaluate(el => ({ text: el.textContent, y: el.getBoundingClientRect().top + scrollY }));
+      const choiceY = await p.locator('.sp-choice-group').first().evaluate(el => el.getBoundingClientRect().top + scrollY);
+      assert.ok(notice.y < choiceY && /策划示例.*尚未开放/.test(notice.text), 'planned options are labelled before they appear');
+      const options = await p.locator('.sp-options > button').evaluateAll(items => items.map(el => ({ tag: el.tagName, selected: el.getAttribute('aria-pressed'), tabIndex: el.tabIndex })));
+      assert.equal(options.length, 9);
+      assert.ok(options.every(el => el.tag === 'BUTTON' && el.tabIndex === 0 && ['true', 'false'].includes(el.selected)));
+      assert.equal(options.filter(el => el.selected === 'true').length, 3, 'each explanatory group has one selection');
+      const before = await p.getByTestId('scenario-selection-results').innerText();
+      await p.locator('.sp-choice-group').first().getByRole('button').nth(1).tap();
+      assert.notEqual(await p.getByTestId('scenario-selection-results').innerText(), before, 'interactive proposal choices update their explained result');
+      assert.equal(await p.locator('video,input[type=file]').count(), 0, 'proposal explanation does not expose a real generator');
+      checks.push({ mode, products: productChecks, notice, choiceY });
     }
     return checks;
   });
-  await run('PORTRAIT-FRAMES', p, async () => {
+  await run('SCENARIO-AND-PORTRAIT-FRAMES', p, async () => {
     await p.setViewportSize({ width: 390, height: 844 });
     const checks = [];
     for (const mode of ['dark', 'light']) {
       for (const path of ['/hall', '/category/event']) {
         await goto(p, path, mode);
-        const visual = p.locator(path === '/hall' ? '.me-benefit-art.me-portrait-media' : '.me-portrait-result .me-image');
+        if(path==='/hall')await openProductDetails(p);
+        const visual = p.locator(path === '/hall' ? '.me-benefit-art.me-portrait-media' : '.sp-hero-visual');
         await visual.waitFor(); await visual.locator('img').evaluate(async img => { img.loading = 'eager'; await img.decode(); });
         const frame = await visual.evaluate(el => {
-          const media = el.querySelector('.me-media-frame'), img = el.querySelector('img'), r = media.getBoundingClientRect();
+          const media = el.querySelector('.me-media-frame,.sp-visual-frame'), img = el.querySelector('img'), r = media.getBoundingClientRect();
           const scale = Math.min(r.width / img.naturalWidth, r.height / img.naturalHeight);
           return { width: r.width, height: r.height, sourceWidth: img.naturalWidth, sourceHeight: img.naturalHeight, occupiedArea: img.naturalWidth * img.naturalHeight * scale * scale / (r.width * r.height), objectFit: getComputedStyle(img).objectFit };
         });
-        assert.ok(frame.height > frame.width && frame.occupiedArea > .9, 'portrait content occupies its natural frame ' + JSON.stringify(frame));
+        if (path === '/hall') assert.ok(frame.height > frame.width && frame.occupiedArea > .9, 'portrait benefit keeps its natural frame ' + JSON.stringify(frame));
+        else assert.ok(frame.width > 0 && frame.height > 0 && frame.sourceWidth > 0 && frame.sourceHeight > 0 && frame.objectFit === 'cover', 'scene hero uses a readable illustrated frame ' + JSON.stringify(frame));
         checks.push({ mode, path, frame });
       }
     }

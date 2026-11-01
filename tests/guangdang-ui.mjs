@@ -1,3 +1,4 @@
+import { navigationLabels, navigationHrefs, productSections, openProductDetails, assertPlanContent, assertSolutionIndex, assertHallPrimaryAction } from './b2b-assertions.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -18,10 +19,10 @@ const themes=[
  {id:'campus-0',category:'campus',title:'我的毕业纪念影像'},
  {id:'campus-1',category:'campus',title:'我们的校园记忆'},
 ];
-const planTitles={brand:'我为品牌代言',event:'我的活动高光时刻',team:'退休员工纪念',campus:'我的毕业纪念影像',person:'一位人物的职业故事',family:'一段跨代的家庭记忆',enterprise:'企业周年记忆影片',city:'一条街区的城市记忆'};
-const previewThemes={brand:'brand-1',event:'event-0',campus:'campus-0'};
+const planTitles={brand:'与深圳 共成长',event:'我的活动高光时刻',team:'退休员工纪念',campus:'我的毕业纪念影像',person:'一位人物的职业故事',family:'一段跨代的家庭记忆',enterprise:'企业周年记忆影片',city:'一条街区的城市记忆'};
+const previewThemes={event:'event-0',campus:'campus-0'};
 const themePath=theme=>`/experience/${theme.category}/${theme.id}`;
-const report={base,status:'running',checks:[],anchors:[],waterfalls:[],errors:[],brokenAssets:[],historicalRequests:[],mutationRequests:[]};
+const report={base,status:'running',checks:[],anchors:[],solutionLayouts:[],errors:[],brokenAssets:[],historicalRequests:[],mutationRequests:[]};
 let browser,page;
 await mkdir('outputs',{recursive:true});
 try{
@@ -57,19 +58,23 @@ try{
  };
  const assertNavigation=async(kind,active)=>{
   const nav=page.getByRole('navigation',{name:kind==='mobile'?'底部导航':'主导航',exact:true});assert.ok(await nav.isVisible());
-  assert.deepEqual(await nav.getByRole('link').allTextContents(),['首页','案例分享','商务合作','我']);
-  assert.deepEqual(await nav.getByRole('link').evaluateAll(links=>links.map(link=>link.getAttribute('href'))),['#/','#/works','#/cooperate','#/mine']);
-  assert.deepEqual(await nav.locator('a.active').allTextContents(),[active]);return nav;
+  assert.deepEqual(await nav.getByRole('link').allTextContents(),navigationLabels);
+  assert.deepEqual(await nav.getByRole('link').evaluateAll(links=>links.map(link=>link.getAttribute('href'))),navigationHrefs);
+  assert.deepEqual(await nav.locator('a.active').allTextContents(),active?[active]:[]);assert.equal(await nav.locator('[aria-current=page]').count(),active?1:0);return nav;
  };
  const assertEditorial=async business=>{
   await route('/'+business);const article=page.locator('.editorial-product');assert.equal(await article.getAttribute('data-business'),business);
   assert.equal(await page.getByRole('tab').count(),0,'section navigation should scroll one continuous product page');
   assert.equal(await page.getByRole('tabpanel').count(),0);
   const index=page.getByRole('navigation',{name:'产品内容导航',exact:true});
-  assert.deepEqual(await index.getByRole('button').allTextContents(),['产品简介','特点优势','场景启发','立即体验']);
+  const navItems=productSections(business);
+  assert.deepEqual(await index.getByRole('button').allTextContents(),navItems.map(([,label])=>label));
   const parts=await article.locator(':scope > section').evaluateAll(nodes=>nodes.map(node=>node.id));
-  assert.deepEqual(parts,[business+'-overview',business+'-benefits',business+'-scenes',business+'-try']);
-  assert.ok((await article.locator('.editorial-overview').innerText()).length>50);assert.equal(await article.locator('.me-intro-art img').count(),1);assert.equal(await article.locator('.me-flow-line li').count(),3);
+  for(const id of ['overview','benefits','scenes','try'])assert.ok(parts.includes(business+'-'+id),'legacy product anchor remains '+id);
+  if(business==='bespoke')assert.ok(parts.includes('bespoke-pricing'),'custom service has a visible pricing section');
+  for(const [id] of navItems)assert.equal(await article.locator('#'+business+'-'+id+'[data-nav-section]').count(),1);
+  assert.ok((await article.locator('.editorial-overview').innerText()).length>50);assert.equal(await article.locator('.b2b-role-grid article').count(),3);assert.equal(await article.locator('.me-flow-line li').count(),3);
+  await openProductDetails(page);
   assert.equal(await article.locator('.benefit-grid > article').count(),3);
   for(const benefit of await article.locator('.benefit-grid > article').all()){
    assert.ok((await benefit.locator('h3').innerText()).length>1);assert.equal(await benefit.locator('.me-benefit-art img').count(),1);await loadImages(benefit.locator('img'));
@@ -84,7 +89,7 @@ try{
   assert.ok((await cooperation.locator('ul li').count())>=3);await cooperation.locator('summary').click();
   assert.deepEqual(await article.locator('a.scenario-card').evaluateAll(links=>links.map(link=>link.getAttribute('href'))),applications[business].map(([id])=>'#/category/'+id));
   assert.deepEqual(await article.locator('.scenario-card h3').allTextContents(),applications[business].map(([,title])=>title));
-  for(const [id,label] of [['overview','产品简介'],['benefits','特点优势'],['scenes','场景启发'],['try','立即体验']]){
+  for(const [id,label] of navItems){
    const before=await page.url();await index.getByRole('button',{name:label,exact:true}).click();
    await page.waitForFunction(target=>document.activeElement?.id===target,business+'-'+id);await frames();
    await page.waitForFunction(expected=>document.querySelector('.editorial-index button[aria-current="location"]')?.textContent===expected,label);
@@ -94,29 +99,30 @@ try{
    assert.ok(geometry.headingBottom<geometry.navTop,`${business} ${label}: target heading must be readable`);
    report.anchors.push({business,label,...geometry});
   }
-  const experience=article.locator('.editorial-experience').getByRole('link',{name:'立即体验',exact:true});
-  assert.equal(await experience.getAttribute('href'),'#/samples/'+business);
-  await assertCooperationLink(article.getByRole('link',{name:'整理合作需求',exact:true}),{product:business,source:'product',section:'introduction'});
+  const primary=page.getByTestId('product-primary-action');
+  if(business==='hall')assert.equal(await primary.getAttribute('href'),null);
+  else {assert.match(await primary.innerText(),/咨询定制/);await assertCooperationLink(primary,{product:business,source:'product',section:'experience'});assert.equal(await article.getByRole('link',{name:'立即体验',exact:true}).count(),0);}
+  await assertCooperationLink(article.locator('.editorial-experience a[href^="#/cooperate?"]').first(),{product:business,source:'product',section:'experience'});
   await noOverflow(business);await screenshot(business+'-editorial');
-  await experience.click();await waitRoute('/samples/'+business);
+  if(business==='hall')await assertHallPrimaryAction(page);
+  else {await primary.click();await waitRoute('/cooperate');assert.equal(await page.locator('.demand-form').count(),1);}
+  await route('/'+business);
+  if(business==='hall'){await page.getByTestId('product-experience-link').click();await waitRoute('/experience-center');assert.equal(await page.getByTestId('experience-center').count(),1);await route('/hall');await openProductDetails(page);await page.locator('.px-samples-compact a').click();}else await page.getByTestId('product-samples-link').click();await waitRoute('/samples/'+business);
   assert.equal(await page.locator('.samples-pending').count(),1);await page.getByRole('heading',{name:'样片制作中',exact:true}).waitFor();
   assert.equal(await page.locator('video,.media-player').count(),0,'unpublished samples must not expose a fake playable case');
   assert.equal(await page.locator('.sample-card').count(),0);
-  await assertCooperationLink(page.getByRole('link',{name:'整理合作需求',exact:true}),{product:business,source:'samples'});
+  await assertCooperationLink(page.getByRole('link',{name:/^(整理合作需求|咨询定制|项目合作咨询|整理咨询需求)$/,exact:true}).first(),{product:business,source:'samples'});
   if(business==='hall')assert.equal(await page.locator('.legacy-theme-library').getAttribute('open'),null,'legacy configuration stays secondary until explicitly opened');
   else assert.equal(await page.locator('.legacy-theme-library').count(),0);
   await screenshot(business+'-samples');
  };
- const assertWaterfall=async label=>{
-  await loadImages(page.locator('.work-image img'));
-  const css=await page.locator('.case-waterfall').evaluate(el=>({display:getComputedStyle(el).display,columns:Number(getComputedStyle(el).columnCount)}));
-  assert.notEqual(css.display,'grid','case sharing should be a real column waterfall');assert.ok(css.columns>=2,`${label}: waterfall needs at least two columns`);
-  const images=await page.locator('.work-image img').evaluateAll(nodes=>nodes.map(image=>({natural:image.naturalWidth/image.naturalHeight,display:image.getBoundingClientRect().width/image.getBoundingClientRect().height})));
-  for(const image of images)assert.ok(Math.abs(image.natural-image.display)<.03,`${label}: image should preserve its original ratio`);
-  const boxes=await page.locator('.work-card').evaluateAll(cards=>cards.map(card=>{const r=card.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};}));
-  const columns=new Map();for(const box of boxes){const key=Math.round(box.x);const column=columns.get(key)||[];column.push(box);columns.set(key,column);}
-  assert.ok(columns.size>=2);for(const column of columns.values())for(let i=1;i<column.length;i++)assert.ok(column[i].y>=column[i-1].y+column[i-1].height-1,'waterfall cards must not overlap');
-  report.waterfalls.push({label,...css,cards:boxes.length});await noOverflow(label);
+ const assertSolutionLayout=async label=>{
+  await loadImages(page.locator('.b2b-solution-card img'));
+  const boxes=await page.locator('a.b2b-solution-card').evaluateAll(cards=>cards.map(card=>{const r=card.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};}));
+  assert.equal(boxes.length,8);assert.ok(boxes.every(box=>box.width>0&&box.height>0));
+  for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){const a=boxes[i],b=boxes[j];assert.ok(Math.min(a.right,b.right)<=Math.max(a.x,b.x)+1||Math.min(a.bottom,b.bottom)<=Math.max(a.y,b.y)+1,'solution cards do not overlap');}
+  assert.equal(await page.locator('.b2b-plan-poster,img[src*="icbc-shenzhen-plan"],a[href*="icbc-shenzhen-plan"]').count(),0,'source poster is absent from the solution index');
+  report.solutionLayouts.push({label,layout:'solution-index',cards:boxes.length});await noOverflow(label);
  };
  const assertConfig=async(theme,expectedRoute=themePath(theme))=>{
   await waitRoute(expectedRoute);await page.getByRole('heading',{name:theme.title,exact:true,level:1}).waitFor();
@@ -128,15 +134,15 @@ try{
 
  const homeSizes=[{width:360,height:640},{width:375,height:667},{width:390,height:844},{width:430,height:932}];
  for(const size of homeSizes){
-  await page.setViewportSize(size);await route('/');assert.equal((await page.locator('.me-home-hero h1').textContent()).replace(/\s+/g,''),'让参与成为影像，让故事被看见。');
+  await page.setViewportSize(size);await route('/');assert.equal((await page.locator('.me-home-hero h1').textContent()).replace(/\s+/g,''),'让用户参与，让品牌被看见。');
   await assertNavigation('mobile','首页');assert.equal(await page.locator('.home-choice').count(),2);
-  assert.equal(await page.locator('.me-hero-copy > .me-eyebrow').textContent(),'属于你的AI片场');
-  assert.deepEqual(await page.locator('.me-product-kind').allTextContents(),['模板化互动影像产品','精品AI影像创作服务']);
+  assert.equal(await page.locator('.me-hero-copy > .me-eyebrow').textContent(),'面向品牌与机构的 AI 影像产品');
+  assert.deepEqual(await page.locator('.me-product-kind').allTextContents(),['为品牌活动，设计人人可参与的影像体验','从需求与资料出发，由团队完成专属影片']);
   assert.equal(await page.locator('.mobile-editorial-home.me-home-compact > section').count(),2);assert.equal(await page.locator('#home-products[aria-label="选择影像服务"]').count(),1);
   assert.equal(await page.locator('.me-home-hero img,.me-home-featured,.me-outcome-band,.me-contact-band,.me-scroll-cue').count(),0,'home stays focused on choosing between two products');
   await loadImages(page.locator('#home-products img'));assert.equal(await page.locator('#home-products img').count(),2);
   const layout=await page.evaluate(()=>({height:innerHeight,scroll:document.documentElement.scrollHeight}));assert.ok(layout.scroll<=layout.height*2,`compact home stays within two viewports: ${JSON.stringify({size,...layout})}`);
-  for(const business of ['hall','bespoke']){const title=page.locator(`.home-choice[href="#/${business}"] h2`);await expose(title,`${size.width} ${business}`);await title.click();await waitRoute('/'+business);await route('/');}
+  for(const business of ['hall','bespoke']){const title=page.locator(`.home-choice[href="#/${business}"] h2`);await expose(title,`${size.width} ${business}`);await page.getByRole('link',{name:business==='hall'?'AI影像馆':'高定AI影像',exact:true}).click();await waitRoute('/'+business);await route('/');}
   await noOverflow('home');
 
  }
@@ -152,9 +158,9 @@ try{
   });
  }),'selected cinema theme keeps a predominantly black gradient reading surface');
  assert.equal(await page.getByRole('img',{name:'咣当原品牌Logo',exact:true}).getAttribute('src'),'/ai-image-hall-frontend-prototype/images/brand/guangdang-logo.png');
- assert.equal(await page.getByRole('button',{name:'关于原型',exact:true}).isVisible(),false);await screenshot('home-mobile');
+ assert.equal(await page.locator('.header-more').getAttribute('open'),null);assert.equal(await page.locator('.header-actions > button,.header-more > summary').count(),2);await screenshot('home-mobile');
  for(const business of ['hall','bespoke'])await assertEditorial(business);
- report.checks.push('compact image-led home with a short brand opening, two direct product entries and four navigation destinations; both illustrated product pages present introduction, three benefits, four scenarios, four scrolling anchors, and pending samples');
+ report.checks.push('compact image-led home with a short brand opening, two direct product entries and four navigation destinations; each product presents its own four scrolling anchors, honest samples and primary intent; hall leads to applications with a separate capability demo while bespoke leads to consultation; three illustrated benefits and four full scenarios remain');
 
  await route('/samples/hall?preview=themes');assert.notEqual(await page.locator('.legacy-theme-library').getAttribute('open'),null);
  await page.locator('.experience-filters').getByRole('button',{name:'全部主题',exact:true}).click();
@@ -185,22 +191,16 @@ try{
  report.checks.push('nine distinct high-resolution themes and filters remain in the explicitly opened preview; direct and legacy links keep their own configuration; invalid themes never fall back');
 
  const exampleTitles=[];
- for(const [business,list] of Object.entries(applications))for(const [id,title] of list){
-  await route('/category/'+id);await page.getByRole('heading',{name:planTitles[id],exact:true,level:1}).waitFor();exampleTitles.push(await page.locator('.me-plan-hero h1').innerText());
-  assert.match(await page.locator('.me-plan-hero .me-eyebrow').innerText(),new RegExp(title));assert.ok((await page.locator('.me-plan-lead').innerText()).length>20);
-  assert.equal(await page.locator('.me-choice-card').count(),3);for(const choice of await page.locator('.me-choice-card').all()){assert.ok((await choice.locator('h3').innerText()).length>1);assert.ok((await choice.locator('.me-choice-items span').count())>=2);assert.ok((await choice.locator('p').innerText()).length>15);}
-  assert.equal(await page.locator('.scenario-production ol li').count(),3);for(const step of await page.locator('.scenario-production ol li').all()){assert.ok((await step.locator('h3').innerText()).length>1);assert.ok((await step.locator('p').innerText()).length>10);}
-  assert.match(await page.locator('.me-plan-cover figcaption').innerText(),/概念示意|成果示意|场景参考/);await loadImages(page.locator('.me-plan-cover img'));
-  assert.ok((await page.locator('.me-result-copy').innerText()).length>40);assert.match(await page.locator('.me-result-frame figcaption').innerText(),/成果示意.*非真实成片/);assert.equal(await page.locator('.me-value-grid article').count(),2);for(const value of await page.locator('.me-value-grid article').all())assert.ok((await value.locator('p').innerText()).length>15);
-  const preparation=page.locator('.me-plan-preparation');assert.equal(await preparation.getAttribute('open'),null);await preparation.locator('summary').click();assert.ok((await preparation.locator('li').count())>=3);
-  assert.equal(await page.getByRole('link',{name:'查看样片',exact:true}).getAttribute('href'),`#/samples/${business}?category=${id}`);
-  await assertCooperationLink(page.getByRole('link',{name:'整理合作需求',exact:true}),{product:business,direction:id,source:'application'});
-  const preview=page.getByRole('link',{name:'预览主题设置',exact:true});if(previewThemes[id])assert.equal(await preview.getAttribute('href'),`#/experience/${id}/${previewThemes[id]}`);else assert.equal(await preview.count(),0);
-  if(id==='team')assert.match(await page.locator('.me-plan-status').innerText(),/方案示意.*体验设置尚未开放/);else if(business==='bespoke')assert.match(await page.locator('.me-plan-status').innerText(),/委托创作要点.*项目中确认/);else assert.match(await page.locator('.me-plan-status').innerText(),/影像生成尚未开放/);
-  assert.equal(await page.locator('.real-case-section').count(),0,'application examples must not be promoted to published customer cases');await noOverflow(id);
+ for(const [business,list] of Object.entries(applications))for(const [id] of list){
+  await route('/category/'+id);await assertPlanContent(page,id);exampleTitles.push(await page.locator('main h1').innerText());
+  const preparation=page.locator(id==='brand'?'.me-plan-preparation':'.sp-preparation');assert.equal(await preparation.getAttribute('open'),null);await preparation.locator('summary').click();assert.ok(await preparation.locator('li').count()>=3);
+  await assertCooperationLink(page.locator('.application-actions a.scene-cta'),{product:business,direction:id,source:'application'});
+  const preview=page.locator('.sp-legacy-fold a[href^="#/experience/"]');if(previewThemes[id])assert.equal(await preview.getAttribute('href'),`#/experience/${id}/${previewThemes[id]}`);else assert.equal(await preview.count(),0);
+  if(id==='team')assert.match(await page.locator('.sp-planned-note').innerText(),/策划示例.*尚未开放/);else if(business==='bespoke')assert.match(await page.locator('.sp-cooperate > .sp-local-note').innerText(),/高定按需求报价，由团队创作/);
+  await page.locator('.application-actions a.scene-cta').click();await waitRoute('/cooperate');assert.match(await page.locator('.inquiry-context').innerText(),new RegExp(id==='brand'?'与深圳 共成长':planTitles[id]));await page.locator('.back-button').click();await waitRoute('/category/'+id);await noOverflow(id);
  }
- assert.equal(new Set(exampleTitles).size,8,'each commercial category should have its own example');
- report.checks.push('eight complete illustrated scenario plans cover choices and meaning, three stages, outcomes, participant and project value, preparation, matching sample/cooperation context and honest preview boundaries; numeric theme details retain their original content');
+ assert.equal(new Set(exampleTitles).size,8,'each commercial category has its own plan');
+ report.checks.push('eight complete application plans retain meaningful choices, outcomes, participant/project value and consultation context; the bank example has independent options, four narrative segments and five planned stages');
 
  for(const business of ['hall','bespoke'])for(const section of ['introduction','applications','experience']){
   await route('/'+business+'?section='+section);assert.equal(await page.locator('.editorial-product').count(),1);assert.equal(await page.getByRole('tab').count(),0);
@@ -210,22 +210,17 @@ try{
  for(const width of [360,375,390,430,768,1440]){
   await page.setViewportSize({width,height:width>700?1000:844});
   for(const path of ['/','/hall','/bespoke','/samples/hall','/samples/bespoke','/category/city','/cooperate','/mine']){await route(path);await noOverflow(`${path} ${width}`);}
-  await route('/works');await page.getByRole('heading',{name:'案例分享',exact:true}).waitFor();assert.equal(await page.locator('.work-card').count(),6);
-  await page.getByRole('button',{name:'加载更多',exact:true}).click();assert.equal(await page.locator('.work-card').count(),8);await assertWaterfall(width+'px');
+  await route('/works');await assertSolutionIndex(page,{exercise:false});await assertSolutionLayout(width+'px');
  }
- await page.setViewportSize({width:390,height:844});await route('/works');
- assert.deepEqual(await page.locator('.gallery-controls .segmented button').allTextContents(),['主题灵感','真实作品']);assert.equal(await page.locator('.gallery-controls .muted').innerText(),'主题参考图，非生成作品');
- await page.getByRole('button',{name:'高定AI影像',exact:true}).click();assert.equal(await page.locator('.work-card').count(),4);
- await page.getByLabel('作品分类',{exact:true}).selectOption('family');assert.equal(await page.locator('.work-card').count(),1);
- await page.locator('.work-card').click();await page.getByRole('dialog',{name:'主题参考',exact:true}).waitFor();assert.equal(await page.getByRole('dialog').locator('p.muted').innerText(),'主题参考图，非客户案例或生成成片。');await page.keyboard.press('Escape');
- await page.getByRole('button',{name:'真实作品',exact:true}).click();await page.getByRole('heading',{name:'真实作品待上架',exact:true}).waitFor();
- await route('/');const mobileNav=await assertNavigation('mobile','首页');await mobileNav.getByRole('link',{name:'案例分享',exact:true}).click();await waitRoute('/works');await assertNavigation('mobile','案例分享');await screenshot('case-sharing-mobile');
- await page.setViewportSize({width:1440,height:1000});await route('/');const desktopNav=await assertNavigation('desktop','首页');await desktopNav.getByRole('link',{name:'我',exact:true}).click();await waitRoute('/mine');await assertNavigation('desktop','我');
- assert.equal(await page.locator('.profile-card p').innerText(),'账户待开放');assert.equal(await page.locator('.mine-item').getByText('暂未开放',{exact:true}).count(),2);await page.getByRole('button',{name:'返回首页',exact:true}).click();await waitRoute('/');await assertNavigation('desktop','首页');
- await route('/works');await screenshot('case-sharing-desktop');
- await page.setViewportSize({width:390,height:844});await page.route('**/images/guangdang-v2/person-*.webp',r=>r.abort());await route('/category/person');await page.locator('.me-plan-cover').getByRole('img',{name:/图片暂时无法加载/}).waitFor();
+ await page.setViewportSize({width:390,height:844});await route('/works');await assertSolutionIndex(page);
+ await route('/');const mobileNav=await assertNavigation('mobile','首页');await mobileNav.getByRole('link',{name:'应用方案',exact:true}).click();await waitRoute('/works');await assertNavigation('mobile','应用方案');await screenshot('solutions-mobile');
+ await page.setViewportSize({width:1440,height:1000});
+ for(const [label,path] of [['首页','/'],['应用方案','/works'],['能力体验','/experience-center'],['合作咨询','/cooperate']]){await page.getByRole('navigation',{name:'主导航',exact:true}).getByRole('link',{name:label,exact:true}).click();await waitRoute(path);await assertNavigation('desktop',label);}
+ await route('/mine');await assertNavigation('desktop',null);assert.equal(await page.locator('.profile-card p').innerText(),'账户待开放');assert.equal(await page.locator('.mine-item').getByText('暂未开放',{exact:true}).count(),2);await page.getByRole('button',{name:'返回首页',exact:true}).click();await waitRoute('/');await assertNavigation('desktop','首页');
+ await route('/works');await screenshot('solutions-desktop');
+ await page.setViewportSize({width:390,height:844});await page.route('**/images/guangdang-v2/person-*.webp',r=>r.abort());await route('/category/person');await page.locator('.sp-hero-visual').getByRole('img',{name:/图片暂时无法加载/}).waitFor();
  assert.deepEqual(report.errors,[]);assert.deepEqual(report.brokenAssets,[]);assert.deepEqual(report.historicalRequests,[]);assert.deepEqual(report.mutationRequests,[]);
- report.checks.push('mobile and desktop case waterfall preserve image ratios; reference/real identities, filters, pagination, modal, empty states, navigation, and image failure recovery remain usable');
+ report.checks.push('mobile and desktop solution indexes retain eight plans, matching filters and source-aware returns; reference and published identities, empty states, navigation and image failure recovery remain usable');
  report.status='passed';console.log(JSON.stringify(report));
 }catch(error){report.status='failed';report.failure=error.stack||String(error);if(page)try{await page.screenshot({path:'outputs/document3-ui-failure.png'});}catch{}throw error;}
 finally{await writeFile('outputs/document3-ui-report.json',JSON.stringify(report,null,2));await browser?.close();server?.kill('SIGTERM');}

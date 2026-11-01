@@ -1,0 +1,226 @@
+[
+  {
+    "id": "brand",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "brand",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "brand",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "brand",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "allOpen": true,
+    "details": 4,
+    "hasInput": false,
+    "id": "brand",
+    "overflow": true,
+    "type": "expanded"
+  },
+  {
+    "id": "event",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "event",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "event",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "event",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "allOpen": true,
+    "details": 6,
+    "hasInput": false,
+    "id": "event",
+    "overflow": false,
+    "type": "expanded"
+  },
+  {
+    "id": "team",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "team",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "team",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "team",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "allOpen": true,
+    "details": 5,
+    "hasInput": false,
+    "id": "team",
+    "overflow": false,
+    "type": "expanded"
+  },
+  {
+    "id": "campus",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "campus",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "campus",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "campus",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "allOpen": true,
+    "details": 6,
+    "hasInput": false,
+    "id": "campus",
+    "overflow": false,
+    "type": "expanded"
+  },
+  {
+    "id": "person",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "person",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "person",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "person",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "allOpen": true,
+    "details": 5,
+    "hasInput": false,
+    "id": "person",
+    "overflow": false,
+    "type": "expanded"
+  },
+  {
+    "id": "family",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "family",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "family",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "family",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "allOpen": true,
+    "details": 5,
+    "hasInput": false,
+    "id": "family",
+    "overflow": false,
+    "type": "expanded"
+  },
+  {
+    "id": "enterprise",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "enterprise",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "enterprise",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "enterprise",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "allOpen": true,
+    "details": 5,
+    "hasInput": false,
+    "id": "enterprise",
+    "overflow": false,
+    "type": "expanded"
+  },
+  {
+    "id": "city",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "city",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "city",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "id": "city",
+    "ok": true,
+    "type": "anchor"
+  },
+  {
+    "allOpen": true,
+    "details": 5,
+    "hasInput": false,
+    "id": "city",
+    "overflow": false,
+    "type": "expanded"
+  }
+]

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build && node scripts/postbuild.mjs",
-    "test": "npm run build && node tests/guangdang-ui.mjs && node tests/mobile-navigation.mjs && node tests/product-journey.mjs && node tests/lightfield-visual.mjs && npm run test:content && npm run test:readiness && npm run test:readiness-edges && npm run test:themes",
+    "test": "npm run build && node tests/guangdang-ui.mjs && node tests/mobile-navigation.mjs && node tests/product-journey.mjs && node tests/lightfield-visual.mjs && npm run test:content && npm run test:readiness && npm run test:readiness-edges && npm run test:themes && npm run test:experience",
     "test:ui": "node tests/guangdang-ui.mjs",
     "test:mobile": "npm run build && node tests/mobile-navigation.mjs",
     "test:journey": "node tests/product-journey.mjs",
@@ -15,7 +15,8 @@
     "test:readiness": "node tests/readiness-regression.mjs",
     "test:content": "node --test tests/guangdang-content.test.mjs",
     "test:readiness-edges": "node tests/readiness-edge-cases.mjs",
-    "test:themes": "node tests/color-themes.mjs"
+    "test:themes": "node tests/color-themes.mjs",
+    "test:experience": "node tests/experience-center.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",

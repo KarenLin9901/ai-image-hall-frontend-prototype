@@ -57,7 +57,7 @@ await run('PHOTO-REMOVE-DURING-DECODE',async()=>{
 await run('PHOTO-LEAVE-DURING-DECODE',async()=>{
   await photoStep();const previous=await validPhoto();await p.evaluate(()=>window.__photoAudit.gated=true);
   await p.getByLabel('选择照片',{exact:true}).setInputFiles({...file,name:'pending-away.png'});await p.getByText('正在检查照片…',{exact:true}).waitFor();
-  await p.getByRole('navigation',{name:'底部导航',exact:true}).getByRole('link',{name:'我',exact:true}).click();await p.locator('main[data-route="/mine"]').waitFor();
+  await p.getByRole('navigation',{name:'底部导航',exact:true}).getByRole('link',{name:'应用方案',exact:true}).click();await p.locator('main[data-route="/works"]').waitFor();
   const pending=await p.evaluate(()=>window.__photoAudit.created.at(-1));assert.ok(await p.evaluate(u=>window.__photoAudit.revoked.includes(u),pending));await release();await p.goBack();
   await p.locator('.upload-box img').waitFor();assert.equal(await p.locator('.upload-box img').getAttribute('src'),previous);assert.ok(await p.getByRole('checkbox').isChecked());
   return {pendingCancelled:true,previousDraftPreserved:true};

@@ -36,15 +36,15 @@ export const editorialIntroductions: Record<
   { title: string; description: string; image: string; imageLabel: string; steps: string[] }
 > = {
   hall: {
-    title: '共同的主题，每个人的主角时刻。',
-    description: '为品牌与活动策划主题影像，让参与者通过个人选择，表达与主题有关的自己。',
+    title: '把品牌主题，变成人人可参与的影像活动。',
+    description: '面向品牌、企业与活动主办方的 AI 影像互动产品。项目方确定活动主题与表达边界，参与者选择内容、提交个人素材，形成与品牌有关的专属影像。',
     image: editorialImage('brand-story'),
     imageLabel: '概念示意',
     steps: ['项目方确定主题', '参与者选择内容', '专属影像成果'],
   },
   bespoke: {
-    title: '从真实资料，走进一部专属影片。',
-    description: '围绕人物、家庭、企业与城市故事，将资料线索组织为面向约定用途的完整影片。',
+    title: '围绕一项需求，由团队完成专属创作。',
+    description: '面向企业、机构及有专属创作需求的委托方。先收集资料、沟通用途与预算，再由团队完成策划、制作、审片与交付。',
     image: editorialImage('bespoke-story'),
     imageLabel: '概念示意',
     steps: ['梳理真实资料', '确认故事与影像', '完成专属影片'],
@@ -98,35 +98,54 @@ export const editorialBenefits: Record<
   ],
 };
 
+// These choices explain the campaign proposal. They are not generation template IDs.
+export const brandCampaignOptions = {
+  growth: [
+    { id: 'career', label: '职场成长', meaning: '从初入职场到职业发展，让努力与期待成为个人故事的主线。', outcome: '围绕职业成长，串联在深圳的生活起点、奋斗与未来期待。' },
+    { id: 'family', label: '家庭相伴', meaning: '从成家到共同生活，把家人的陪伴与幸福时刻放在故事中心。', outcome: '围绕家庭陪伴，连接城市生活、共同成长与更好的未来。' },
+    { id: 'venture', label: '创业逐梦', meaning: '从创业出发到事业发展，表达个人追梦与城市机遇的连接。', outcome: '围绕创业逐梦，呈现个人投入、城市机遇与继续向前的期待。' },
+  ],
+  scenes: [
+    { id: 'bay', label: '深圳湾' },
+    { id: 'futian', label: '福田 CBD' },
+    { id: 'qianhai', label: '前海' },
+    { id: 'branch', label: '工行网点' },
+    { id: 'life', label: '城市生活' },
+  ],
+  clothing: ['职场', '休闲', '运动'],
+  styles: ['温暖', '时尚', '活力'],
+};
+
 export const editorialPlans: Record<string, EditorialPlan> = {
   brand: {
     categoryId: 'brand',
     business: 'hall',
-    title: '我为品牌代言',
-    kicker: '品牌推广与主题传播',
-    summary: '让参与者进入品牌或城市主题，用自己的角色与偏好，表达一段与主题相关的影像。',
-    audience: '品牌、企业、城市及相关机构发起，参与者以个人身份体验。',
-    image: editorialImage('brand-story'),
-    imageLabel: '概念示意',
-    themeId: 'brand-1',
-    choices: configuredChoices('brand-1', [
-      '决定影像围绕哪类传播内容展开；具体品牌元素由项目方确认。',
-      '选择片中的表达角色，让主角与主题建立关系，不作为真实身份认定。',
-      '选择画面的气质与表达方向，具体影像效果通过模板与样段落实。',
-    ]),
+    title: '我为品牌代言 · 与深圳 共成长',
+    kicker: '品牌客户活动 · 方案示例',
+    summary: '以工行深圳分行品牌客户活动为例，把“与深圳共成长”的品牌主题，转化为每位参与者的个人成长短片。',
+    audience: '适合银行、品牌与机构的客户活动、开放日及社群运营；参与者是活动客户与城市生活者。',
+    image: reference(4),
+    imageLabel: '场景参考',
+    choices: [
+      { title: '成长主题 · 选 1 项', items: brandCampaignOptions.growth.map(item => item.label), meaning: '决定片中的成长主线：职业发展、家庭生活或创业梦想。' },
+      { title: '深圳场景 · 选 2–3 项', items: brandCampaignOptions.scenes.map(item => item.label), meaning: '决定个人故事发生在哪些城市空间，将生活记忆与深圳、品牌连接起来。' },
+      { title: '个性表达 · 按需设置', items: ['服装风格', '视频风格', '个性化文案'], meaning: '调整主角形象、影片情绪和个人心声；可选范围由活动方提前配置与确认。' },
+    ],
     journey: [
-      { title: '进入共同主题', description: '了解活动主题、参与要求与素材说明，明确这段影像想表达什么。' },
-      { title: '选择自己的表达', description: '按场景、角色与风格完成设定；有照片时确认使用授权。' },
-      { title: '呈现专属影像', description: '以个人代言短片呈现主题表达；真实制作与交付按项目约定。' },
+      { title: '扫码进入', description: '从活动现场、展板或工作人员引导进入活动 H5，先了解主题与素材说明。' },
+      { title: '准备个人照片', description: '选择或拍摄一张个人照片，并确认照片使用授权。' },
+      { title: '选择主题与配置', description: '选择一条成长主线、2–3 个深圳场景，再按需设置服装、风格与文案。' },
+      { title: '形成专属影像', description: '按活动模板与个人设定，形成以本人为主角的主题短片。' },
+      { title: '保存与自愿分享', description: '参与者保存纪念，按自己的意愿分享；公开展示与使用另行确认授权。' },
     ],
     outcome: {
-      title: '一条以自己为主角的代言短片',
-      description: '以个人专属AI短视频为核心，把共同的品牌主题转成与参与者有关的表达。',
-      extras: '封面或其他传播版本按项目需要约定；当前生成与正式样片尚未开放。',
+      title: '一张照片，一条约 30 秒的个人成长短片',
+      description: '这是本方案的成果目标：以参与者为主角，连接个人成长、深圳场景与品牌陪伴，并保留统一活动主题。',
+      extras: '画幅、封面、品牌元素、领取方式及其他交付版本在项目中确认；当前页面不生成工行专属影片。',
     },
-    participantValue: { title: '让表达与自己有关', description: '从观看品牌信息变为进入主题，获得带有个人角色与偏好的影像内容。' },
-    projectValue: { title: '让品牌拥有可参与的内容', description: '在统一主题中组织个人表达，服务活动传播；成片汇总与公开使用需约定授权。' },
-    preparation: ['传播主题、活动场景与参与对象', '可使用的品牌标识、文字及视觉素材', '预计参与规模、成果用途与素材使用范围'],
+    participantValue: { title: '把自己的成长，留成一份纪念', description: '用自己选择的生活主线与城市场景表达“我与深圳”的关系，得到有个人内容、值得留存的影像。' },
+    projectValue: { title: '让品牌理念变成一次参与', description: '用客户的个人成长故事承载品牌陪伴，服务活动互动与自愿分享。这是活动价值设计，不承诺传播量或业务转化。' },
+    preparation: ['活动主题、目标客户、参与场景与预计规模', '经确认可使用的品牌标识、网点及城市视觉素材', '模板与配置范围、照片授权说明及内容审核安排', '影片规格、领取方式、项目周期与报价范围'],
   },
   event: {
     categoryId: 'event',

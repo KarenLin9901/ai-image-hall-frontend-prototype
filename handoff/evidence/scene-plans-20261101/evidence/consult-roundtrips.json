@@ -1,0 +1,50 @@
+[
+  {
+    "id": "brand",
+    "reference": true,
+    "route": "#/cooperate?product=hall&source=application&direction=brand",
+    "selection": "品牌推广与主题传播"
+  },
+  {
+    "id": "event",
+    "reference": true,
+    "route": "#/cooperate?product=hall&source=application&direction=event",
+    "selection": "活动互动与用户体验"
+  },
+  {
+    "id": "team",
+    "reference": true,
+    "route": "#/cooperate?product=hall&source=application&direction=team",
+    "selection": "企业文化与员工关怀"
+  },
+  {
+    "id": "campus",
+    "reference": true,
+    "route": "#/cooperate?product=hall&source=application&direction=campus",
+    "selection": "校园与社群纪念"
+  },
+  {
+    "id": "person",
+    "reference": true,
+    "route": "#/cooperate?product=bespoke&source=application&direction=person",
+    "selection": "人物故事"
+  },
+  {
+    "id": "family",
+    "reference": true,
+    "route": "#/cooperate?product=bespoke&source=application&direction=family",
+    "selection": "家庭记忆"
+  },
+  {
+    "id": "enterprise",
+    "reference": true,
+    "route": "#/cooperate?product=bespoke&source=application&direction=enterprise",
+    "selection": "企业故事"
+  },
+  {
+    "id": "city",
+    "reference": true,
+    "route": "#/cooperate?product=bespoke&source=application&direction=city",
+    "selection": "城市与历史"
+  }
+]

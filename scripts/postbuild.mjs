@@ -1,6 +1,8 @@
 import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
-const output = new URL("../docs/", import.meta.url);
+const output = process.argv[2] ? pathToFileURL(resolve(process.argv[2]) + "/") : new URL("../docs/", import.meta.url);
 const basePath = "/ai-image-hall-frontend-prototype";
 const routes = [
   "works",

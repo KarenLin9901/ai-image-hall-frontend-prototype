@@ -1,0 +1,367 @@
+/* Product storytelling · 2026-11-01.
+   Website reading surfaces are open and quiet; the experience remains a task UI. */
+html[data-theme] body.lightfield-app.cinema-app {
+  --ae-bg: #0b121c;
+  --ae-surface: #111e2c;
+  --ae-soft: #182838;
+  --ae-ink: #f2f6fb;
+  --ae-muted: #aebdcb;
+  --ae-accent: #a3d0ff;
+  --ae-on-accent: #102e4a;
+  --ae-line: #abc1d326;
+  --ae-bar: #0b121ceF;
+  --b2b-ink: var(--ae-ink);
+  --b2b-muted: var(--ae-muted);
+  --b2b-accent: var(--ae-accent);
+  --b2b-on-accent: var(--ae-on-accent);
+  --b2b-surface: var(--ae-surface);
+  --b2b-soft: var(--ae-soft);
+  --b2b-line: var(--ae-line);
+  --b2b-bar: var(--ae-bar);
+  --b2b-shadow: none;
+  background: var(--ae-bg);
+  color: var(--ae-ink);
+}
+html[data-theme="light"] body.lightfield-app.cinema-app {
+  --ae-bg: #ffffff;
+  --ae-surface: #f5f7fa;
+  --ae-soft: #eaf0f6;
+  --ae-ink: #182b3d;
+  --ae-muted: #536678;
+  --ae-accent: #0964ae;
+  --ae-on-accent: #ffffff;
+  --ae-line: #1d3a541f;
+  --ae-bar: #fffffff0;
+}
+html[data-theme] body.cinema-app .aurora-backdrop { opacity: .08; }
+html[data-theme] body.cinema-app :is(.mobile-editorial-home,.mobile-editorial-product,.mobile-editorial-plan) {
+  --me-ink: var(--ae-ink);
+  --me-muted: var(--ae-muted);
+  --me-dim: var(--ae-muted);
+  --me-cyan: var(--ae-accent);
+  --me-line: var(--ae-line);
+  --me-panel: var(--ae-surface);
+}
+html[data-theme] body.cinema-app .px-product {
+  --px-text: var(--ae-ink);
+  --px-muted: var(--ae-muted);
+  --px-accent: var(--ae-accent);
+  --px-on-accent: var(--ae-on-accent);
+  --px-surface: var(--ae-surface);
+  --px-soft: var(--ae-soft);
+  --px-line: var(--ae-line);
+}
+html[data-theme] body.cinema-app :is(.button,.ec-btn) { min-height: 46px; padding: 11px 22px; font-size: 15px; font-weight: 500; border-radius: 999px; letter-spacing: 0; }
+html[data-theme] body.cinema-app .button:not(.secondary) { color: var(--ae-on-accent); border-color: var(--ae-accent); background: var(--ae-accent); box-shadow: none; }
+html[data-theme] body.cinema-app .button.secondary { color: var(--ae-accent); border-color: transparent; background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app :is(.text-link,.b2b-text-link) { color: var(--ae-accent); }
+html[data-theme] body.cinema-app :is(a,button,summary,input,select,textarea):focus-visible { outline: 2px solid var(--ae-accent); outline-offset: 4px; }
+html[data-theme] body.cinema-app .topbar { background: var(--ae-bar); border-bottom: 1px solid var(--ae-line); box-shadow: none; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+html[data-theme] body.cinema-app .topbar-inner { max-width: 1180px; }
+html[data-theme] body.cinema-app .desktop-nav a { position: relative; padding-inline: 15px; border-radius: 0; font-size: 13px; }
+html[data-theme] body.cinema-app .desktop-nav a.active { background: transparent; color: var(--ae-ink); }
+html[data-theme] body.cinema-app .desktop-nav a.active::after { display: block; content: ''; position: absolute; bottom: 4px; left: 15px; right: 15px; height: 2px; width: auto; background: var(--ae-accent); }
+html[data-theme] body.cinema-app .header-actions .icon-button { border-color: transparent; background: transparent; }
+html[data-theme] body.cinema-app .back-button { color: var(--ae-muted); margin-block: 2px 18px; font-size: 13px; }
+html[data-theme] body.cinema-app .page-shell.compact-shell:not(.is-home) { max-width: 1176px; }
+
+/* Two products, with readable copy beside independent photography. */
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact > .me-home-hero { padding-block: 54px 40px; text-align: center; }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-hero-copy { max-width: 880px; margin-inline: auto; }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-display { max-width: none; font-size: clamp(38px,4.6vw,64px); font-weight: 600; line-height: 1.18; color: var(--ae-ink); }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-display span { color: var(--ae-accent); }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-lead { max-width: 42em; margin: 20px auto 0; color: var(--ae-muted); font-size: 18px; line-height: 1.7; }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact > .me-home-products { width: min(100% - 72px,1120px); padding-bottom: 54px; }
+html[data-theme] body.cinema-app .me-home-compact .me-product-grid { gap: 24px; }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-card.home-choice { display: flex; flex-direction: column; height: auto; min-height: 0; border: 0; border-radius: 24px; background: var(--ae-surface); box-shadow: none; }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-card-image { position: relative; inset: auto; order: 2; width: 100%; height: 280px; aspect-ratio: auto; border-radius: 0; }
+html[data-theme] body.cinema-app .me-home-compact .me-card-image > .me-media-frame { position: relative; inset: auto; width: 100%; height: 100%; }
+html[data-theme] body.cinema-app .me-home-compact .me-card-image::after { content: none; }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-copy { position: relative; inset: auto; order: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 0; width: 100%; min-width: 0; max-width: none; text-align: center; padding: 30px 28px 24px; }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-copy h2 { margin: 0; color: var(--ae-ink); font-size: 30px; font-weight: 600; }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-copy .me-product-kind { max-width: 24em; margin-top: 9px; color: var(--ae-muted); font-size: 15px; line-height: 1.7; }
+html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-copy .me-link { margin-top: 6px; min-height: 44px; color: var(--ae-accent); }
+
+/* A product hero is a heading and a photograph, not a framed dashboard. */
+html[data-theme] body.cinema-app .mobile-editorial-product.px-product .me-product-hero.px-product-hero { display: flex; flex-direction: column; align-items: stretch; gap: 30px; margin-bottom: 0; overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app .mobile-editorial-product.px-product .px-product-hero .editorial-heading { width: 100%; max-width: 850px; margin-inline: auto; padding: 14px 24px 0; text-align: center; }
+html[data-theme] body.cinema-app .mobile-editorial-product.px-product .px-product-hero .editorial-heading h1 { color: var(--ae-ink); font-size: clamp(38px,5vw,64px); line-height: 1.15; font-weight: 600; }
+html[data-theme] body.cinema-app .mobile-editorial-product.px-product .px-product-hero .editorial-heading .definition { max-width: 33em; margin: 22px auto 0; color: var(--ae-muted); font-size: 20px; line-height: 1.65; }
+html[data-theme] body.cinema-app .px-hero-actions { justify-content: center; margin-top: 26px; gap: 12px; }
+html[data-theme] body.cinema-app .mobile-editorial-product.px-product .px-hero-note { max-width: 38em; margin: 13px auto 0; color: var(--ae-muted); font-size: 12px; }
+html[data-theme] body.cinema-app .px-product-hero .editorial-hero-image { position: relative; width: 100%; height: clamp(280px,38vw,460px); min-height: 0; border-radius: 24px; overflow: hidden; }
+html[data-theme] body.cinema-app .px-product-hero .editorial-hero-image > img { width: 100%; height: 100%; object-fit: cover; object-position: center 42%; }
+html[data-theme] body.cinema-app .mobile-editorial-product .editorial-index { top: var(--header-height); gap: 12px; margin-block: 20px 0; padding: 0; border: 0; border-bottom: 1px solid var(--ae-line); border-radius: 0; background: var(--ae-bar); box-shadow: none; }
+html[data-theme] body.cinema-app .mobile-editorial-product .editorial-index > button { position: relative; min-height: 52px; padding: 12px 6px; border-radius: 0; font-size: 14px; color: var(--ae-muted); background: transparent; }
+html[data-theme] body.cinema-app .mobile-editorial-product .editorial-index > button:is(.active,[aria-current="location"]) { color: var(--ae-ink); background: transparent; }
+html[data-theme] body.cinema-app .mobile-editorial-product .editorial-index > button:is(.active,[aria-current="location"])::after { position: absolute; display: block; content: ''; left: 12px; right: 12px; bottom: 0; width: auto; height: 2px; background: var(--ae-accent); }
+html[data-theme] body.cinema-app .mobile-editorial-product > section { margin-top: 88px; }
+html[data-theme] body.cinema-app .mobile-editorial-product .me-section-heading { max-width: 820px; margin-bottom: 36px; }
+html[data-theme] body.cinema-app :is(.mobile-editorial-product,.mobile-editorial-plan) .me-section-heading h2,
+html[data-theme] body.cinema-app .mobile-editorial-plan .me-plan-section > h2 { color: var(--ae-ink); font-size: clamp(28px,3.5vw,42px); line-height: 1.25; font-weight: 600; letter-spacing: -.035em; }
+html[data-theme] body.cinema-app .me-section-heading > p { max-width: 41em; font-size: 17px; line-height: 1.8; }
+html[data-theme] body.cinema-app .mobile-editorial-product .b2b-role-grid { gap: 32px; }
+html[data-theme] body.cinema-app .mobile-editorial-product .b2b-role-grid article { padding: 22px 0 0; border: 0; border-top: 1px solid var(--ae-line); border-radius: 0; background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app .mobile-editorial-product .b2b-role-grid h3 { color: var(--ae-ink); font-size: 21px; }
+html[data-theme] body.cinema-app .mobile-editorial-product .b2b-role-grid p { color: var(--ae-muted); font-size: 16px; }
+html[data-theme] body.cinema-app .me-flow-line { margin-top: 34px; }
+html[data-theme] body.cinema-app .me-flow-line li { padding-top: 16px; border-top: 0; }
+html[data-theme] body.cinema-app .me-flow-line li b { width: auto; height: auto; border: 0; background: transparent; color: var(--ae-accent); font-size: 13px; }
+html[data-theme] body.cinema-app .me-flow-line li span { color: var(--ae-muted); }
+html[data-theme] body.cinema-app .mobile-editorial-product .scenario-grid { gap: 48px 30px; }
+html[data-theme] body.cinema-app .mobile-editorial-product .scenario-card { border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; }
+html[data-theme] body.cinema-app .mobile-editorial-product .scenario-card-media { border-radius: 20px; aspect-ratio: 16 / 10; }
+html[data-theme] body.cinema-app .mobile-editorial-product .scenario-card-brand .scenario-card-media img { object-fit: cover; }
+html[data-theme] body.cinema-app .mobile-editorial-product .scenario-card-copy { padding: 22px 0 0; }
+html[data-theme] body.cinema-app .mobile-editorial-product .scenario-card .me-scenario-title { color: var(--ae-ink); font-size: 27px; line-height: 1.4; }
+html[data-theme] body.cinema-app .mobile-editorial-product .scenario-card-copy > p:not(.me-scenario-title) { color: var(--ae-muted); font-size: 16px; }
+html[data-theme] body.cinema-app .mobile-editorial-product .scenario-card-action { color: var(--ae-accent); border: 0; }
+html[data-theme] body.cinema-app .mobile-editorial-product .px-play-card { overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app .px-play-card > .me-image { border-radius: 20px; overflow: hidden; }
+html[data-theme] body.cinema-app .px-play-card > div { padding: 24px 0 0; }
+html[data-theme] body.cinema-app .mobile-editorial-product .px-play-card h3 { color: var(--ae-ink); font-size: 28px; }
+html[data-theme] body.cinema-app .px-pricing-layout { border: 0; border-radius: 24px; box-shadow: none; background: var(--ae-surface); }
+html[data-theme] body.cinema-app .mobile-editorial-product .px-samples-pending.px-samples-compact { border: 0; border-left: 2px solid var(--ae-line); border-radius: 0; padding: 0 0 0 22px; background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app .mobile-editorial-product .b2b-product-details,
+html[data-theme] body.cinema-app .mobile-editorial-product .me-project-fold { border: 0; border-block: 1px solid var(--ae-line); border-radius: 0; padding-inline: 0; background: transparent; }
+html[data-theme] body.cinema-app .b2b-product-details > summary { padding-inline: 0; }
+html[data-theme] body.cinema-app .mobile-editorial-product .editorial-experience { gap: 48px; border: 0; border-top: 1px solid var(--ae-line); border-radius: 0; padding: 60px 0 0; background: transparent; }
+
+/* Solution index is an editorial catalogue, not another application dashboard. */
+html[data-theme] body.cinema-app .b2b-page-heading { max-width: 840px; margin: 12px 0 36px; }
+html[data-theme] body.cinema-app .b2b-page-heading h1 { font-size: clamp(34px,4.8vw,54px); }
+html[data-theme] body.cinema-app .b2b-page-heading p { max-width: 38em; font-size: 18px; }
+html[data-theme] body.cinema-app .b2b-library-tabs { gap: 22px; border-radius: 0; padding: 0; border-bottom: 1px solid var(--ae-line); background: transparent; }
+html[data-theme] body.cinema-app .b2b-library-tabs a { padding: 12px 0; border-radius: 0; color: var(--ae-muted); }
+html[data-theme] body.cinema-app .b2b-library-tabs a[aria-current="page"] { border-bottom: 2px solid var(--ae-accent); color: var(--ae-ink); background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app .b2b-filter-row { margin-block: 22px; }
+html[data-theme] body.cinema-app .b2b-filter-row a { background: transparent; }
+html[data-theme] body.cinema-app .b2b-filter-row a.active { background: var(--ae-soft); border-color: transparent; color: var(--ae-ink); }
+html[data-theme] body.cinema-app .b2b-evidence-note { padding: 0; margin: 18px 0 32px; border: 0; border-radius: 0; background: transparent; color: var(--ae-muted); font-size: 13px; }
+html[data-theme] body.cinema-app .b2b-solution-grid { gap: 54px 32px; }
+html[data-theme] body.cinema-app .b2b-solution-card { border: 0; border-radius: 0; overflow: visible; background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app .b2b-solution-card figure { border-radius: 20px; aspect-ratio: 16 / 10; }
+html[data-theme] body.cinema-app .b2b-solution-card.b2b-plan-poster figure > img { object-fit: cover; }
+html[data-theme] body.cinema-app .b2b-solution-copy { padding: 22px 0 0; }
+html[data-theme] body.cinema-app .b2b-solution-copy h2 { font-size: 27px; line-height: 1.35; }
+html[data-theme] body.cinema-app .b2b-solution-copy > p { font-size: 16px; }
+
+/* Every full plan uses the same readable chapter rhythm. */
+html[data-theme] body.cinema-app .mobile-editorial-plan .me-plan-hero { max-width: 860px; margin-block: 10px 32px; }
+html[data-theme] body.cinema-app .mobile-editorial-plan .me-plan-hero h1 { color: var(--ae-ink); font-size: clamp(35px,4.7vw,56px); line-height: 1.2; }
+html[data-theme] body.cinema-app .mobile-editorial-plan .me-plan-lead { color: var(--ae-muted); font-size: 19px; line-height: 1.75; }
+html[data-theme] body.cinema-app .me-plan-facts { gap: 8px 22px; }
+html[data-theme] body.cinema-app .me-plan-facts span { padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--ae-muted); }
+html[data-theme] body.cinema-app .me-plan-nav { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; margin-block: 28px 36px; padding: 0; border: 0; border-block: 1px solid var(--ae-line); border-radius: 0; background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app .me-plan-nav button { min-height: 50px; padding: 12px 5px; border: 0; border-radius: 0; color: var(--ae-muted); background: transparent; font-size: 14px; }
+html[data-theme] body.cinema-app .me-plan-nav button:hover { color: var(--ae-accent); background: transparent; }
+html[data-theme] body.cinema-app .mobile-editorial-plan .me-plan-section { margin-top: 80px; }
+html[data-theme] body.cinema-app .me-choice-card { border-radius: 0; background: transparent; }
+html[data-theme] body.cinema-app .me-process-panel { border: 0; border-radius: 20px; background: var(--ae-surface); }
+html[data-theme] body.cinema-app .me-plan-value-grid > article { padding: 26px 0; border: 0; border-top: 1px solid var(--ae-line); border-radius: 0; background: transparent; }
+
+/* A campaign brief is reconstructed as page content, with independent city imagery. */
+html[data-theme] body.cinema-app .campaign-plan { max-width: 1080px; }
+html[data-theme] body.cinema-app .campaign-plan .campaign-hero { max-width: none; margin: 10px 0 32px; }
+html[data-theme] body.cinema-app .campaign-hero-copy { max-width: 800px; margin-bottom: 32px; }
+html[data-theme] body.cinema-app .campaign-proposal-label { display: block; margin: 20px 0 14px; color: var(--ae-muted); font-size: 13px; }
+html[data-theme] body.cinema-app .campaign-plan .campaign-hero h1 { font-size: clamp(38px,5.2vw,66px); line-height: 1.15; font-weight: 600; }
+html[data-theme] body.cinema-app .campaign-plan .campaign-hero .me-plan-lead { margin-top: 24px; color: var(--ae-ink); font-size: clamp(23px,2.7vw,32px); line-height: 1.5; }
+html[data-theme] body.cinema-app .campaign-hero-description { max-width: 40em; margin-top: 20px; color: var(--ae-muted); }
+html[data-theme] body.cinema-app .campaign-city-visual { position: relative; width: 100%; margin-top: 30px; border-radius: 24px; overflow: hidden; background: var(--ae-surface); }
+html[data-theme] body.cinema-app .campaign-city-visual img { display: block; width: 100%; height: clamp(230px,34vw,390px); object-fit: cover; }
+html[data-theme] body.cinema-app .campaign-city-visual figcaption { position: absolute; bottom: 14px; left: 18px; color: #f5f7fb; background: #071521bb; padding: 5px 10px; border-radius: 7px; font-size: 12px; }
+html[data-theme] body.cinema-app .campaign-plan > section { margin-top: 80px; }
+html[data-theme] body.cinema-app .campaign-plan h2 { max-width: 27em; font-size: clamp(28px,3.7vw,43px); line-height: 1.25; font-weight: 600; }
+html[data-theme] body.cinema-app .campaign-plan p { font-size: 17px; line-height: 1.8; }
+html[data-theme] body.cinema-app .campaign-plan .bs-status-note { padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--ae-muted); font-size: 13px; line-height: 1.75; }
+html[data-theme] body.cinema-app .campaign-plan .campaign-definition { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 30px; margin-top: 24px; }
+html[data-theme] body.cinema-app .campaign-plan .campaign-definition > div { padding: 18px 0 0; border: 0; border-top: 1px solid var(--ae-line); }
+html[data-theme] body.cinema-app .campaign-highlight-number { display: block; margin-bottom: 15px; color: var(--ae-accent); font-size: 12px; }
+html[data-theme] body.cinema-app .campaign-highlights { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 28px; margin-top: 32px; }
+html[data-theme] body.cinema-app .campaign-highlights > :is(article,li,div) { padding: 22px 0 0; border: 0; border-top: 1px solid var(--ae-line); border-radius: 0; background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app .campaign-highlights h3 { font-size: 21px; line-height: 1.4; }
+html[data-theme] body.cinema-app .campaign-highlights p { margin-top: 11px; color: var(--ae-muted); font-size: 15px; }
+html[data-theme] body.cinema-app .campaign-storyline { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; list-style: none; margin: 32px 0 0; padding: 0; }
+html[data-theme] body.cinema-app .campaign-storyline > li { position: relative; padding: 28px 26px 0 0; border: 0; border-top: 2px solid var(--ae-line); border-radius: 0; background: transparent; }
+html[data-theme] body.cinema-app .campaign-storyline > li::before { content: ''; position: absolute; top: -6px; left: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--ae-accent); }
+html[data-theme] body.cinema-app .campaign-storyline h3 { margin-top: 10px; font-size: 21px; }
+html[data-theme] body.cinema-app .campaign-storyline p { margin-top: 11px; font-size: 15px; }
+html[data-theme] body.cinema-app .campaign-config { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: start; margin-top: 32px; }
+html[data-theme] body.cinema-app .campaign-config-controls { display: grid; gap: 30px; min-width: 0; }
+html[data-theme] body.cinema-app .campaign-config-controls fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+html[data-theme] body.cinema-app .campaign-config-controls legend { display: flex; align-items: baseline; gap: 10px; width: 100%; margin-bottom: 15px; padding: 0; color: var(--ae-ink); font-size: 19px; font-weight: 600; }
+html[data-theme] body.cinema-app .campaign-config-controls legend > span:first-child { color: var(--ae-accent); font-size: 12px; font-weight: 500; }
+html[data-theme] body.cinema-app .campaign-selection-rule { margin-left: auto; color: var(--ae-muted); font-size: 12px; font-weight: 400; }
+html[data-theme] body.cinema-app .campaign-config-controls :is(input,select,textarea) { width: 100%; min-width: 0; min-height: 48px; margin-top: 7px; padding: 12px 14px; border: 1px solid var(--ae-line); border-radius: 12px; background: var(--ae-surface); color: var(--ae-ink); font-family: inherit; font-size: 16px; }
+html[data-theme] body.cinema-app .campaign-config-controls label { display: block; color: var(--ae-muted); font-size: 14px; line-height: 1.7; }
+html[data-theme] body.cinema-app .campaign-config-controls button { min-height: 46px; padding: 10px 15px; border: 1px solid var(--ae-line); border-radius: 12px; background: transparent; color: var(--ae-ink); font: inherit; font-size: 14px; line-height: 1.6; }
+html[data-theme] body.cinema-app .campaign-config-controls button[aria-pressed="true"] { border-color: var(--ae-accent); background: var(--ae-soft); color: var(--ae-accent); box-shadow: inset 0 0 0 1px var(--ae-accent); }
+html[data-theme] body.cinema-app .campaign-config-controls button:disabled { color: var(--ae-muted); opacity: .8; cursor: not-allowed; }
+html[data-theme] body.cinema-app .campaign-segment { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; padding: 4px; border-radius: 15px; background: var(--ae-soft); }
+html[data-theme] body.cinema-app .campaign-segment button { padding-inline: 5px; border-color: transparent; border-radius: 11px; }
+html[data-theme] body.cinema-app .campaign-segment button[aria-pressed="true"] { background: var(--ae-bg); box-shadow: 0 1px 5px #00000012; border-color: transparent; color: var(--ae-ink); }
+html[data-theme] body.cinema-app :is(.campaign-theme-options,.campaign-scenes,.campaign-scene-options,.campaign-option-buttons) { display: flex; flex-wrap: wrap; gap: 8px; }
+html[data-theme] body.cinema-app .campaign-scene-options button { display: inline-flex; align-items: center; justify-content: space-between; gap: 15px; min-width: 110px; }
+html[data-theme] body.cinema-app .campaign-check { font-size: 15px; }
+html[data-theme] body.cinema-app .campaign-config-controls :is(.campaign-option-meaning,.campaign-field-intro,.campaign-selection-status) { margin-top: 12px; color: var(--ae-muted); font-size: 14px; line-height: 1.75; }
+html[data-theme] body.cinema-app .campaign-config-controls .campaign-field-intro { margin: 0 0 14px; }
+html[data-theme] body.cinema-app .campaign-personal-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+html[data-theme] body.cinema-app .campaign-message-label { margin-top: 20px; }
+html[data-theme] body.cinema-app .campaign-config-preview { min-width: 0; position: sticky; top: calc(var(--header-height) + 28px); }
+html[data-theme] body.cinema-app .campaign-preview-heading { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 4px 12px; margin-bottom: 18px; }
+html[data-theme] body.cinema-app .campaign-preview-heading > span { grid-column: 1 / -1; color: var(--ae-muted); font-size: 14px; }
+html[data-theme] body.cinema-app .campaign-preview-heading > strong { color: var(--ae-ink); font-size: 30px; line-height: 1.5; font-weight: 600; }
+html[data-theme] body.cinema-app .campaign-preview-heading > small { color: var(--ae-muted); font-size: 12px; }
+html[data-theme] body.cinema-app .campaign-output { min-width: 0; padding: 28px; border: 0; border-radius: 24px; background: var(--ae-surface); color: var(--ae-ink); }
+html[data-theme] body.cinema-app .campaign-output h3 { font-size: 25px; }
+html[data-theme] body.cinema-app .campaign-output :is(p,dd,li) { font-size: 15px; line-height: 1.75; }
+html[data-theme] body.cinema-app .campaign-output dl { display: grid; gap: 16px; margin-top: 22px; }
+html[data-theme] body.cinema-app .campaign-output dt { color: var(--ae-muted); font-size: 12px; }
+html[data-theme] body.cinema-app .campaign-output dd { margin: 5px 0 0; color: var(--ae-ink); }
+html[data-theme] body.cinema-app .campaign-output-track { display: grid; gap: 0; padding: 0; margin: 26px 0 0; list-style: none; }
+html[data-theme] body.cinema-app .campaign-output-track li { display: flex; align-items: baseline; gap: 14px; margin: 0; padding: 12px 0; border-top: 1px solid var(--ae-line); }
+html[data-theme] body.cinema-app .campaign-output-track li > span { color: var(--ae-accent); font-size: 11px; }
+html[data-theme] body.cinema-app .campaign-output-track strong { color: var(--ae-ink); font-size: 14px; font-weight: 500; }
+html[data-theme] body.cinema-app .campaign-plan .campaign-preview-status { margin-top: 20px; font-size: 13px; color: var(--ae-muted); }
+html[data-theme] body.cinema-app .campaign-plan .campaign-preview-note { margin-top: 14px; font-size: 12px; color: var(--ae-muted); }
+html[data-theme] body.cinema-app .campaign-journey ol { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 24px; list-style: none; padding: 0; margin-top: 32px; }
+html[data-theme] body.cinema-app .campaign-journey li { min-width: 0; border: 0; border-top: 1px solid var(--ae-line); padding-top: 18px; }
+html[data-theme] body.cinema-app .campaign-journey li > :is(b,span) { color: var(--ae-accent); background: transparent; }
+html[data-theme] body.cinema-app .campaign-journey h3 { margin-top: 12px; font-size: 20px; }
+html[data-theme] body.cinema-app .campaign-journey p { margin-top: 10px; font-size: 15px; }
+html[data-theme] body.cinema-app .campaign-delivery .bs-outcome-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 44px; margin-top: 32px; }
+html[data-theme] body.cinema-app .campaign-delivery .bs-outcome-grid > article { border: 0; border-top: 1px solid var(--ae-line); border-radius: 0; padding: 24px 0 0; background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app .campaign-delivery h3 { font-size: 26px; line-height: 1.4; }
+html[data-theme] body.cinema-app .campaign-delivery article > p { margin-top: 14px; font-size: 16px; }
+html[data-theme] body.cinema-app .campaign-delivery-list { margin: 20px 0 0; padding-left: 1.1em; color: var(--ae-muted); font-size: 15px; line-height: 1.8; }
+html[data-theme] body.cinema-app .campaign-delivery-list > li + li { margin-top: 7px; }
+html[data-theme] body.cinema-app .campaign-delivery article > .campaign-value { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--ae-line); color: var(--ae-muted); font-size: 14px; }
+html[data-theme] body.cinema-app .campaign-value > strong { display: block; margin-bottom: 8px; color: var(--ae-ink); font-size: 17px; font-weight: 500; }
+html[data-theme] body.cinema-app .campaign-cooperation .me-plan-preparation { margin-top: 28px; border: 0; border-block: 1px solid var(--ae-line); border-radius: 0; padding-inline: 0; background: transparent; }
+html[data-theme] body.cinema-app .campaign-cooperation .me-plan-preparation summary { padding-inline: 0; }
+
+/* Task surfaces keep grouping, selected states and form affordances. */
+html[data-theme] body.cinema-app .ec-shell { --ec-bg: var(--ae-bg); --ec-panel: var(--ae-surface); --ec-soft: var(--ae-soft); --ec-ink: var(--ae-ink); --ec-muted: var(--ae-muted); --ec-line: var(--ae-line); --ec-accent: var(--ae-accent); --ec-on-accent: var(--ae-on-accent); }
+html[data-theme] body.cinema-app .ec-mode-tabs { border-radius: 16px; padding: 5px; }
+html[data-theme] body.cinema-app .ec-mode-tabs > button { border-radius: 12px; min-height: 66px; }
+html[data-theme] body.cinema-app .ec-mode-tabs > button[aria-pressed="true"] { border-color: transparent; box-shadow: 0 2px 7px #00000012; }
+html[data-theme] body.cinema-app .ec-choice[aria-pressed="true"] { border-color: var(--ae-accent); box-shadow: inset 0 0 0 1px var(--ae-accent); }
+html[data-theme] body.cinema-app .ec-template { border-color: var(--ae-line); border-radius: 20px; box-shadow: none; }
+html[data-theme] body.cinema-app .ec-template-selected { border-color: var(--ae-accent); }
+html[data-theme] body.cinema-app .consultation-page .page-intro { margin-bottom: 30px; }
+html[data-theme] body.cinema-app .inquiry-context { border: 0; border-left: 2px solid var(--ae-line); border-radius: 0; padding: 8px 0 8px 18px; background: transparent; }
+html[data-theme] body.cinema-app .b2b-cooperation-intro { border: 0; border-radius: 0; padding: 0; background: transparent; }
+html[data-theme] body.cinema-app .b2b-service-choices > a { border: 0; border-top: 1px solid var(--ae-line); border-radius: 0; padding: 24px 0; background: transparent; }
+html[data-theme] body.cinema-app .demand-form { border: 0; border-radius: 20px; background: var(--ae-surface); box-shadow: none; }
+
+@media (hover:hover) and (pointer:fine) {
+  html[data-theme] body.cinema-app :is(.scenario-card,.b2b-solution-card) img { transition: transform .4s ease; }
+  html[data-theme] body.cinema-app :is(.scenario-card,.b2b-solution-card):hover img { transform: scale(1.025); }
+  html[data-theme] body.cinema-app :is(.scenario-card,.b2b-solution-card):hover :is(.scenario-card-action,.b2b-text-link) { text-decoration: underline; text-underline-offset: 5px; }
+}
+@media (max-width:900px) {
+  html[data-theme] body.cinema-app .campaign-config { grid-template-columns: minmax(0,1fr); gap: 30px; }
+  html[data-theme] body.cinema-app .campaign-config-preview { position: static; }
+  html[data-theme] body.cinema-app .campaign-highlights { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:700px) {
+  html[data-theme] body.cinema-app .page-shell.compact-shell:not(.is-home) { width: 100%; padding-inline: 22px; padding-bottom: calc(95px + env(safe-area-inset-bottom)); }
+  html[data-theme] body.cinema-app .mobile-nav { left: 0; right: 0; bottom: 0; width: 100%; border: 0; border-top: 1px solid var(--ae-line); border-radius: 0; padding: 5px 12px calc(5px + env(safe-area-inset-bottom)); background: var(--ae-bar); box-shadow: none; }
+  html[data-theme] body.cinema-app .mobile-nav > a { min-height: 51px; gap: 4px; border-radius: 0; color: var(--ae-muted); font-size: 11px; }
+  html[data-theme] body.cinema-app .mobile-nav > a.active { background: transparent; color: var(--ae-accent); }
+  html[data-theme] body.cinema-app .mobile-nav svg { width: 19px; height: 19px; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact > .me-home-hero { width: calc(100% - 44px); padding-block: 36px 30px; text-align: left; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-display { font-size: 34px; line-height: 1.25; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-lead { margin: 17px 0 0; font-size: 16px; line-height: 1.7; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact > .me-home-products { width: calc(100% - 44px); padding-bottom: 26px; }
+  html[data-theme] body.cinema-app .me-home-compact .me-product-grid { gap: 20px; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-card.home-choice { display: grid; grid-template-columns: 1.2fr 1fr; gap: 0; min-height: 230px; height: auto; border-radius: 20px; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-card-image { order: 2; height: 100%; min-height: 230px; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-card-image img { object-position: 56% center; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-card-image .me-image-label { right: 8px; top: auto; bottom: 8px; max-width: calc(100% - 16px); padding: 3px 5px; font-size: 10px; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-copy { justify-content: center; align-items: flex-start; padding: 20px 16px; text-align: left; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-copy h2 { font-size: 24px; line-height: 1.35; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-copy .me-product-kind { font-size: 14px; line-height: 1.7; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-copy .me-link { min-height: 44px; font-size: 13px; gap: 5px; }
+  html[data-theme] body.cinema-app .mobile-editorial-home .me-product-copy .me-link svg { width: 17px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product.px-product .me-product-hero.px-product-hero { gap: 24px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product.px-product .px-product-hero .editorial-heading { text-align: left; padding: 8px 0 0; }
+  html[data-theme] body.cinema-app .mobile-editorial-product.px-product .px-product-hero .editorial-heading h1 { font-size: 38px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product.px-product .px-product-hero .editorial-heading .definition { margin-top: 18px; font-size: 18px; line-height: 1.7; }
+  html[data-theme] body.cinema-app .px-hero-actions { justify-content: flex-start; margin-top: 22px; gap: 5px; }
+  html[data-theme] body.cinema-app .px-hero-actions .button { padding-inline: 17px; font-size: 14px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product.px-product .px-hero-note { margin: 12px 0 0; }
+  html[data-theme] body.cinema-app .px-product-hero .editorial-hero-image { height: 220px; border-radius: 18px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .editorial-index { gap: 2px; margin-top: 20px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .editorial-index > button { min-height: 50px; padding: 11px 1px; font-size: 12px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .editorial-index > button:is(.active,[aria-current="location"])::after { left: 6px; right: 6px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product > section,
+  html[data-theme] body.cinema-app .mobile-editorial-plan .me-plan-section,
+  html[data-theme] body.cinema-app .campaign-plan > section { margin-top: 58px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .me-section-heading { margin-bottom: 28px; }
+  html[data-theme] body.cinema-app :is(.mobile-editorial-product,.mobile-editorial-plan) .me-section-heading h2,
+  html[data-theme] body.cinema-app .mobile-editorial-plan .me-plan-section > h2,
+  html[data-theme] body.cinema-app .campaign-plan h2 { font-size: 29px; line-height: 1.32; }
+  html[data-theme] body.cinema-app .me-section-heading > p { font-size: 16px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .b2b-role-grid { grid-template-columns: minmax(0,1fr); gap: 22px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .b2b-role-grid article { padding-top: 19px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .b2b-role-grid h3 { font-size: 19px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .scenario-grid { gap: 38px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .scenario-card .me-scenario-title { font-size: 25px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .scenario-card-copy { padding-top: 19px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product .editorial-experience { gap: 25px; padding-top: 40px; }
+  html[data-theme] body.cinema-app .b2b-page-heading { margin-block: 8px 28px; }
+  html[data-theme] body.cinema-app .b2b-page-heading h1 { font-size: 36px; }
+  html[data-theme] body.cinema-app .b2b-page-heading p { font-size: 16px; }
+  html[data-theme] body.cinema-app .b2b-solution-grid { gap: 42px; }
+  html[data-theme] body.cinema-app .b2b-solution-copy h2 { font-size: 25px; }
+  html[data-theme] body.cinema-app .b2b-filter-row a { padding-inline: 14px; font-size: 13px; }
+  html[data-theme] body.cinema-app .me-plan-nav { gap: 0; margin-block: 24px 30px; }
+  html[data-theme] body.cinema-app .me-plan-nav button { min-height: 48px; padding-inline: 1px; font-size: 12px; }
+  html[data-theme] body.cinema-app .mobile-editorial-plan .me-plan-hero h1 { font-size: 35px; }
+  html[data-theme] body.cinema-app .mobile-editorial-plan .me-plan-lead { font-size: 17px; }
+  html[data-theme] body.cinema-app .campaign-plan .campaign-hero h1 { font-size: 39px; }
+  html[data-theme] body.cinema-app .campaign-plan .campaign-hero .me-plan-lead { margin-top: 20px; font-size: 25px; }
+  html[data-theme] body.cinema-app .campaign-hero-copy { margin-bottom: 24px; }
+  html[data-theme] body.cinema-app .campaign-city-visual { margin-top: 24px; border-radius: 18px; }
+  html[data-theme] body.cinema-app .campaign-city-visual img { height: 220px; }
+  html[data-theme] body.cinema-app .campaign-plan p { font-size: 16px; }
+  html[data-theme] body.cinema-app .campaign-plan .campaign-definition { grid-template-columns: minmax(0,1fr); gap: 18px; }
+  html[data-theme] body.cinema-app .campaign-highlights { gap: 25px 20px; }
+  html[data-theme] body.cinema-app .campaign-highlights h3 { font-size: 19px; }
+  html[data-theme] body.cinema-app .campaign-highlights p { font-size: 14px; }
+  html[data-theme] body.cinema-app .campaign-storyline { grid-template-columns: repeat(2,minmax(0,1fr)); row-gap: 28px; }
+  html[data-theme] body.cinema-app .campaign-storyline > li { padding-top: 20px; padding-right: 18px; }
+  html[data-theme] body.cinema-app .campaign-storyline h3 { font-size: 19px; }
+  html[data-theme] body.cinema-app .campaign-storyline p { font-size: 14px; }
+  html[data-theme] body.cinema-app .campaign-config { gap: 26px; }
+  html[data-theme] body.cinema-app .campaign-config-controls { gap: 26px; }
+  html[data-theme] body.cinema-app .campaign-config-controls legend { font-size: 18px; }
+  html[data-theme] body.cinema-app .campaign-output { padding: 24px 21px; border-radius: 20px; }
+  html[data-theme] body.cinema-app .campaign-journey ol { grid-template-columns: minmax(0,1fr); gap: 0; }
+  html[data-theme] body.cinema-app .campaign-journey li { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 14px; padding-block: 20px; }
+  html[data-theme] body.cinema-app .campaign-journey h3 { margin-top: 0; font-size: 19px; }
+  html[data-theme] body.cinema-app .campaign-journey p { margin-top: 7px; font-size: 15px; }
+  html[data-theme] body.cinema-app .campaign-delivery .bs-outcome-grid { grid-template-columns: minmax(0,1fr); gap: 30px; }
+  html[data-theme] body.cinema-app .campaign-delivery h3 { font-size: 25px; }
+  html[data-theme] body.cinema-app .campaign-plan .bs-actions > .button { flex: 0 1 auto; }
+  html[data-theme] body.cinema-app .ec-shell .ec-heading h1 { font-size: 29px; }
+  html[data-theme] body.cinema-app .ec-mode-tabs > button { min-height: 64px; }
+}
+@media (max-width:370px) {
+  html[data-theme] body.cinema-app .page-shell.compact-shell:not(.is-home) { padding-inline: 18px; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact > :is(.me-home-hero,.me-home-products) { width: calc(100% - 36px); }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-display { font-size: 30px; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-card.home-choice { grid-template-columns: 1.3fr 1fr; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-copy { padding: 17px 12px; }
+  html[data-theme] body.cinema-app .mobile-editorial-home.me-home-compact .me-product-copy h2 { font-size: 21px; }
+  html[data-theme] body.cinema-app .mobile-editorial-product.px-product .px-product-hero .editorial-heading h1 { font-size: 34px; }
+  html[data-theme] body.cinema-app .px-hero-actions .button { padding-inline: 14px; }
+  html[data-theme] body.cinema-app .campaign-plan .campaign-hero h1 { font-size: 34px; }
+  html[data-theme] body.cinema-app .campaign-highlights { grid-template-columns: minmax(0,1fr); }
+  html[data-theme] body.cinema-app .campaign-plan .bs-actions > .button { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] body.cinema-app :is(.scenario-card,.b2b-solution-card) img { transition: none; }
+}

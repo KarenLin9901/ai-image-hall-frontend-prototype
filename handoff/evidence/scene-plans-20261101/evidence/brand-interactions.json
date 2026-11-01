@@ -1,0 +1,47 @@
+[
+  {
+    "preview": "这组选择，将得到\n家庭相伴短片\n\n围绕家庭陪伴，连接城市生活、共同成长与更好的未来。\n\n深圳湾\n福田 CBD\n\n主题统一，个人故事与画面随选择变化。",
+    "selected": [
+      "家庭相伴"
+    ]
+  },
+  {
+    "preview": "这组选择，将得到\n创业逐梦短片\n\n围绕创业逐梦，呈现个人投入、城市机遇与继续向前的期待。\n\n深圳湾\n福田 CBD\n\n主题统一，个人故事与画面随选择变化。",
+    "selected": [
+      "创业逐梦"
+    ]
+  },
+  {
+    "preview": "这组选择，将得到\n职场成长短片\n\n围绕职业成长，串联在深圳的生活起点、奋斗与未来期待。\n\n深圳湾\n福田 CBD\n\n主题统一，个人故事与画面随选择变化。",
+    "selected": [
+      "职场成长"
+    ]
+  },
+  {
+    "minScene": "已选 1 项，还需选择 1 项。"
+  },
+  {
+    "maxScene": "已选 2 项，可再加入一个场景。",
+    "fourthDisabled": false
+  },
+  {
+    "personal": "这组选择，将得到\n职场成长短片\n\n围绕职业成长，串联在深圳的生活起点、奋斗与未来期待。\n\n福田 CBD\n前海\n\n休闲 · 温暖\n\n个人心声：留下自己的成长记忆\n\n主题统一，个人故事与画面随选择变化。"
+  },
+  {
+    "narrative": 4,
+    "overflow": false,
+    "planningOpen": true
+  },
+  {
+    "max": "已选 3 项，取消后可换选。",
+    "disabled": true
+  },
+  {
+    "choiceImages": [
+      "/ai-image-hall-frontend-prototype/images/guangdang-v2/person-1920.webp",
+      "/ai-image-hall-frontend-prototype/images/guangdang-v2/family-1920.webp",
+      "/ai-image-hall-frontend-prototype/images/guangdang-v2/enterprise-1920.webp"
+    ],
+    "distinctImages": 3
+  }
+]

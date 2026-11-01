@@ -1,0 +1,26 @@
+{
+  "assets": [
+    {
+      "path": "index.html",
+      "matches": true,
+      "sha256": "7d0884538615c8a831bfcbf58677608aac81bd4b0cdcb8c2c8fe1ca506c18c01"
+    },
+    {
+      "path": "favicon.png",
+      "matches": true,
+      "sha256": "afd059de0861cb2928e295aefaa29d4dd721eed1eb580593aa0a5c60fac64efc"
+    },
+    {
+      "path": "assets/index-BmhCTYWJ.js",
+      "matches": true,
+      "sha256": "4738f9991e910774ee93db949c8ea6dd476817fa68338cf498e5fa51989a3739"
+    },
+    {
+      "path": "assets/index-BqnR3kkL.css",
+      "matches": true,
+      "sha256": "9cc912607d79a0e9aaf60690bf42c9ac43857fabe20a97f9f4ae4ec2400ea5a4"
+    }
+  ],
+  "imageHeadCount": 82,
+  "imageFailures": []
+}

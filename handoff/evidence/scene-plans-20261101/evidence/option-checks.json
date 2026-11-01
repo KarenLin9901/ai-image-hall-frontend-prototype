@@ -1,0 +1,149 @@
+[
+  {
+    "id": "event",
+    "group": 0,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "event",
+    "group": 1,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "event",
+    "group": 2,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "team",
+    "group": 0,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "team",
+    "group": 1,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "team",
+    "group": 2,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "campus",
+    "group": 0,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "campus",
+    "group": 1,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "campus",
+    "group": 2,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "person",
+    "group": 0,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "person",
+    "group": 1,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "person",
+    "group": 2,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "family",
+    "group": 0,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "family",
+    "group": 1,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "family",
+    "group": 2,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "enterprise",
+    "group": 0,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "enterprise",
+    "group": 1,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "enterprise",
+    "group": 2,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "city",
+    "group": 0,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "city",
+    "group": 1,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  },
+  {
+    "id": "city",
+    "group": 2,
+    "meaningsDistinct": true,
+    "resultsDistinct": true,
+    "singleSelect": true
+  }
+]

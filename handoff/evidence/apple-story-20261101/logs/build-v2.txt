@@ -1,0 +1,9 @@
+vite v8.2.0 building client environment for production...
+[2Ktransforming...✓ 42 modules transformed.
+rendering chunks...
+computing gzip size...
+outputs/apple-story-20261101/build-final-v2/index.html                   1.29 kB │ gzip:   0.63 kB
+outputs/apple-story-20261101/build-final-v2/assets/index-BqnR3kkL.css  333.17 kB │ gzip:  55.10 kB
+outputs/apple-story-20261101/build-final-v2/assets/index-BmhCTYWJ.js   351.16 kB │ gzip: 105.25 kB
+
+✓ built in 106ms

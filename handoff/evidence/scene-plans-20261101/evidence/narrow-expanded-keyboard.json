@@ -1,0 +1,42 @@
+[
+  {
+    "allOpen": true,
+    "id": "brand",
+    "overflow": false
+  },
+  {
+    "allOpen": true,
+    "id": "event",
+    "overflow": false
+  },
+  {
+    "allOpen": true,
+    "id": "team",
+    "overflow": false
+  },
+  {
+    "allOpen": true,
+    "id": "campus",
+    "overflow": false
+  },
+  {
+    "allOpen": true,
+    "id": "person",
+    "overflow": false
+  },
+  {
+    "allOpen": true,
+    "id": "family",
+    "overflow": false
+  },
+  {
+    "allOpen": true,
+    "id": "enterprise",
+    "overflow": false
+  },
+  {
+    "allOpen": true,
+    "id": "city",
+    "overflow": false
+  }
+]

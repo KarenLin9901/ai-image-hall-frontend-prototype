@@ -1,0 +1,25 @@
+{
+  "changesAfterMatrix": [
+    "app/Guangdang.tsx"
+  ],
+  "checks": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "exact": true,
+      "sha256": "b4eec2afc2028fbec1cc4873c7b7e99e6879d7d9f90ee8508e079126de181131"
+    },
+    {
+      "path": "assets/index-BnlaOCos.js",
+      "status": 200,
+      "exact": true,
+      "sha256": "c7fb88cd5440b1d4e8f3aa521baa4a515bf20fb1775b01ac919e55bb69174624"
+    },
+    {
+      "path": "assets/index-Bc8FwjdH.css",
+      "status": 200,
+      "exact": true,
+      "sha256": "45e1efabc65d9a37563774e7a999e05bbbc0c4cdcfbb6aac6e4fcc37e4901db8"
+    }
+  ]
+}

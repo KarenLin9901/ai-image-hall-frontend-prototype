@@ -1,0 +1,1605 @@
+{
+  "date": "2026-11-01",
+  "build": "build-final-v2",
+  "method": "CUA browser UI and DOM-backed checks",
+  "layout": {
+    "pass": 96,
+    "total": 96,
+    "rows": [
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "让品牌被参与，让故事被看见。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/hall",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "AI影像馆",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/bespoke",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "高定AI影像",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/works",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "应用方案",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/category/brand",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "与深圳 共成长",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/category/event",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "我的活动高光时刻",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/category/team",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "退休员工纪念",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/category/person",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "一位人物的职业故事",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/experience-center?mode=template",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "选一套喜欢的模板",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/experience-center?mode=custom",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "这段情节，由你来写。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/cooperate",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "合作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "/cooperate?product=bespoke&source=product",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "高定创作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "让品牌被参与，让故事被看见。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/hall",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "AI影像馆",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/bespoke",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "高定AI影像",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/works",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "应用方案",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/category/brand",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "与深圳 共成长",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/category/event",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "我的活动高光时刻",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/category/team",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "退休员工纪念",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/category/person",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "一位人物的职业故事",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/experience-center?mode=template",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "选一套喜欢的模板",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/experience-center?mode=custom",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "这段情节，由你来写。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/cooperate",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "合作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "/cooperate?product=bespoke&source=product",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "高定创作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "让品牌被参与，让故事被看见。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/hall",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "AI影像馆",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/bespoke",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "高定AI影像",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/works",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "应用方案",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/category/brand",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "与深圳 共成长",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/category/event",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "我的活动高光时刻",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/category/team",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "退休员工纪念",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/category/person",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "一位人物的职业故事",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/experience-center?mode=template",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "选一套喜欢的模板",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/experience-center?mode=custom",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "这段情节，由你来写。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/cooperate",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "合作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "/cooperate?product=bespoke&source=product",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "高定创作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "让品牌被参与，让故事被看见。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/hall",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "AI影像馆",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/bespoke",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "高定AI影像",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/works",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "应用方案",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/category/brand",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "与深圳 共成长",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/category/event",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "我的活动高光时刻",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/category/team",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "退休员工纪念",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/category/person",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "一位人物的职业故事",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/experience-center?mode=template",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "选一套喜欢的模板",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/experience-center?mode=custom",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "这段情节，由你来写。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/cooperate",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "合作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "/cooperate?product=bespoke&source=product",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "高定创作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "让品牌被参与，让故事被看见。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/hall",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "AI影像馆",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/bespoke",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "高定AI影像",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/works",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "应用方案",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/category/brand",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "与深圳 共成长",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/category/event",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "我的活动高光时刻",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/category/team",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "退休员工纪念",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/category/person",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "一位人物的职业故事",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/experience-center?mode=template",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "选一套喜欢的模板",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/experience-center?mode=custom",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "这段情节，由你来写。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/cooperate",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "合作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "dark",
+        "route": "/cooperate?product=bespoke&source=product",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "高定创作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "让品牌被参与，让故事被看见。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/hall",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "AI影像馆",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/bespoke",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "高定AI影像",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/works",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "应用方案",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/category/brand",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "与深圳 共成长",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/category/event",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "我的活动高光时刻",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/category/team",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "退休员工纪念",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/category/person",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "一位人物的职业故事",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/experience-center?mode=template",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "选一套喜欢的模板",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/experience-center?mode=custom",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "这段情节，由你来写。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/cooperate",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "合作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 430,
+        "theme": "light",
+        "route": "/cooperate?product=bespoke&source=product",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "高定创作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "让品牌被参与，让故事被看见。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/hall",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "AI影像馆",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/bespoke",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "高定AI影像",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/works",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "应用方案",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/category/brand",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "与深圳 共成长",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/category/event",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "我的活动高光时刻",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/category/team",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "退休员工纪念",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/category/person",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "一位人物的职业故事",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/experience-center?mode=template",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "选一套喜欢的模板",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/experience-center?mode=custom",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "这段情节，由你来写。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/cooperate",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "合作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "/cooperate?product=bespoke&source=product",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "高定创作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "让品牌被参与，让故事被看见。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/hall",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "AI影像馆",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/bespoke",
+        "active": [
+          "首页"
+        ],
+        "failedImages": 0,
+        "h1": "高定AI影像",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/works",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "应用方案",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/category/brand",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "与深圳 共成长",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/category/event",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "我的活动高光时刻",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/category/team",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "退休员工纪念",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/category/person",
+        "active": [
+          "应用方案"
+        ],
+        "failedImages": 0,
+        "h1": "一位人物的职业故事",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/experience-center?mode=template",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "选一套喜欢的模板",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/experience-center?mode=custom",
+        "active": [
+          "能力体验"
+        ],
+        "failedImages": 0,
+        "h1": "这段情节，由你来写。",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/cooperate",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "合作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "/cooperate?product=bespoke&source=product",
+        "active": [
+          "合作咨询"
+        ],
+        "failedImages": 0,
+        "h1": "高定创作咨询",
+        "overflow": false,
+        "smallTargets": [],
+        "pass": true
+      }
+    ]
+  },
+  "flows": {
+    "pass": 24,
+    "total": 24,
+    "rows": [
+      {
+        "name": "品牌方案段落导航",
+        "pass": true,
+        "details": {
+          "focus": "brand-options",
+          "header": 69,
+          "top": 1102.2578125
+        }
+      },
+      {
+        "name": "品牌方案带入咨询（页面就绪后）",
+        "pass": true,
+        "details": "AI影像馆\n参考方案：我为品牌代言 · 与深圳 共成长"
+      },
+      {
+        "name": "咨询摘要与未发送状态",
+        "pass": true
+      },
+      {
+        "name": "段落锚点未被页头遮挡",
+        "pass": true,
+        "details": {
+          "focus": "brand-options",
+          "header": 69,
+          "top": 91.7578125
+        }
+      },
+      {
+        "name": "品牌方案进入通用能力演示",
+        "pass": true
+      },
+      {
+        "name": "模板选定到无照片确认",
+        "pass": true
+      },
+      {
+        "name": "自定义文字与深浅色切换保留",
+        "pass": true
+      },
+      {
+        "name": "两种玩法草稿独立",
+        "pass": true
+      },
+      {
+        "name": "照片未授权阻止继续",
+        "pass": true
+      },
+      {
+        "name": "授权后可继续",
+        "pass": true
+      },
+      {
+        "name": "错误文件保留原照片与授权",
+        "pass": true
+      },
+      {
+        "name": "体验切换玩法后返回品牌来源",
+        "pass": true
+      },
+      {
+        "name": "方案返回保留产品筛选",
+        "pass": true
+      },
+      {
+        "name": "正式作品空态不冒充案例",
+        "pass": true
+      },
+      {
+        "name": "合作入口先区分两产品",
+        "pass": true
+      },
+      {
+        "name": "高定咨询独立路线",
+        "pass": true
+      },
+      {
+        "name": "高定按需求报价",
+        "pass": true
+      },
+      {
+        "name": "自定义配置复制反馈（即时回查）",
+        "pass": true
+      },
+      {
+        "name": "刷新清除本机草稿",
+        "pass": true
+      },
+      {
+        "name": "不存在的旧配置安全返回首页",
+        "pass": true
+      },
+      {
+        "name": "旧主题详情使用自身内容",
+        "pass": true
+      },
+      {
+        "name": "旧主题咨询不误带工行方案",
+        "pass": true
+      },
+      {
+        "name": "方案列表返回恢复浏览位置",
+        "pass": true,
+        "details": {
+          "beforeScroll": 1604,
+          "afterScroll": 1604
+        }
+      },
+      {
+        "name": "空需求表单阻止生成摘要",
+        "pass": true,
+        "details": {
+          "dialog": 0,
+          "invalid": 2
+        }
+      }
+    ]
+  },
+  "compatibility": {
+    "pass": 20,
+    "total": 20,
+    "rows": [
+      {
+        "route": "/category/campus",
+        "missing": false,
+        "overflow": false,
+        "title": "我的毕业纪念影像",
+        "pass": true
+      },
+      {
+        "route": "/category/family",
+        "missing": false,
+        "overflow": false,
+        "title": "一段跨代的家庭记忆",
+        "pass": true
+      },
+      {
+        "route": "/category/enterprise",
+        "missing": false,
+        "overflow": false,
+        "title": "企业周年记忆影片",
+        "pass": true
+      },
+      {
+        "route": "/category/city",
+        "missing": false,
+        "overflow": false,
+        "title": "一条街区的城市记忆",
+        "pass": true
+      },
+      {
+        "route": "/samples/hall?preview=themes",
+        "missing": false,
+        "overflow": false,
+        "title": "模板样片",
+        "pass": true
+      },
+      {
+        "route": "/samples/bespoke",
+        "missing": false,
+        "overflow": false,
+        "title": "高定样片",
+        "pass": true
+      },
+      {
+        "route": "/theme/brand/0",
+        "missing": false,
+        "overflow": false,
+        "title": "来了就是深圳人",
+        "pass": true
+      },
+      {
+        "route": "/theme/brand/1",
+        "missing": false,
+        "overflow": false,
+        "title": "我为品牌代言",
+        "pass": true
+      },
+      {
+        "route": "/theme/team/0",
+        "missing": false,
+        "overflow": false,
+        "title": "我的职场成长影像",
+        "pass": true
+      },
+      {
+        "route": "/experience/brand/brand-0",
+        "missing": false,
+        "overflow": false,
+        "title": "来了就是深圳人",
+        "pass": true
+      },
+      {
+        "route": "/experience/brand/brand-1",
+        "missing": false,
+        "overflow": false,
+        "title": "我为品牌代言",
+        "pass": true
+      },
+      {
+        "route": "/experience/event/event-0",
+        "missing": false,
+        "overflow": false,
+        "title": "我的活动高光时刻",
+        "pass": true
+      },
+      {
+        "route": "/experience/event/event-1",
+        "missing": false,
+        "overflow": false,
+        "title": "专属节日影像",
+        "pass": true
+      },
+      {
+        "route": "/experience/team/team-0",
+        "missing": false,
+        "overflow": false,
+        "title": "我的职场成长影像",
+        "pass": true
+      },
+      {
+        "route": "/experience/team/team-1",
+        "missing": false,
+        "overflow": false,
+        "title": "我们团队的专属记忆",
+        "pass": true
+      },
+      {
+        "route": "/experience/campus/campus-0",
+        "missing": false,
+        "overflow": false,
+        "title": "我的毕业纪念影像",
+        "pass": true
+      },
+      {
+        "route": "/experience/campus/campus-1",
+        "missing": false,
+        "overflow": false,
+        "title": "我们的校园记忆",
+        "pass": true
+      },
+      {
+        "route": "/experience/campus/campus-2",
+        "missing": true,
+        "overflow": false,
+        "pass": true,
+        "kind": "invalid-route-probe",
+        "expectedMissing": true
+      },
+      {
+        "route": "/mine",
+        "missing": false,
+        "overflow": false,
+        "title": "我的",
+        "pass": true
+      },
+      {
+        "route": "/experience/brand/shenzhen-belike",
+        "missing": false,
+        "title": "我的深圳生活 belike",
+        "pass": true
+      }
+    ]
+  },
+  "legacyFix": {
+    "pass": 7,
+    "total": 7,
+    "rows": [
+      {
+        "route": "/theme/brand/1",
+        "failed": 0,
+        "groups": 3,
+        "h1": "我为品牌代言",
+        "overflow": false,
+        "pass": true
+      },
+      {
+        "route": "/theme/event/0",
+        "failed": 0,
+        "groups": 3,
+        "h1": "我的活动高光时刻",
+        "overflow": false,
+        "pass": true
+      },
+      {
+        "route": "/theme/event/1",
+        "failed": 0,
+        "groups": 3,
+        "h1": "专属节日影像",
+        "overflow": false,
+        "pass": true
+      },
+      {
+        "route": "/theme/team/0",
+        "failed": 0,
+        "groups": 3,
+        "h1": "我的职场成长影像",
+        "overflow": false,
+        "pass": true
+      },
+      {
+        "route": "/theme/team/1",
+        "failed": 0,
+        "groups": 3,
+        "h1": "我们团队的专属记忆",
+        "overflow": false,
+        "pass": true
+      },
+      {
+        "route": "/theme/campus/0",
+        "failed": 0,
+        "groups": 3,
+        "h1": "我的毕业纪念影像",
+        "overflow": false,
+        "pass": true
+      },
+      {
+        "route": "/theme/campus/1",
+        "failed": 0,
+        "groups": 3,
+        "h1": "我们的校园记忆",
+        "overflow": false,
+        "pass": true
+      }
+    ]
+  },
+  "initialReadinessProbes": [
+    {
+      "name": "品牌方案带入咨询",
+      "pass": false,
+      "note": "Snapshot sampled before route content was ready; rechecked visible inquiry context successfully."
+    },
+    {
+      "name": "自定义配置复制反馈",
+      "pass": false,
+      "note": "Toast sampled after timeout; immediate visible feedback rechecked successfully."
+    }
+  ],
+  "browserErrors": [],
+  "limits": [
+    "Eight migrated Playwright suites were syntax checked but not executed; actual browser checks used CUA.",
+    "No real generation, consultation delivery, payment or physical phone hardware tested."
+  ]
+}

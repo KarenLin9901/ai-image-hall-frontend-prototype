@@ -1,0 +1,86 @@
+
+> ai-image-hall-frontend-prototype@1.0.0 test:content
+> node --test tests/guangdang-content.test.mjs
+
+TAP version 13
+# Subtest: every current configuration has one stable content record with matching identity and image
+ok 1 - every current configuration has one stable content record with matching identity and image
+  ---
+  duration_ms: 0.606416
+  type: 'test'
+  ...
+# Subtest: all existing numeric theme aliases and default category routes retain their meaning
+ok 2 - all existing numeric theme aliases and default category routes retain their meaning
+  ---
+  duration_ms: 0.0855
+  type: 'test'
+  ...
+# Subtest: publication never implies authorization, and authorization never publishes a draft
+ok 3 - publication never implies authorization, and authorization never publishes a draft
+  ---
+  duration_ms: 0.335666
+  type: 'test'
+  ...
+# Subtest: local configuration and media placeholders do not silently enable services
+ok 4 - local configuration and media placeholders do not silently enable services
+  ---
+  duration_ms: 0.051125
+  type: 'test'
+  ...
+# Subtest: decoding errors recover and valid existing aliases remain supported
+ok 5 - decoding errors recover and valid existing aliases remain supported
+  ---
+  duration_ms: 0.179125
+  type: 'test'
+  ...
+# Subtest: eight editorial plans explain choices, process, outcome and value with their own title and image
+ok 6 - eight editorial plans explain choices, process, outcome and value with their own title and image
+  ---
+  duration_ms: 0.3965
+  type: 'test'
+  ...
+# Subtest: editorial previews match configured choices and preserve retirement and commissioning boundaries
+ok 7 - editorial previews match configured choices and preserve retirement and commissioning boundaries
+  ---
+  duration_ms: 0.268875
+  type: 'test'
+  ...
+# Subtest: both product introductions and all three benefits contain corresponding visual material
+ok 8 - both product introductions and all three benefits contain corresponding visual material
+  ---
+  duration_ms: 0.093917
+  type: 'test'
+  ...
+# Subtest: ICBC campaign is an independent proposal with poster-matched choices and no legacy template binding
+ok 9 - ICBC campaign is an independent proposal with poster-matched choices and no legacy template binding
+  ---
+  duration_ms: 3.398542
+  type: 'test'
+  ...
+# Subtest: global experience entry is independent of previously visited campaign
+ok 10 - global experience entry is independent of previously visited campaign
+  ---
+  duration_ms: 0.384375
+  type: 'test'
+  ...
+# Subtest: contextual experience return survives mode changes and preserves the solution filter
+ok 11 - contextual experience return survives mode changes and preserves the solution filter
+  ---
+  duration_ms: 0.331708
+  type: 'test'
+  ...
+# Subtest: experience return accepts only public catalogue context and discards arbitrary inputs
+ok 12 - experience return accepts only public catalogue context and discards arbitrary inputs
+  ---
+  duration_ms: 0.076583
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 113.707375
