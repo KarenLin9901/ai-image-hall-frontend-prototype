@@ -20,6 +20,8 @@ import "./app/b2b-refinement.css";
 import "./app/apple-editorial.css";
 import "./app/scenario-plans.css";
 import "./app/brand-mobile-story.css";
+import "./app/soft-ui.css";
+import "./app/soft-scenarios.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

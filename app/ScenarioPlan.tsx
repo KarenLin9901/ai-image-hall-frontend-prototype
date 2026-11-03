@@ -1,6 +1,5 @@
-import { useState, type ComponentType, type ReactNode } from 'react';
-import { PlanNavigation } from './BrandScenario';
-import { businessName, experiencePath } from './guangdang-data';
+import type { ComponentType, ReactNode } from 'react';
+import { businessName } from './guangdang-data';
 import { editorialPlans } from './mobile-editorial-data';
 import { experiencePathFor } from './experience-navigation';
 import { scenarioPlans } from './scenario-plans';
@@ -51,92 +50,50 @@ function FlowIcon({ name }: { name: FlowIconName }) {
   return <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
 }
 
-function PlanFigure({ visual, Image, className = '', eager = false }: { visual: PlanVisual; Image: PictureComponent; className?: string; eager?: boolean }) {
-  return <figure className={`sp-visual ${className}`}><div className="sp-visual-frame"><Image src={visual.src} alt={visual.alt} eager={eager}/></div><figcaption>{visual.caption}</figcaption></figure>;
+function PlanFigure({ visual, Image }: { visual: PlanVisual; Image: PictureComponent }) {
+  return <figure className="soft-plan-figure"><div><Image src={visual.src} alt={visual.alt}/></div><figcaption>{visual.caption}</figcaption></figure>;
 }
 
-function jumpTo(id: string) {
-  const target = document.getElementById(id);
-  target?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches || document.body.classList.contains('motion-paused') ? 'instant' : 'smooth' });
-  target?.focus({ preventScroll: true });
-}
-
-function PlanChoices({ detail, Image }: { detail: ScenarioDetail; Image: PictureComponent }) {
-  const [selected, setSelected] = useState<Record<string, string>>(() => Object.fromEntries(detail.choices.map(group => [group.id, group.options[0].id])));
-  const selection = detail.choices.map(group => ({ group, option: group.options.find(option => option.id === selected[group.id]) || group.options[0] }));
-  const summaryId = detail.id + '-combination';
-  return <div className="sp-config" data-testid="scenario-configurator">
-    <div className="sp-config-controls">
-      {selection.map(({ group, option }, index) => <fieldset className="sp-choice-group" key={group.id} data-testid={'scenario-group-' + group.id}>
-        <legend><span className="sp-number">0{index + 1}</span>{group.title}<span className="sp-choice-rule">选 1 项</span></legend>
-        <div className="sp-options" role="group" aria-label={group.title} aria-describedby={`${detail.id}-${group.id}-meaning`}>
-          {group.options.map(item => <button type="button" key={item.id} data-testid={`scenario-option-${group.id}-${item.id}`} aria-pressed={option.id === item.id} onClick={() => setSelected(current => ({ ...current, [group.id]: item.id }))}>{item.label}<span className="sp-option-check" aria-hidden="true">{option.id === item.id ? '✓' : ''}</span></button>)}
-        </div>
-        <p className="sp-choice-meaning" id={`${detail.id}-${group.id}-meaning`} aria-live="polite">{option.meaning}</p>
-      </fieldset>)}
-      <button className="sp-summary-jump" type="button" onClick={() => jumpTo(summaryId)}>看看这一组选择会得到什么 <span aria-hidden="true">↓</span></button>
+function FullPlan({ detail, Image }: { detail: ScenarioDetail; Image: PictureComponent }) {
+  const hall = detail.business === 'hall';
+  return <details className="soft-plan-details" data-testid="scenario-planning-details">
+    <summary><span>查看完整策划<small>内容方向、实施步骤与合作准备</small></span><span className="soft-plan-plus" aria-hidden="true">＋</span></summary>
+    <div className="soft-plan-detail-body">
+      <section><h3>适用对象与场合</h3><dl className="soft-plan-facts"><div><dt>谁来发起</dt><dd>{detail.organizer}</dd></div><div><dt>{hall ? '谁来参与' : '谁参与创作'}</dt><dd>{detail.participants}</dd></div><div><dt>用在哪里</dt><dd>{detail.setting}</dd></div></dl></section>
+      <section><h3>方案亮点</h3><div className="soft-plan-text-grid">{detail.highlights.map(item => <div key={item.title}><h4>{item.title}</h4><p>{item.description}</p></div>)}</div></section>
+      <section><h3>{hall ? '共同主题，个人表达' : '确认方向，共同创作'}</h3><p>{detail.mechanic.description}</p><div className="soft-plan-text-grid"><div><h4>{hall ? '项目方先确定' : '委托方先确认'}</h4><ul>{detail.mechanic.fixed.map(item => <li key={item}>{item}</li>)}</ul></div><div><h4>{hall ? '个人可以表达' : '参与者与团队协同'}</h4><ul>{detail.mechanic.personal.map(item => <li key={item}>{item}</li>)}</ul></div></div></section>
+      <section><h3>内容如何展开</h3><ol className="soft-plan-story">{detail.narrative.map((item, index) => <li key={item.title}><span>{String(index + 1).padStart(2, '0')}</span><div><h4>{item.title}</h4><p>{item.description}</p></div></li>)}</ol></section>
+      <section><h3>{hall ? '活动可设计哪些选择' : '可以讨论的创作方向'}</h3><p>以下用于说明方案，具体内容按项目确认。</p><div className="soft-plan-choice-reference">{detail.choices.map(group => <div key={group.id}><h4>{group.title}</h4><p>{group.meaning}</p><dl>{group.options.map(option => <div key={option.id}><dt>{option.label}</dt><dd>{option.meaning}<br/>{option.result}</dd></div>)}</dl></div>)}</div><PlanFigure visual={detail.visuals.detail} Image={Image}/></section>
+      <section><h3>{hall ? '参与者怎样完成体验' : '从委托到交付'}</h3><ol className="soft-plan-story">{detail.journey.map((item, index) => <li key={item.title}><span>{String(index + 1).padStart(2, '0')}</span><div><h4>{item.title}</h4><p>{item.description}</p></div></li>)}</ol></section>
+      <section><h3>成果包含什么</h3><div className="soft-plan-text-grid">{detail.outputs.map(output => <div key={output.recipient}><h4>{output.recipient} · {output.title}</h4><ul>{output.items.map(item => <li key={item}>{item}</li>)}</ul></div>)}</div><PlanFigure visual={detail.visuals.outcome} Image={Image}/></section>
+      <section><h3>成果范围与待确认事项</h3><p>{detail.scope.core}</p><div className="soft-plan-text-grid"><div><h4>按需讨论，不默认包含</h4><ul>{detail.scope.optional.map(item => <li key={item}>{item}</li>)}</ul></div><div><h4>项目开始前确认</h4><ul>{detail.scope.pending.map(item => <li key={item}>{item}</li>)}</ul></div></div></section>
+      <section><h3>合作前准备</h3><ul>{detail.preparation.map(item => <li key={item}>{item}</li>)}</ul></section>
     </div>
-    <aside className="sp-combination" id={summaryId} tabIndex={-1} aria-label="当前方案组合示意" data-testid="scenario-combination">
-      <PlanFigure visual={detail.visuals.detail} Image={Image} className="sp-combination-visual"/>
-      <div className="sp-combination-copy"><p className="sp-eyebrow">当前组合 · 内容示意</p><h3>{detail.business === 'hall' ? '你的选择，怎样进入影像。' : '这些选择，怎样影响创作。'}</h3>
-        <ol className="sp-selection-results" data-testid="scenario-selection-results">{selection.map(({ group, option }) => <li key={group.id}><strong>{option.label}</strong><p>{option.result}</p></li>)}</ol>
-        <p className="sp-local-note">{detail.business === 'hall' ? '此处仅说明方案组合，不生成影片，也不改动体验草稿。' : '此处仅预览创作方向；正式内容由团队结合资料确认。'}</p>
-      </div>
-    </aside>
-  </div>;
+  </details>;
 }
 
 function ScenarioPage({ detail, Image, inquiryTo, experienceTo, relatedContent }: Omit<Props, 'categoryId'> & { detail: ScenarioDetail }) {
   const plan = editorialPlans[detail.id];
   const hall = detail.business === 'hall';
-  const flow = scenarioFlow[detail.id];
-  const ids = { audience: detail.id + '-audience', options: detail.id + '-options', outcome: detail.id + '-outcome', cooperate: detail.id + '-cooperate' };
-  return <article className="application-detail mobile-editorial-plan sp-plan" data-plan={detail.id} data-business={detail.business}>
-    <header className="sp-hero">
-      <p className="sp-eyebrow">{businessName(detail.business)} / 方案示例</p><h1>{plan.title}</h1><p className="sp-lead">{detail.lead}</p>
-      <PlanFigure visual={detail.visuals.hero} Image={Image} className="sp-hero-visual" eager/>
+  return <article className="soft-plan" data-plan={detail.id} data-business={detail.business}>
+    <header className="soft-plan-hero">
+      <div className="soft-plan-hero-image"><Image src={detail.visuals.hero.src} alt={detail.visuals.hero.alt} eager/></div>
+      <span className="soft-plan-status">方案示例</span>
+      <div className="soft-plan-hero-copy"><p>{businessName(detail.business)}</p><h1>{plan.title}</h1><p className="soft-plan-lead">{detail.lead}</p><a className="ux-plan-action" href={'#'+inquiryTo}>整理这类项目需求<span aria-hidden="true">↗</span></a></div>
     </header>
-    <PlanNavigation items={[{ id: ids.audience, title: '策划思路' }, { id: ids.options, title: hall ? '用户选择' : '创作选择' }, { id: ids.outcome, title: '成果价值' }, { id: ids.cooperate, title: '如何合作' }]}/>
-
-    <section id={ids.audience} className="sp-section sp-overview" tabIndex={-1}>
-      <p className="sp-eyebrow">01 / 策划思路</p><h2>{detail.mechanic.title}</h2><p className="sp-section-intro">{detail.objective}</p>
-      <div className="sp-mechanic" aria-label={flow.map(node => node.label).join('，然后')}>
-        <ol className="sp-flow" data-testid="scenario-flow">{flow.map(node => <li key={node.label}><span className="sp-flow-icon"><FlowIcon name={node.icon}/></span><strong>{node.label}</strong><small>{node.actor}</small></li>)}</ol>
-        <ul className="sp-context-tags" aria-label="适用对象与场合">{scenarioTags[detail.id].map(tag => <li key={tag}>{tag}</li>)}</ul>
-      </div>
-      <details className="sp-fold sp-planning-details" data-testid="scenario-planning-details"><summary>展开完整策划<span className="sp-fold-hint">亮点 · 内容结构 · 实施步骤</span><span className="sp-plus" aria-hidden="true">＋</span></summary>
-        <div className="sp-fold-body">
-          <p className="sp-mechanic-explainer">{detail.mechanic.description}</p>
-          <section className="sp-detail-block"><h3>适用对象与场合</h3><dl className="sp-project-facts"><div><dt>谁来发起</dt><dd>{detail.organizer}</dd></div><div><dt>{hall ? '谁来参与' : '谁参与创作'}</dt><dd>{detail.participants}</dd></div><div><dt>用在哪里</dt><dd>{detail.setting}</dd></div></dl></section>
-          <section className="sp-detail-block"><h3>这套方案的亮点</h3><div className="sp-highlights">{detail.highlights.map(item => <article key={item.title}><h4>{item.title}</h4><p>{item.description}</p></article>)}</div></section>
-          <section className="sp-detail-block"><h3>{hall ? '哪些统一，哪些由个人表达' : '哪些先确定，哪些共同创作'}</h3><div className="sp-boundaries"><div><h4>{hall ? '项目方先确定' : '委托方先确认'}</h4><ul>{detail.mechanic.fixed.map(item => <li key={item}>{item}</li>)}</ul></div><div><h4>{hall ? '个人可以表达' : '参与者与团队协同'}</h4><ul>{detail.mechanic.personal.map(item => <li key={item}>{item}</li>)}</ul></div></div></section>
-          <section className="sp-detail-block"><h3>内容如何展开</h3><ol className="sp-narrative" aria-label="方案内容结构">{detail.narrative.map((item, index) => <li key={item.title}><span className="sp-number">0{index + 1}</span><div><h4>{item.title}</h4><p>{item.description}</p></div></li>)}</ol></section>
-          <section className="sp-detail-block"><h3>{hall ? '参与者怎样完成体验' : '从委托到交付，怎样推进'}</h3><ol className="sp-journey" aria-label={hall ? '方案参与流程' : '方案创作流程'}>{detail.journey.map((item, index) => <li key={item.title}><span className="sp-number">0{index + 1}</span><div><h4>{item.title}</h4><p>{item.description}</p></div></li>)}</ol></section>
-        </div>
-      </details>
-    </section>
-
-    <section id={ids.options} className="sp-section sp-choice-section" tabIndex={-1}>
-      <p className="sp-eyebrow">02 / {hall ? '用户选择' : '创作选择'}</p><h2>{hall ? '换个选择，看懂不同的成果。' : '换个侧重，看清创作方向。'}</h2>
-      {plan.planned ? <p className="sp-planned-note">退休主题为策划示例，专属体验设置尚未开放。</p> : null}
-      <PlanChoices detail={detail} Image={Image}/>
-    </section>
-
-    <section id={ids.outcome} className="sp-section sp-outcome" tabIndex={-1}>
-      <p className="sp-eyebrow">03 / 成果与价值</p><h2>{hall ? <><span>参与者带走纪念，</span><span>项目方留下内容。</span></> : <><span>故事被看见，</span><span>成果有明确用途。</span></>}</h2>
-      <PlanFigure visual={detail.visuals.outcome} Image={Image} className="sp-outcome-visual"/>
-      <div className="sp-output-grid">{detail.outputs.map((output, index) => <article key={output.recipient} data-testid={index === 0 ? 'scenario-user-outcome' : 'scenario-business-outcome'}><span className="sp-recipient">{output.recipient}</span><h3>{output.title}</h3><details className="sp-delivery-details" data-testid={index === 0 ? 'scenario-user-items' : 'scenario-business-items'}><summary aria-label={output.recipient + '：包含什么'}>包含什么<span aria-hidden="true">＋</span></summary><ul>{output.items.map(item => <li key={item}>{item}</li>)}</ul></details><p className="sp-output-value"><strong>{index === 0 ? '为什么值得留下' : '对项目方的价值'}</strong>{output.value}</p></article>)}</div>
-    </section>
-
-    <section id={ids.cooperate} className="sp-section sp-cooperate" tabIndex={-1}>
-      <p className="sp-eyebrow">04 / 如何合作</p><h2>把方案，落到你的具体需求。</h2>
-      <details className="sp-fold sp-scope-details"><summary>成果范围与待确认事项<span className="sp-plus" aria-hidden="true">＋</span></summary><div className="sp-fold-body sp-boundaries"><p className="sp-scope-core"><span>核心成果</span>{detail.scope.core}</p><div><h3>按需讨论，不默认包含</h3><ul>{detail.scope.optional.map(item => <li key={item}>{item}</li>)}</ul></div><div><h3>项目开始前确认</h3><ul>{detail.scope.pending.map(item => <li key={item}>{item}</li>)}</ul></div></div></details>
-      <details className="sp-fold sp-preparation"><summary>准备哪些资料<span className="sp-plus" aria-hidden="true">＋</span></summary><div className="sp-fold-body"><p>{hall ? '先确认活动对象、参与方式和期望成果，再确定配置、制作与交付。' : '先提供故事线索与使用需求，团队沟通后确认范围与报价。'}</p><ul>{detail.preparation.map(item => <li key={item}>{item}</li>)}</ul></div></details>
-      <div className="application-actions me-plan-actions sp-actions"><a className="button scene-cta" href={'#' + inquiryTo}>{hall ? '咨询同类项目' : '咨询定制'}<span aria-hidden="true">→</span></a>{hall && !plan.planned ? <a className="button secondary" data-testid="plan-experience-link" href={experienceTo || '#' + experiencePathFor('template', '/category/' + detail.id)}>查看通用玩法演示<span aria-hidden="true">→</span></a> : <a className="button secondary" href={`#/samples/${detail.business}?category=${detail.id}`}>{hall ? '查看样片状态' : '查看样品状态'}</a>}</div>
-      <p className="sp-local-note">{hall ? '本页为方案示例，真实活动生成与领取需按项目接入。' : '高定按需求报价，由团队创作；正式样品待上架。'}咨询当前仅在本机整理、复制，尚未发送。</p>
-      {hall && plan.themeId ? <details className="sp-fold sp-legacy-fold"><summary>早期主题配置参考<span className="sp-plus" aria-hidden="true">＋</span></summary><div className="sp-fold-body"><p>保留原有设定供参考，与上方方案图解及通用玩法演示分开。</p><a className="text-link" href={'#' + experiencePath(detail.id, plan.themeId)}>查看原有配置预览 →</a><a className="text-link" href={`#/samples/${detail.business}?category=${detail.id}`}>查看样片状态 →</a></div></details> : null}
-    </section>
-    {relatedContent}
+    <div className="soft-plan-panel">
+      <section className="soft-plan-overview" aria-labelledby={detail.id + '-idea'}>
+        <p className="soft-plan-eyebrow">{hall ? '活动怎样发生' : '故事怎样展开'}</p><h2 id={detail.id + '-idea'}>{detail.mechanic.title}</h2><p className="soft-plan-intro">{detail.objective}</p>
+        <ol className="soft-plan-flow" data-testid="scenario-flow" aria-label="方案流程">{scenarioFlow[detail.id].map(node => <li key={node.label}><FlowIcon name={node.icon}/><strong>{node.label}</strong><span>{node.actor}</span></li>)}</ol>
+        <p className="soft-plan-audience">{scenarioTags[detail.id].join(' · ')}</p>
+      </section>
+      <section className="soft-plan-outcomes" aria-label="方案成果">
+        {detail.outputs.map((output, index) => <div key={output.recipient} data-testid={index === 0 ? 'scenario-user-outcome' : 'scenario-business-outcome'}><span className="soft-plan-eyebrow">{output.recipient}</span><h3>{output.title}</h3><p>{output.value}</p></div>)}
+      </section>
+      <FullPlan detail={detail} Image={Image}/>
+      <section className="soft-plan-cooperate"><p className="soft-plan-eyebrow">让方案成为你的项目</p><h2>{hall ? '从你的活动出发。' : '从你的故事出发。'}</h2><p>{hall ? '一起确认参与方式与成果。' : '团队了解资料与用途后，确认方案和报价。'}</p><div className="soft-plan-actions"><a className="soft-plan-button" href={'#' + inquiryTo}>整理这类项目需求<span aria-hidden="true">↗</span></a>{hall ? <a className="soft-plan-link" data-testid="plan-experience-link" href={experienceTo || '#' + experiencePathFor('template', '/category/' + detail.id)}>体验通用玩法<span aria-hidden="true">→</span></a> : null}</div><p className="soft-plan-note">{plan.planned ? '退休主题为策划示例，专属体验设置尚未开放。' : '方案与配图仅供参考，不代表已交付案例。'}{hall ? '活动生成与领取按项目接入。' : '高定由团队创作、按需求报价。'}当前需求仅在本机整理与复制，尚未发送。</p></section>
+      {relatedContent ? <div className="soft-plan-related">{relatedContent}</div> : null}
+    </div>
   </article>;
 }
 

@@ -1,36 +1,38 @@
 # 咣当 AI影像｜前后端开发交接入口
 
-发布版本：`scene-plans-20261101`。用户已授权发布到原仓库，GitHub Pages沿用`main`分支的`/docs`；[线上入口](https://karenlin9901.github.io/ai-image-hall-frontend-prototype/?version=scene-plans-20261101#/)，提交与线上验证见[发布回执](release-scene-plans-20261101.md)。本地实现与本轮已执行工程验证完成，用户验收待确认；旧回执不转为本轮结果。
+当前改版：`clear-flow-20261103`。用户已授权同步当前代码到原仓库；GitHub Pages沿用`main`分支的`/docs`。提交、构建、部署与线上核验状态以[本轮发布回执](release-clear-flow-20261103.md)为准，不以版本查询参数或历史回执代替验证。
 
-**面向B端介绍产品与应用方案，附带C端能力体验。** 首页、应用方案、能力体验、合作咨询四入口继续保留；AI影像馆组织主题互动，高定由团队承接委托创作。
+**面向B端介绍产品与应用方案，体验演示用于说明参与能力。** 首页首屏分为“做一场影像互动”和“定制一部影片”，直接进入对应方案列表。主导航为首页／应用方案／体验演示／合作需求，主线为“选需求 → 看方案 → 整理需求”。AI影像馆保留模板／自定义演示，高定由团队承接创作、按需求报价。
 
-- [10 完整场景策划与手机图解](10-mobile-scene-plans-20261101.md)：本轮优先，含八案玩法、双方所得、配图、渐进展开和数据边界。
-- [本轮验证回执](verification-scene-plans-20261101.md)：已记录本轮实际工程检查；资源与console证据收尾见回执，未填项目不视作通过。
-- [09 官网式UI与使用交互](09-apple-story-and-interactions-20261101.md)：保留来源、返回与原图规则；默认阅读密度由10覆盖。
-- [08 B端产品结构](08-b2b-product-structure-20261101.md)：产品定义、客户与页面职责基线。
-- [01 页面与路由](01-product-and-routes.md) · [02 前端交互与状态](02-frontend-behavior.md)
-- [03 后端接入边界](03-backend-integration.md) · [业务与接口缺口](../DEVELOPMENT_DECISIONS.md)
-- [04 验收与问题](04-acceptance-and-issues.md) · [05 素材与交付](05-assets-and-delivery.md) · [06 深浅色与UI](06-color-themes.md)
-- [07 双产品与两种玩法](07-product-experience-local-20261030.md)：体验功能基线，旧页面结构由后续版本覆盖。
-- [上一轮官网式回执](verification-apple-story-20261101.md) · [更早B端回执](verification-b2b-20261101.md) · [10月30日回执](verification-local-20261030.md)：仅作历史证据。
+- [11 清晰主线与统一体验](11-clear-flow-20261103.md)：当前结构优先，含双业务入口、只读方案、兼容与来源返回。
+- [01 页面与路由](01-product-and-routes.md)：现行路由、参数白名单、返回目标及九主题兼容契约。
+- [本轮发布回执](release-clear-flow-20261103.md)：实际提交、构建与验证状态。
+- [10 完整场景策划与手机图解](10-mobile-scene-plans-20261101.md)：八案策划依据；旧页内“选一选”与配置交互由11覆盖。
+- [08 B端产品结构](08-b2b-product-structure-20261101.md)：产品分工基线；[07 两种玩法](07-product-experience-local-20261030.md)：体验功能基线。
+- [02 前端交互与状态](02-frontend-behavior.md) · [03 后端接入边界](03-backend-integration.md) · [业务与接口缺口](../DEVELOPMENT_DECISIONS.md)：延续适用的功能边界，旧页面结构以01和11覆盖。
+- [04 验收与问题](04-acceptance-and-issues.md) · [05 素材与交付](05-assets-and-delivery.md) · [06 深浅色与UI](06-color-themes.md)：历史依据及未完成服务；当前默认明亮风格与布局以源码和11为准。
 
-## 开发顺序
+## 当前开发重点
 
-1. 先读10，按八案分别理解玩法、用户所得与B端用途；不能只替换通用文案的场景名称。
-2. 保留默认图解与短句，将完整亮点、结构、流程、范围和准备资料放在可展开内容中。
-3. 方案选择仅说明`meaning/result`，不绑定生成接口，也不自动写入体验草稿或咨询参数。
-4. 沿用09的合法来源、返回、显式段落与恢复规则，以及旧九主题、两玩法和照片保护。
-5. 对最终构建重新执行类型、内容、交互、移动布局与兼容检查；真实服务、真机、用户验收单列。
+1. 首屏两业务直接进入对应方案列表，产品说明作为补充入口。
+2. 八方案以大图、玩法与成果说明为主，完整策划按需展开；不再提供方案配置，不推广旧九主题和空样品页。
+3. 实际设定只在模板／自定义体验中心完成，三步骤始终可见，照片选填、生成未开放。
+4. 返回保留合法来源：列表合作回列表，方案合作回方案详情，体验合作回原模式与内存步骤。查询编码不得提前解码。
+5. 工程自检、线上部署、真实服务、真机和用户验收分别记录；未执行项目不计为通过。
 
 ## 本地启动与验证
 
 ```sh
 npm ci
-npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
+npm run dev -- --host 127.0.0.1 --port 4198 --strictPort
 npm run typecheck
 npm run test:content
 ```
 
-本轮本地预览：`http://127.0.0.1:4197/ai-image-hall-frontend-prototype/?version=scene-plans-20261101#/works`；输出目录`outputs/scene-plans-20261101/`。受测构建为`build-final`；本地资源一致性和console已记录在本地回执，公开部署另见发布回执，不能用版本参数替代资源检查。
+服务启动后，本地入口为`http://127.0.0.1:4198/ai-image-hall-frontend-prototype/?version=clear-flow-20261103#/`，当前截图与走查资料位于`outputs/clear-flow-20261103/`。`npm run build`生成`docs/`；执行与发布结果见本轮回执。
 
-本次生产构建使用`npm run build`生成`docs/`；`npm test`会再重建并执行多套浏览器／内容测试，实际执行记录以回执为准。真实上传、生成、领取、账户、支付、订单、正式样品和咨询接收未接入；高定按需求报价。旧回执和历史段继续保留，完成状态由本轮回执记录。
+旧版完整浏览器套件尚未整体迁移，不将其历史通过记录沿用为本轮结果。真实上传、生成、领取、账户、支付、订单、正式样品和咨询接收仍未接入；需求当前只在本机整理和复制。
+
+## 历史参考
+
+[scene-plans发布回执](release-scene-plans-20261101.md)、[scene-plans验证回执](verification-scene-plans-20261101.md)、[09 官网式交互](09-apple-story-and-interactions-20261101.md)、[官网式回执](verification-apple-story-20261101.md)、[B端回执](verification-b2b-20261101.md)和[10月30日回执](verification-local-20261030.md)仅记录各自版本，当前页面结构与来源规则以01、11和源码为准。

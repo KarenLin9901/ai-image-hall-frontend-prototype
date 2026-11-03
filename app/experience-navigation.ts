@@ -1,7 +1,12 @@
+function splitRoute(value: string): [string, string] {
+  const separator = value.indexOf('?');
+  return separator < 0 ? [value, ''] : [value.slice(0, separator), value.slice(separator + 1)];
+}
+
 /** Only public catalogue routes belong in a return address. Never carry form data. */
 export function normalizeExperienceReturn(value: string | null): string | undefined {
   if (!value) return undefined;
-  const [path, query = ''] = value.split('?');
+  const [path, query] = splitRoute(value);
   const params = new URLSearchParams(query);
   if (path === '/hall') {
     const section = params.get('section');
@@ -16,9 +21,11 @@ export function normalizeExperienceReturn(value: string | null): string | undefi
 }
 
 export function experienceReturnFor(route: string) {
-  const params = new URLSearchParams(route.split('?')[1] || '');
-  const to = normalizeExperienceReturn(params.get('returnTo')) || (params.get('source') === 'brand' ? '/category/brand' : '/hall');
-  return { to, label: to.startsWith('/hall') ? '返回AI影像馆' : '返回应用方案' };
+  const params = new URLSearchParams(splitRoute(route)[1]);
+  const context = normalizeExperienceReturn(params.get('returnTo')) || (params.get('source') === 'brand' ? '/category/brand' : undefined);
+  const to = context || '/works?product=hall';
+  const label = !context ? '查看活动方案' : to.startsWith('/category/') ? '返回方案详情' : to.startsWith('/hall') ? '返回AI影像馆' : to === '/works?product=hall' ? '返回活动方案' : '返回方案列表';
+  return { to, label };
 }
 
 export function experiencePathFor(mode: 'template' | 'custom', returnTo?: string) {
@@ -26,4 +33,15 @@ export function experiencePathFor(mode: 'template' | 'custom', returnTo?: string
   const target = normalizeExperienceReturn(returnTo || null);
   if (target) params.set('returnTo', target);
   return '/experience-center?' + params.toString();
+}
+
+/** Rebuild an experience return from known fields; never accept an arbitrary path. */
+export function normalizeExperienceRoute(value: string | null): string | undefined {
+  if (!value) return undefined;
+  const [path, query] = splitRoute(value);
+  if (path !== '/experience-center') return undefined;
+  const params = new URLSearchParams(query);
+  const mode = params.get('mode');
+  if (mode !== 'template' && mode !== 'custom') return undefined;
+  return experiencePathFor(mode, normalizeExperienceReturn(params.get('returnTo')));
 }

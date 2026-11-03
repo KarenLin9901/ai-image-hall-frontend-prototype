@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, readdir, symlink, rm } from 'node:fs/promises';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { tmpdir } from 'node:os';
 import { resolve, join } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
@@ -8,18 +10,18 @@ import { execFileSync } from 'node:child_process';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const temporary=await mkdtemp(join(tmpdir(),'guangdang-content-'));
-let data,guards,editorial,navigation,scenarios;
+let data,guards,editorial,navigation,scenarios,App;
 try {
-  execFileSync(process.execPath,[resolve(root,'node_modules/typescript/bin/tsc'),'app/guangdang-data.ts','app/guangdang-guards.ts','app/mobile-editorial-data.ts','app/experience-navigation.ts','app/scenario-plans.ts','--target','ES2022','--module','ESNext','--moduleResolution','Bundler','--types','vite/client','--skipLibCheck','--outDir',temporary],{cwd:root,stdio:'pipe'});
-  const compiled=(await readFile(join(temporary,'guangdang-data.js'),'utf8')).replaceAll('import.meta.env.BASE_URL',JSON.stringify('/ai-image-hall-frontend-prototype/')).replace("from './guangdang-guards'","from './guangdang-guards.mjs'");
-  await writeFile(join(temporary,'guangdang-data.mjs'),compiled);
-  await writeFile(join(temporary,'guangdang-guards.mjs'),await readFile(join(temporary,'guangdang-guards.js')));
-  await writeFile(join(temporary,'mobile-editorial-data.mjs'),(await readFile(join(temporary,'mobile-editorial-data.js'),'utf8')).replace("from './guangdang-data'","from './guangdang-data.mjs'"));
-  await writeFile(join(temporary,'experience-navigation.mjs'),await readFile(join(temporary,'experience-navigation.js')));
-  for(const name of ['scenario-plans','scenario-hall-plans','scenario-bespoke-plans']) {
-    const compiled=await readFile(join(temporary,name+'.js'),'utf8');
-    await writeFile(join(temporary,name+'.mjs'),compiled.replace(/from '(\.\/[^']+)'/g,"from '$1.mjs'"));
+  execFileSync(process.execPath,[resolve(root,'node_modules/typescript/bin/tsc'),'app/guangdang-data.ts','app/guangdang-guards.ts','app/mobile-editorial-data.ts','app/experience-navigation.ts','app/scenario-plans.ts','app/Guangdang.tsx','--jsx','react-jsx','--target','ES2022','--module','ESNext','--moduleResolution','Bundler','--types','vite/client','--skipLibCheck','--outDir',temporary],{cwd:root,stdio:'pipe'});
+  // Render the actual React pages without a browser to guard public entry points.
+  await symlink(resolve(root,'node_modules'),join(temporary,'node_modules'),'dir');
+  for(const name of (await readdir(temporary)).filter(name=>name.endsWith('.js'))) {
+    const compiled=(await readFile(join(temporary,name),'utf8'))
+      .replaceAll('import.meta.env.BASE_URL',JSON.stringify('/ai-image-hall-frontend-prototype/'))
+      .replace(/from '(\.\/[^']+)'/g,"from '$1.mjs'");
+    await writeFile(join(temporary,name.replace(/\.js$/,'.mjs')),compiled);
   }
+  App=(await import(pathToFileURL(join(temporary,'Guangdang.mjs')).href)).default;
   scenarios=(await import(pathToFileURL(join(temporary,'scenario-plans.mjs')).href)).scenarioPlans;
   navigation=await import(pathToFileURL(join(temporary,'experience-navigation.mjs')).href);
   editorial=await import(pathToFileURL(join(temporary,'mobile-editorial-data.mjs')).href);
@@ -161,7 +163,7 @@ test('ICBC campaign is an independent proposal with poster-matched choices and n
 
 
 test('global experience entry is independent of previously visited campaign',()=>{
-  assert.deepEqual(navigation.experienceReturnFor('/experience-center?mode=template'),{to:'/hall',label:'返回AI影像馆'});
+  assert.deepEqual(navigation.experienceReturnFor('/experience-center?mode=template'),{to:'/works?product=hall',label:'查看活动方案'});
   assert.equal(navigation.experiencePathFor('custom'),'/experience-center?mode=custom');
 });
 
@@ -169,7 +171,7 @@ test('contextual experience return survives mode changes and preserves the solut
   const source='/category/brand?from=solutions&filter=hall';
   const route=navigation.experiencePathFor('template',source);
   const destination=navigation.experienceReturnFor(route);
-  assert.equal(destination.to,source);
+  assert.deepEqual(destination,{to:source,label:'返回方案详情'});
   assert.equal(navigation.experienceReturnFor(navigation.experiencePathFor('custom',destination.to)).to,source);
   assert.equal(navigation.experienceReturnFor('/experience-center?source=brand').to,'/category/brand');
 });
@@ -234,4 +236,140 @@ test('expanded retirement and commissioned stories retain product and evidence b
   assert.match(JSON.stringify(scenarios.city),/核实|核验/);
   assert.match(JSON.stringify(scenarios.family),/公开|授权/);
   assert.equal(data.cases.length,0);assert.equal(data.publishedWorks.length,0);
+});
+
+
+function renderPublicPage(route) {
+  const previousWindow=Object.getOwnPropertyDescriptor(globalThis,'window');
+  const previousMatchMedia=Object.getOwnPropertyDescriptor(globalThis,'matchMedia');
+  try {
+    Object.defineProperty(globalThis,'window',{configurable:true,value:{location:{hash:'#'+route}}});
+    Object.defineProperty(globalThis,'matchMedia',{configurable:true,value:()=>({matches:false})});
+    const html=renderToStaticMarkup(createElement(App));
+    const main=html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/)?.[1];
+    assert.ok(main,route+' must render its main content');
+    const anchors=[...main.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map(([,attributes,body])=>({
+      href:attributes.match(/href="([^"]*)"/)?.[1].replaceAll('&amp;','&'),
+      text:body.replace(/<[^>]*>/g,''),
+    }));
+    return {main,anchors,hrefs:anchors.map(anchor=>anchor.href).filter(Boolean)};
+  } finally {
+    if(previousWindow)Object.defineProperty(globalThis,'window',previousWindow);else delete globalThis.window;
+    if(previousMatchMedia)Object.defineProperty(globalThis,'matchMedia',previousMatchMedia);else delete globalThis.matchMedia;
+  }
+}
+
+test('public proposals are read-only explanations with one contextual experience destination for hall products',()=>{
+  for(const category of data.categories) {
+    const route='/category/'+category.id+'?from=solutions&filter='+category.business;
+    const {main,hrefs}=renderPublicPage(route);
+    assert.doesNotMatch(main,/<(?:form|input|select|textarea)\b|aria-pressed=/,category.id+': configuration belongs in the experience center');
+    assert.match(main,/方案示例/,category.id+': proposed work must not appear as delivered work');
+    assert.ok(hrefs.some(href=>href.startsWith('#/cooperate?')&&new URLSearchParams(href.split('?')[1]).get('direction')===category.id),category.id+': cooperation retains the chosen direction');
+    const experiences=hrefs.filter(href=>href.startsWith('#/experience-center?'));
+    if(category.business==='hall') {
+      assert.equal(experiences.length,1,category.id+': one clear experience destination');
+      assert.equal(navigation.experienceReturnFor(experiences[0].slice(1)).to,route,category.id+': return preserves solution context');
+    } else assert.equal(experiences.length,0,category.id+': commissioned stories are not a self-service generator');
+  }
+});
+
+test('normal browsing exposes no legacy theme configuration or empty sample destinations',()=>{
+  const routes=['/','/hall','/bespoke','/works',...data.categories.map(category=>'/category/'+category.id),'/samples/hall?preview=themes','/samples/bespoke'];
+  for(const route of routes) {
+    const {hrefs}=renderPublicPage(route);
+    assert.ok(!hrefs.some(href=>/^#\/(?:experience|theme)(?:[/?]|$)/.test(href)),route+': old configuration stays outside normal browsing');
+    assert.ok(!hrefs.some(href=>/^#\/samples(?:[/?]|$)/.test(href)),route+': no empty sample pages are promoted');
+  }
+});
+
+
+test('experience-to-cooperation returns retain valid mode and catalogue context while rejecting arbitrary destinations',()=>{
+  const sources=['/works?product=hall','/category/brand?from=solutions&filter=hall','/hall?section=benefits'];
+  for(const mode of ['template','custom'])for(const source of sources) {
+    const route=navigation.experiencePathFor(mode,source);
+    assert.equal(navigation.normalizeExperienceRoute(route),route);
+    assert.equal(new URLSearchParams(navigation.normalizeExperienceRoute(route).split('?')[1]).get('mode'),mode);
+    assert.equal(navigation.experienceReturnFor(route).to,navigation.normalizeExperienceReturn(source));
+  }
+  for(const target of ['https://example.com','//example.com','/cooperate?mode=template','/experience-center/other?mode=template','/experience-center?mode=invalid','/experience-center','/experience-center?mode=custom#private']) {
+    assert.equal(navigation.normalizeExperienceRoute(target),undefined,target);
+  }
+  const unsafe='/experience-center?'+new URLSearchParams({mode:'custom',returnTo:'https://example.com/private',contact:'private'});
+  assert.equal(navigation.normalizeExperienceRoute(unsafe),'/experience-center?mode=custom');
+  const valid='/experience-center?'+new URLSearchParams({mode:'template',returnTo:'/category/brand?from=solutions&filter=hall&contact=private',contact:'private'});
+  assert.equal(navigation.normalizeExperienceRoute(valid),navigation.experiencePathFor('template','/category/brand?from=solutions&filter=hall'));
+});
+
+test('the homepage sends both service choices directly to their corresponding solution lists',()=>{
+  const {anchors}=renderPublicPage('/');
+  for(const [service,business] of [['AI影像馆','hall'],['高定AI影像','bespoke']]) {
+    const entry=anchors.filter(anchor=>anchor.text.includes(service));
+    assert.equal(entry.length,1,service+': one clear service choice');
+    assert.equal(entry[0].href,'#/works?product='+business,service+': go directly to suitable solutions');
+    const {hrefs}=renderPublicPage('/works?product='+business);
+    const destinations=hrefs.filter(href=>href.startsWith('#/category/'));
+    assert.equal(destinations.length,data.categories.filter(category=>category.business===business).length);
+    for(const href of destinations)assert.equal(data.categoryById.get(href.split('?')[0].split('/')[2]).business,business);
+  }
+});
+
+test('cooperation opened from a solution list retains its explicit business and a clear return label',()=>{
+  for(const [business,label] of [['hall','返回活动方案'],['bespoke','返回定制方案']]) {
+    const {main,anchors}=renderPublicPage('/cooperate?product='+business+'&source=solutions');
+    assert.equal(anchors.find(anchor=>anchor.text===label)?.href,'#/works?product='+business,business+': return points to the originating list');
+    assert.ok(main.includes(data.businessName(business)),business+': business context remains visible');
+    assert.doesNotMatch(main,/返回体验演示|参考方案：/,'a list must not invent an experience or a selected proposal');
+  }
+  for(const product of ['invalid','']) {
+    const {main}=renderPublicPage('/cooperate?product='+product+'&source=solutions&direction=brand');
+    assert.doesNotMatch(main,/返回活动方案|返回定制方案/,'a guessed business must not activate solutions source');
+  }
+});
+
+test('cooperation from an experience preserves its proposal only when it matches the validated experience context',()=>{
+  const returnTo='/category/brand?from=solutions&filter=hall';
+  for(const mode of ['template','custom']) {
+    const experienceReturn=navigation.experiencePathFor(mode,returnTo);
+    const route='/cooperate?'+new URLSearchParams({product:'hall',source:'experience',experienceReturn,direction:'brand',origin:'solutions',filter:'hall'});
+    assert.equal(guards.safeRoute(route),route,'route guard must preserve nested return encoding');
+    const {main,anchors}=renderPublicPage(guards.safeRoute(route));
+    assert.equal(anchors.find(anchor=>anchor.text==='返回体验演示')?.href,'#'+experienceReturn,'cooperation returns to the exact mode and proposal filter');
+    assert.ok(main.includes('参考方案：'+editorial.editorialPlans.brand.title));
+    assert.match(main,/尚未发送/,'return context must not imply a sent consultation');
+    const mismatched=renderPublicPage(route.replace('direction=brand','direction=event')).main;
+    assert.match(mismatched,/返回体验演示/);
+    assert.doesNotMatch(mismatched,/参考方案：/,'an unrelated direction must not inherit the experience proposal');
+  }
+  for(const invalid of ['/cooperate?contact=private','https://example.com','/experience-center?mode=invalid']) {
+    const {main}=renderPublicPage('/cooperate?'+new URLSearchParams({product:'hall',source:'experience',experienceReturn:invalid,direction:'brand'}));
+    assert.doesNotMatch(main,/返回体验演示|参考方案：/,'an invalid return must not create experience context');
+  }
+  const wrongBusiness=renderPublicPage('/cooperate?'+new URLSearchParams({product:'bespoke',source:'experience',experienceReturn:navigation.experiencePathFor('template',returnTo),direction:'person'})).main;
+  assert.doesNotMatch(wrongBusiness,/返回体验演示|参考方案：/,'self-service experience context cannot be assigned to bespoke work');
+  const direct=renderPublicPage('/cooperate?product=hall&source=application&direction=brand&origin=solutions&filter=hall').main;
+  assert.match(direct,/返回方案详情/);
+  assert.ok(direct.includes('参考方案：'+editorial.editorialPlans.brand.title));
+});
+
+
+test('route validation preserves nested query encoding and still rejects malformed escapes',()=>{
+  const experience=navigation.experiencePathFor('custom','/category/brand?from=solutions&filter=hall');
+  const route='/cooperate?'+new URLSearchParams({product:'hall',source:'experience',experienceReturn:experience});
+  assert.equal(guards.safeRoute(route),route);
+  assert.equal(guards.safeRoute(guards.safeRoute(route)),route,'repeated route handling must not decode another layer');
+  const nested=new URLSearchParams(guards.safeRoute(route).split('?')[1]).get('experienceReturn');
+  assert.equal(navigation.normalizeExperienceRoute(nested),experience);
+  assert.equal(navigation.experienceReturnFor(nested).to,'/category/brand?from=solutions&filter=hall');
+  for(const query of ['source=%','source=%GG','source=%E0%A4%A','source=%ED%A0%80']) {
+    assert.equal(guards.safeRoute('/hall?'+query),'/invalid-link',query+': invalid query escapes remain rejected');
+  }
+  assert.equal(guards.safeRoute('/category/%62rand?from=solutions&returnTo=%252Fhall'),'/category/brand?from=solutions&returnTo=%252Fhall','only the path is decoded');
+});
+
+test('product explanations return to the appropriate solution list instead of the homepage',()=>{
+  for(const [business,label] of [['hall','返回活动方案'],['bespoke','返回定制方案']]) {
+    const {anchors}=renderPublicPage('/'+business);
+    assert.equal(anchors.find(anchor=>anchor.text===label)?.href,'#/works?product='+business);
+  }
 });

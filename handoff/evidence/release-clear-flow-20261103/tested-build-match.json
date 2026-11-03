@@ -1,0 +1,20 @@
+[
+  {
+    "path": "docs/index.html",
+    "sha256": "7d16fa0da98c1b1a1f4c938f7c951b6abec1553624608beaedb30063e1acc749",
+    "tested_build_sha256": "7d16fa0da98c1b1a1f4c938f7c951b6abec1553624608beaedb30063e1acc749",
+    "matches": true
+  },
+  {
+    "path": "docs/assets/index-Cdvf0hYU.js",
+    "sha256": "cb5fa7441415abd165350ca0540763dc61ba2dbf4ec1ab4ab86bd1abf662f533",
+    "tested_build_sha256": "cb5fa7441415abd165350ca0540763dc61ba2dbf4ec1ab4ab86bd1abf662f533",
+    "matches": true
+  },
+  {
+    "path": "docs/assets/index-CtcRAMPA.css",
+    "sha256": "9a08bfb6905cc49993f87142119f412c543d0770565e98f5d5aa362181e63b49",
+    "tested_build_sha256": "9a08bfb6905cc49993f87142119f412c543d0770565e98f5d5aa362181e63b49",
+    "matches": true
+  }
+]

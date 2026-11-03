@@ -1,0 +1,118 @@
+/* Photo-led proposal pages. Keep the reading surface independent of legacy theme layers. */
+html[data-theme] body.cinema-app .soft-plan {
+  --soft-plan-bg: #f7f7f4;
+  --soft-plan-ink: #24252b;
+  --soft-plan-muted: #63636e;
+  --soft-plan-accent: #6555b6;
+  --soft-plan-line: #e6e4e9;
+  display: block;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0;
+  color: var(--soft-plan-ink);
+  text-align: left;
+}
+html[data-theme] body.cinema-app .soft-plan :is(h1,h2,h3,h4,p,figure,ol,ul,dl,dd) { margin: 0; }
+html[data-theme] body.cinema-app .soft-plan :is(h1,h2,h3,h4) { color: var(--soft-plan-ink); font-weight: 550; letter-spacing: -.035em; text-wrap: pretty; }
+html[data-theme] body.cinema-app .soft-plan p { color: var(--soft-plan-muted); font-size: 16px; line-height: 1.8; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-hero { position: relative; isolation: isolate; display: flex; align-items: flex-end; width: 100%; min-height: 390px; height: 62svh; max-height: 720px; padding: 0; overflow: hidden; border-radius: 32px 32px 0 0; background: #777675; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-image { position: absolute; inset: 0; z-index: -2; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-image img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-image .image-fallback { height: 100%; min-height: 0; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg,rgba(23,24,31,.06) 18%,rgba(23,24,31,.12) 38%,rgba(23,24,31,.82) 100%); pointer-events: none; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-status { position: absolute; top: 24px; left: 28px; padding: 8px 13px; border: 1px solid #ffffff5c; border-radius: 99px; background: #28283280; color: #fff; font-size: 12px; line-height: 1.3; backdrop-filter: blur(14px); }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-copy { width: 100%; max-width: 850px; padding: 60px 56px 78px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-copy > p { color: #f8f7ff; font-size: 14px; line-height: 1.6; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-copy h1 { margin: 14px 0 16px; color: #fff; font-size: clamp(34px,5.2vw,64px); line-height: 1.18; text-shadow: 0 2px 22px #00000030; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-copy .soft-plan-lead { max-width: 42ch; font-size: clamp(16px,1.8vw,20px); color: #f5f3fa; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-panel { position: relative; z-index: 1; margin-top: -32px; padding: 56px 56px 42px; border-radius: 32px; background: var(--soft-plan-bg); box-shadow: 0 12px 40px #37324305; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-eyebrow { color: var(--soft-plan-accent); font-size: 12px; line-height: 1.5; letter-spacing: .04em; }
+html[data-theme] body.cinema-app .soft-plan h2 { margin-top: 14px; font-size: clamp(27px,3.2vw,40px); line-height: 1.35; }
+html[data-theme] body.cinema-app .soft-plan h3 { font-size: 23px; line-height: 1.45; }
+html[data-theme] body.cinema-app .soft-plan h4 { font-size: 16px; line-height: 1.55; letter-spacing: -.01em; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-intro { max-width: 44em; margin-top: 16px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-flow { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px; list-style: none; padding: 0; margin: 36px 0 24px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-flow li { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 7px; padding: 0; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-flow :is(svg,b) { width: 28px; height: 28px; margin-bottom: 5px; color: var(--soft-plan-accent); font-size: 20px; font-weight: 400; line-height: 28px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-flow strong { color: var(--soft-plan-ink); font-size: 16px; line-height: 1.5; font-weight: 550; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-flow li > span { color: var(--soft-plan-muted); font-size: 13px; line-height: 1.6; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-audience { color: var(--soft-plan-muted); font-size: 13px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-outcomes { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 36px; padding-top: 36px; margin-top: 36px; border-top: 1px solid var(--soft-plan-line); }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-outcomes h3 { margin-top: 10px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-outcomes p { margin-top: 10px; font-size: 15px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-details { margin: 38px 0 0; padding: 0; border: 0; border-block: 1px solid var(--soft-plan-line); border-radius: 0; background: transparent; box-shadow: none; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-details > summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 86px; padding: 20px 0; color: var(--soft-plan-ink); font-size: 17px; line-height: 1.5; font-weight: 500; cursor: pointer; list-style: none; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-details > summary::-webkit-details-marker { display: none; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-details > summary::after { content: none; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-details > summary small { display: block; margin-top: 5px; font-size: 12px; line-height: 1.6; font-weight: 400; color: var(--soft-plan-muted); }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-plus { flex: 0 0 auto; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: var(--soft-plan-accent); background: #eeebf7; font-size: 22px; font-weight: 400; transition: transform .2s ease; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-details[open] .soft-plan-plus { transform: rotate(45deg); }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-detail-body { padding: 12px 0 32px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-detail-body > section + section { margin-top: 38px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-detail-body h3 { margin-bottom: 16px; font-size: 21px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-detail-body :is(p,li,dd) { font-size: 15px; line-height: 1.85; color: var(--soft-plan-muted); }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-detail-body p + p { margin-top: 10px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-detail-body ul { margin-top: 10px; padding-left: 20px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-detail-body li + li { margin-top: 6px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-text-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 32px; margin-top: 20px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-text-grid p { margin-top: 6px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-facts { display: grid; gap: 14px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-facts > div { display: grid; grid-template-columns: 84px minmax(0,1fr); gap: 18px; }
+html[data-theme] body.cinema-app .soft-plan dt { font-size: 14px; line-height: 1.8; font-weight: 500; color: var(--soft-plan-ink); }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-story { display: grid; gap: 22px; list-style: none; padding: 0; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-story li { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 12px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-story li > span { font-size: 12px; color: var(--soft-plan-accent); }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-story p { margin-top: 5px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-choice-reference { margin-top: 20px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-choice-reference > div + div { margin-top: 26px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-choice-reference h4 + p { margin-top: 8px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-choice-reference dl { margin-top: 14px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-choice-reference dl > div + div { margin-top: 16px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-choice-reference dd { margin-top: 3px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-figure { margin-top: 24px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-figure > div { position: relative; height: 300px; overflow: hidden; border-radius: 24px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-figure img { display: block; width: 100%; height: 100%; object-fit: cover; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-figure figcaption { margin-top: 8px; color: var(--soft-plan-muted); font-size: 12px; line-height: 1.6; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-cooperate { margin-top: 42px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-cooperate > p:not(.soft-plan-eyebrow) { margin-top: 12px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; margin-top: 26px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-button { display: inline-flex; justify-content: center; align-items: center; gap: 26px; min-height: 52px; padding: 14px 24px; border: 0; border-radius: 99px; background: var(--soft-plan-accent); color: #fff; font-size: 15px; font-weight: 500; line-height: 1.5; text-decoration: none; box-shadow: none; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-link { display: inline-flex; align-items: center; gap: 12px; min-height: 48px; padding: 8px 0; color: var(--soft-plan-accent); font-size: 14px; line-height: 1.6; text-decoration: none; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-cooperate .soft-plan-note { max-width: 65ch; margin-top: 24px; color: var(--soft-plan-muted); font-size: 12px; line-height: 1.8; }
+html[data-theme] body.cinema-app .soft-plan :is(a,summary):focus-visible { outline: 3px solid var(--soft-plan-accent); outline-offset: 5px; }
+html[data-theme] body.cinema-app .soft-plan .soft-plan-related { margin-top: 36px; }
+@media (max-width: 720px) {
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-hero { min-height: 350px; height: 60svh; max-height: 600px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-status { top: 20px; left: 22px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-copy { padding: 52px 26px 68px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-copy h1 { font-size: clamp(30px,8.2vw,42px); }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-copy > p { font-size: 12px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-copy .soft-plan-lead { font-size: 15px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-panel { padding: 34px 24px 30px; }
+  html[data-theme] body.cinema-app .soft-plan h2 { font-size: 27px; }
+  html[data-theme] body.cinema-app .soft-plan p { font-size: 15px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-flow { gap: 12px; margin: 28px 0 22px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-flow strong { font-size: 13px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-flow li > span { font-size: 11px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-audience { font-size: 12px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-outcomes { grid-template-columns: 1fr; gap: 26px; margin-top: 28px; padding-top: 28px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-outcomes h3 { font-size: 23px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-details { margin-top: 30px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-text-grid { grid-template-columns: 1fr; gap: 22px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-facts > div { grid-template-columns: 70px minmax(0,1fr); gap: 12px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-figure > div { height: 220px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-cooperate { margin-top: 32px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-actions { flex-direction: column; align-items: stretch; gap: 6px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-link { align-self: center; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-cooperate .soft-plan-note { margin-top: 16px; }
+}
+@media (max-width: 360px) {
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-panel { padding-inline: 20px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-hero-copy { padding-inline: 22px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-flow { gap: 9px; }
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-flow strong { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] body.cinema-app .soft-plan .soft-plan-plus { transition: none; }
+}

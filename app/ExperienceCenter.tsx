@@ -51,7 +51,7 @@ type ExperienceCenterProps = {
   onConsult?: () => void;
 };
 
-const steps = ['内容设定', '准备素材', '确认创作'];
+const steps = ['选内容', '照片（选填）', '查看设定'];
 const modes: ExperienceMode[] = ['template', 'custom'];
 function requestedMode(route: string): ExperienceMode | undefined {
   const value = new URLSearchParams(route.split('?')[1] || '').get('mode');
@@ -239,26 +239,29 @@ export default function ExperienceCenter({ route, memory, Image: Picture, backLa
     };
   }, [copyFallback]);
 
-  return <section className="ec-shell ec-center" data-testid="experience-center" data-initial-template={mode === 'template' && draft.step === 0 && !contentReady ? 'true' : undefined} aria-label="AI影像馆体验中心">
+  const returnParams = new URLSearchParams(route.split('?')[1] || '');
+  const currentExperience = experiencePathFor(mode, returnParams.has('returnTo') || returnParams.get('source') === 'brand' ? experienceReturnFor(route).to : undefined);
+  const fallbackInquiry = '/cooperate?' + new URLSearchParams({ product: 'hall', source: 'experience', experienceReturn: currentExperience }).toString();
+
+  return <section className="ec-shell ec-center" data-testid="experience-center" aria-label="AI影像馆体验中心">
     <header className="ec-heading">
-      <p className="ec-eyebrow">AI影像馆 · 能力体验</p>
-      <h1 ref={draft.step === 0 ? stageHeading : undefined} tabIndex={-1}>{draft.step === 0 ? mode === 'template' ? '选一套喜欢的模板' : '这段情节，由你来写。' : '让你的设定，成为影像。'}</h1>
-      <p>{mode === 'template' ? '身份、场景和行为已设定，选择喜欢的故事。' : '选好身份与场景，再写下你想做的事。'}</p>
+      <p className="ec-eyebrow">AI影像馆 · 通用玩法</p>
+      <h1 ref={draft.step === 0 ? stageHeading : undefined} tabIndex={-1}>{draft.step === 0 ? '体验演示' : draft.step === 1 ? '照片（选填）' : '设定预览已完成'}</h1>
+      <p>{draft.step === 0 ? mode === 'template' ? '模板已设好身份、场景与行为，选一套试试。' : '自定义身份、场景与行为，组合你的设定。' : draft.step === 1 ? '可添加主角照片，也可以直接查看设定。' : '可复制保存这份设定，生成服务待接入。'}</p>
     </header>
 
     <div className="ec-mode-tabs" role="group" aria-label="体验玩法">
       <button type="button" data-testid="ec-mode-template" aria-pressed={mode === 'template'} onClick={() => changeMode('template')}><strong>模板体验</strong><span>设定好了，直接用</span></button>
       <button type="button" data-testid="ec-mode-custom" aria-pressed={mode === 'custom'} onClick={() => changeMode('custom')}><strong>自定义体验</strong><span>怎么演，由你来写</span></button>
     </div>
-    <p className="ec-demo-context">体验用户如何参与。这里展示通用玩法，具体活动的内容与交付按项目配置。</p>
-    <p className="ec-service-state" role="status">{mode === 'template' && draft.step === 0 ? '本机设定预览 · 生成服务待接入。' : '当前可预览设定、准备本机素材并复制配置。生成服务待接入。'}</p>
-    <nav className="ec-steps" aria-label="创作步骤">{steps.map((label, index) => <button type="button" key={label} data-testid={'ec-step-' + index} aria-current={draft.step === index ? 'step' : undefined} disabled={index === 1 ? !contentReady : index === 2 ? !contentReady || !photoReady : false} onClick={() => changeStep(index as ExperienceStep)}><b>{index + 1}</b><span>{label}</span></button>)}</nav>
+    {draft.step === 0 ? <p className="ec-service-state" role="status">通用设定演示 · 生成服务待接入。</p> : null}
+    <nav className="ec-steps" aria-label="体验步骤">{steps.map((label, index) => <button type="button" key={label} data-testid={'ec-step-' + index} aria-current={draft.step === index ? 'step' : undefined} disabled={index === 1 ? !contentReady : index === 2 ? !contentReady || !photoReady : false} onClick={() => changeStep(index as ExperienceStep)}><b>{index + 1}</b><span>{label}</span></button>)}</nav>
 
     {draft.step === 0 && mode === 'template' ? <div className="ec-template-grid">
       {experienceTemplates.map((template, index) => <article className={'ec-template' + (draft.templateId === template.id ? ' ec-template-selected' : '')} data-testid={'ec-template-' + template.id} key={template.id}>
         <div className="ec-template-media"><Picture src={template.image} alt={template.scene + '设定画面参考'} eager={index === 0} /><span>设定画面参考</span></div>
-        <div className="ec-template-copy"><div className="ec-card-heading"><h2>{template.title}</h2><span className="ec-badge">{draft.templateId === template.id ? <><Check />已选模板</> : '整套设定'}</span></div><p className="ec-template-description">{template.description}</p>
-          <dl className="ec-template-facts"><div><dt>身份</dt><dd>{template.identity}</dd></div><div><dt>场景</dt><dd>{template.scene}</dd></div><div><dt>行为</dt><dd>{template.action}</dd></div></dl>
+        <div className="ec-template-copy"><div className="ec-card-heading"><h2>{template.title}</h2><span className="ec-badge">{draft.templateId === template.id ? <><Check />已选模板</> : '整套设定'}</span></div><p className="ec-template-description">{template.identity} · {template.scene}</p>
+          <details className="ec-template-details"><summary>看看这套设定 <span aria-hidden="true">＋</span></summary><p>{template.description}</p><dl className="ec-template-facts"><div><dt>身份</dt><dd>{template.identity}</dd></div><div><dt>场景</dt><dd>{template.scene}</dd></div><div><dt>行为</dt><dd>{template.action}</dd></div></dl></details>
           <button type="button" className="ec-btn ec-btn-primary" data-testid={'ec-use-' + template.id} onClick={() => chooseTemplate(template.id)}>使用这个模板<Arrow /></button>
         </div>
       </article>)}
@@ -269,7 +272,7 @@ export default function ExperienceCenter({ route, memory, Image: Picture, backLa
       <fieldset className="ec-field"><legend><span>02</span>这段故事发生在哪里</legend><div className="ec-scene-options">{experienceScenes.map(item => <button type="button" className="ec-choice ec-scene-choice" data-testid={'ec-scene-' + item.id} aria-pressed={draft.sceneId === item.id} key={item.id} onClick={() => { draft.sceneId = item.id; redraw(); }}><div className="ec-scene-image"><Picture src={item.image} alt={item.label + '画面参考'} /></div><strong>{item.label}{draft.sceneId === item.id ? <Check /> : null}</strong><span>画面参考</span></button>)}</div></fieldset>
       <div className="ec-field"><label className="ec-field-label" htmlFor="ec-custom-action"><span>03</span>你想在这里做什么</label><div className="ec-action-suggestions" aria-label="行为建议">{experienceActionSuggestions.map((item, index) => <button type="button" key={item.label} data-testid={'ec-suggestion-' + index} onClick={() => { draft.action = item.text; redraw(); }}>{item.label}</button>)}</div><textarea id="ec-custom-action" data-testid="ec-action" aria-label="你想在这里做什么" value={draft.action} rows={4} placeholder="例如：走上观景步道，向镜头挥手，再转身望向远方。" onChange={event => { draft.action = event.currentTarget.value; redraw(); }} /><p className="ec-field-help">可以点上方建议，再按自己的想法修改。这里只保存本次浏览的文字。</p></div>
       <div className="ec-selection-status" aria-live="polite">{identity || '待选择身份'}<span> · </span>{scene || '待选择场景'}</div>
-      <button type="button" className="ec-btn ec-btn-primary" data-testid="ec-to-materials" disabled={!contentReady} onClick={() => changeStep(1)}>下一步：准备素材<Arrow /></button>
+      <button type="button" className="ec-btn ec-btn-primary" data-testid="ec-to-materials" disabled={!contentReady} onClick={() => changeStep(1)}>下一步：照片（选填）<Arrow /></button>
       {!contentReady ? <p className="ec-field-help">选好身份与场景，并写下你想做的事。</p> : null}
     </div> : null}
 
@@ -280,22 +283,22 @@ export default function ExperienceCenter({ route, memory, Image: Picture, backLa
       {checkingPhoto ? <p className="ec-field-help" role="status">正在检查照片…</p> : null}
       {checks.current[mode].error ? <p className="ec-error" id="ec-photo-error" data-testid="ec-photo-error" role="alert">{checks.current[mode].error}</p> : null}
       {draft.photo ? <><div className="ec-photo-actions"><button type="button" className="ec-text-link" onClick={() => photoInput.current?.click()}>更换照片</button><button type="button" className="ec-text-link" data-testid="ec-remove-photo" onClick={removePhoto}>移除照片</button></div><label className="ec-consent"><input type="checkbox" data-testid="ec-photo-consent" checked={draft.authorized} onChange={event => { draft.authorized = event.currentTarget.checked; redraw(); }} /><span>我确认已获得这张照片的使用授权</span></label></> : null}
-      <div className="ec-stage-actions"><button type="button" className="ec-btn ec-btn-secondary" onClick={() => changeStep(0)}>上一步</button><button type="button" className="ec-btn ec-btn-primary" data-testid="ec-to-review" disabled={!photoReady} onClick={() => changeStep(2)}>{draft.photo ? '下一步：确认创作' : '暂不选照片，确认配置'}<Arrow /></button></div>
+      <div className="ec-stage-actions"><button type="button" className="ec-btn ec-btn-secondary" onClick={() => changeStep(0)}>上一步</button><button type="button" className="ec-btn ec-btn-primary" data-testid="ec-to-review" disabled={!photoReady} onClick={() => changeStep(2)}>{draft.photo ? '查看我的设定' : '跳过照片，查看设定'}<Arrow /></button></div>
       {draft.photo && !draft.authorized ? <p className="ec-field-help">确认照片授权后继续；更换照片需要重新确认。</p> : null}
     </section> : null}
 
-    {draft.step === 2 ? <section className="ec-stage-panel" aria-label="确认创作">
+    {draft.step === 2 ? <section className="ec-stage-panel" aria-label="查看设定">
       <h2 ref={stageHeading} tabIndex={-1}>这次，你会这样出场</h2><p className="ec-stage-intro">{mode === 'template' ? '模板中的身份、场景和行为保持固定。' : '确认你的身份、场景和行为，也可以返回修改。'}</p>
       <div className="ec-review-layout"><div className="ec-review-picture"><Picture src={image} alt={scene + '场景画面参考'} /><span>场景参考 · 非生成结果</span></div><div className="ec-review-copy">
         <div className="ec-summary-heading"><span>{mode === 'template' ? '模板体验 · ' + selectedTemplate.title : '自定义体验'}</span><button type="button" className="ec-text-link" onClick={() => changeStep(0)}>{mode === 'template' ? '更换模板' : '修改内容'}</button></div>
         <dl className="ec-review-summary" data-testid="ec-summary"><div><dt>身份</dt><dd>{identity}</dd></div><div><dt>场景</dt><dd>{scene}</dd></div><div><dt>做什么</dt><dd>{action}</dd></div></dl>
         <div className="ec-summary-photo" data-testid="ec-summary-photo">{draft.photo ? <img src={draft.photo} alt="已选照片" /> : <span className="ec-photo-placeholder" aria-hidden="true">＋</span>}<div><strong>{draft.photo ? '已选择人物照片' : '未选择照片'}</strong><p>{draft.photo ? '仅本机预览' : '照片选填'}</p></div><button type="button" className="ec-text-link" onClick={() => changeStep(1)}>修改照片</button></div>
       </div></div>
-      <div className="ec-generation-state"><strong>设定已整理，生成服务待接入。</strong><p>当前可以复制配置；不会上传照片或创建生成任务。影片时长、费用与领取方式需随实际主题服务确认。</p></div>
+      <div className="ec-generation-state"><p>配置可复制；照片仅留在本机，未创建生成任务。</p></div>
       <div className="ec-stage-actions"><button type="button" className="ec-btn ec-btn-primary" data-testid="ec-copy" onClick={() => void copy()}>复制我的配置</button><button type="button" className="ec-btn ec-btn-secondary" data-testid="ec-generate" disabled>生成服务待接入</button></div>
     </section> : null}
 
-    <footer className="ec-footer"><button type="button" className="ec-text-link" onClick={() => onBack ? onBack() : window.location.hash = '/hall'}>{backLabel || '返回AI影像馆'}</button><button type="button" className="ec-text-link" onClick={() => onConsult ? onConsult() : window.location.hash = '/cooperate?product=hall&source=product'}>项目合作咨询<Arrow /></button></footer>
+    <footer className="ec-footer"><button type="button" className="ec-text-link" onClick={() => onBack ? onBack() : window.location.hash = '/works?product=hall'}>{backLabel || '查看活动方案'}</button>{draft.step === 2 ? <button type="button" className="ec-text-link" onClick={() => onConsult ? onConsult() : window.location.hash = fallbackInquiry}>整理合作需求<Arrow /></button> : null}</footer>
     {copyState ? <p className="ec-toast" role="status">{copyState}</p> : null}
     {copyFallback ? <dialog ref={copyDialog} className="ec-copy-dialog" aria-label="我的体验配置" onCancel={event => { event.preventDefault(); setCopyFallback(false); }} onClick={event => { if (event.target === copyDialog.current) setCopyFallback(false); }}><div className="ec-dialog-heading"><h2>我的体验配置</h2><button type="button" className="ec-text-link" onClick={() => setCopyFallback(false)}>关闭</button></div><p>复制下方文字，照片仅留在本机。</p><textarea data-testid="ec-copy-summary" aria-label="我的体验配置摘要" readOnly value={copySummary} rows={14} /><button type="button" className="ec-btn ec-btn-primary" onClick={() => setCopyFallback(false)}>返回配置</button></dialog> : null}
   </section>;

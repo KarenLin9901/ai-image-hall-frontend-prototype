@@ -1,0 +1,305 @@
+/* Bright editorial direction. Scoped to this release; existing legacy routes keep their behavior. */
+html[data-theme] body.cinema-app.soft-ui {
+  --su-bg:#f7f7f4; --su-panel:#fff; --su-soft:#eeedf3; --su-ink:#27262e; --su-muted:#6a6874; --su-accent:#6753ac; --su-line:#dcdbe3;
+  --ae-bg:var(--su-bg); --ae-surface:var(--su-panel); --ae-soft:var(--su-soft); --ae-ink:var(--su-ink); --ae-muted:var(--su-muted); --ae-accent:var(--su-accent); --ae-on-accent:#fff; --ae-line:var(--su-line); --ae-bar:#f7f7f4e8;
+  background:var(--su-bg);color:var(--su-ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+}
+html[data-theme="dark"] body.cinema-app.soft-ui {--su-bg:#202027;--su-panel:#2b2a34;--su-soft:#363340;--su-ink:#f5f2f7;--su-muted:#c0bbc9;--su-accent:#c7b7f4;--su-line:#48434f;--ae-on-accent:#292135;--ae-bar:#202027e8}
+html[data-theme] body.cinema-app.soft-ui .aurora-backdrop {display:none}
+html[data-theme] body.cinema-app.soft-ui .topbar {background:var(--ae-bar);border:0;backdrop-filter:blur(24px)}
+html[data-theme] body.cinema-app.soft-ui .topbar-inner {height:80px;max-width:1280px;padding:0 36px}
+html[data-theme] body.cinema-app.soft-ui .brand-wordmark strong {color:var(--su-ink)}
+html[data-theme] body.cinema-app.soft-ui .brand-wordmark small {color:var(--su-muted)}
+html[data-theme] body.cinema-app.soft-ui .header-more-panel {background:var(--su-panel);border-color:var(--su-line);border-radius:22px;box-shadow:0 15px 50px #27213212}
+html[data-theme] body.cinema-app.soft-ui .header-more-panel button {color:var(--su-ink)}
+html[data-theme] body.cinema-app.soft-ui .page-shell.compact-shell {width:100%;max-width:1240px;min-height:calc(100svh - 80px);padding:32px 36px 70px;margin:0 auto}
+html[data-theme] body.cinema-app.soft-ui .page-shell.compact-shell.is-home {max-width:none;padding:0 0 64px}
+html[data-theme] body.cinema-app.soft-ui .back-button {display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 0;margin:0 0 20px;color:var(--su-muted)}
+html[data-theme] body.cinema-app.soft-ui :is(.button,.ec-btn) {border-radius:999px;min-height:50px;padding:13px 24px;font-size:15px;font-weight:500;letter-spacing:0;box-shadow:none}
+html[data-theme] body.cinema-app.soft-ui .button:not(.secondary) {background:var(--su-ink);border-color:var(--su-ink);color:var(--su-bg)}
+html[data-theme] body.cinema-app.soft-ui .button.secondary {background:var(--su-soft);color:var(--su-ink);border:0}
+html[data-theme] body.cinema-app.soft-ui :is(a,button,summary,input,textarea,select):focus-visible {outline:2px solid var(--su-accent);outline-offset:5px}
+html[data-theme] body.cinema-app.soft-ui :is(.soft-home,.soft-product,.soft-gallery) h1 {font-weight:500;letter-spacing:-.05em;line-height:1.22}
+html[data-theme] body.cinema-app.soft-ui :is(.soft-home,.soft-product) h2 {font-weight:500;font-size:clamp(28px,3.6vw,46px);line-height:1.4;letter-spacing:-.035em;margin:0}
+html[data-theme] body.cinema-app.soft-ui :is(.soft-home,.soft-product) h3 {font-size:25px;font-weight:500;line-height:1.4;margin:0}
+html[data-theme] body.cinema-app.soft-ui .soft-kicker {font-size:12px;letter-spacing:.09em;line-height:1.7;font-weight:500;color:var(--su-muted);margin:0 0 18px}
+html[data-theme] body.cinema-app.soft-ui .soft-caption {color:var(--su-muted);font-size:12px;line-height:1.8}
+html[data-theme] body.cinema-app.soft-ui .soft-actions {display:flex;align-items:center;flex-wrap:wrap;gap:12px 25px;margin-top:30px}
+html[data-theme] body.cinema-app.soft-ui .soft-inline-link {display:inline-flex;gap:12px;align-items:center;color:var(--su-ink);font-size:14px;min-height:44px;font-weight:500}
+html[data-theme] body.cinema-app.soft-ui .soft-inline-link svg {width:18px;flex-shrink:0}
+html[data-theme] body.cinema-app.soft-ui .soft-image-label {position:absolute;right:20px;top:20px;display:inline-block;background:#28212c70;backdrop-filter:blur(10px);border:1px solid #ffffff38;color:white;border-radius:999px;padding:5px 11px;font-size:11px;line-height:1.5}
+/* A translucent, out-of-focus lens supplies atmosphere; text stays sharp. */
+html[data-theme] body.cinema-app.soft-ui .soft-home-hero {position:relative;isolation:isolate;min-height:710px;max-width:1440px;margin:auto;padding:160px max(6vw,32px) 90px;overflow:hidden;background:radial-gradient(ellipse at 88% 52%,#ddd7f573 0,transparent 55%),radial-gradient(ellipse at 75% 32%,#f0dcd076 0,transparent 48%)}
+html[data-theme] body.cinema-app.soft-ui .soft-atmosphere {position:absolute;z-index:-1;right:1%;top:8%;width:60%;height:85%;filter:blur(15px);opacity:.85;pointer-events:none}
+html[data-theme] body.cinema-app.soft-ui .soft-orbit {position:absolute;width:550px;height:550px;max-width:95%;right:5%;top:0;border-radius:50%;background:conic-gradient(from 25deg,#8a83ad,#a9a7d9 12%,#e5e7f0 24%,#b6c6d1 37%,#c8b5da 48%,#eee2d9 58%,#df987d 72%,#eebfac 82%,#776d9a 95%,#8a83ad);transform:rotate(-30deg) scaleX(.79);box-shadow:inset -25px -15px 65px #72648955,20px 40px 80px #d0c7e67a}
+html[data-theme] body.cinema-app.soft-ui .soft-orbit-core {position:absolute;width:360px;height:360px;right:15%;top:94px;background:radial-gradient(ellipse at 40% 30%,#ffffffed,#f5f1f3e0 55%,#e4dbf4a8);border-radius:50%;transform:rotate(-30deg) scaleX(.78);box-shadow:inset 25px 8px 25px #fff8,-20px -10px 35px #edf0fa90}
+html[data-theme] body.cinema-app.soft-ui .soft-orbit-glint {position:absolute;width:240px;height:400px;right:15%;top:20px;border-radius:50%;border-right:20px solid #ffffffe0;transform:rotate(-25deg);filter:blur(20px)}
+html[data-theme] body.cinema-app.soft-ui .soft-hero-copy {max-width:660px;position:relative}
+html[data-theme] body.cinema-app.soft-ui .soft-hero-copy h1 {font-size:clamp(42px,5.5vw,72px);color:var(--su-ink);margin:0}
+html[data-theme] body.cinema-app.soft-ui .soft-home-subtitle {font-size:17px;line-height:1.8;color:var(--su-muted);margin-top:25px}
+html[data-theme] body.cinema-app.soft-ui .soft-hero-foot {position:absolute;left:max(6vw,32px);right:max(6vw,32px);bottom:26px;display:flex;justify-content:space-between;font-size:11px;letter-spacing:.1em;color:var(--su-muted)}
+html[data-theme] body.cinema-app.soft-ui .soft-home-products {max-width:1200px;margin:auto;padding:100px 36px 0}
+html[data-theme] body.cinema-app.soft-ui .soft-section-heading {margin-bottom:34px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-grid {display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:40px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-card {display:block;color:var(--su-ink)}
+html[data-theme] body.cinema-app.soft-ui .soft-product-photo {position:relative;aspect-ratio:1.2;border-radius:36px;overflow:hidden;background:var(--su-soft)}
+html[data-theme] body.cinema-app.soft-ui .soft-product-photo img {width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
+html[data-theme] body.cinema-app.soft-ui .soft-product-caption {padding:28px 8px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-caption .soft-kicker {margin-bottom:9px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-caption p:not(.soft-kicker) {font-size:15px;line-height:1.8;color:var(--su-muted);margin:12px 0}
+html[data-theme] body.cinema-app.soft-ui .soft-home-invitation {max-width:1128px;margin:65px auto 0;padding:80px 30px;text-align:center;border-radius:44px;background:radial-gradient(ellipse at 20% 80%,#dfd8ef70,transparent 65%),var(--su-panel)}
+html[data-theme] body.cinema-app.soft-ui .soft-home-invitation .button {margin-top:30px}
+/* One photograph, one title, one destination. */
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-page-heading {padding:24px 0 36px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-page-heading h1 {font-size:clamp(38px,5vw,60px);color:var(--su-ink);margin:18px 0}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-page-heading p {font-size:16px;color:var(--su-muted)}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-kicker {color:var(--su-muted);font-size:12px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-filter-row {gap:8px;margin-bottom:20px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .chip {background:transparent;color:var(--su-muted);border:1px solid var(--su-line);border-radius:999px;font-size:13px;min-height:44px;padding:10px 18px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .chip.active {background:var(--su-ink);border-color:var(--su-ink);color:var(--su-bg)}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-evidence-note {font-size:12px;color:var(--su-muted);border:0;padding:0;margin:0 0 28px;background:none}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-grid {display:grid;grid-template-columns:1fr 1fr;gap:28px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-card {display:block;position:relative;min-height:480px;aspect-ratio:1.02;overflow:hidden;border-radius:34px;border:0;background:#55525b;isolation:isolate}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-card figure {position:absolute;inset:0;width:100%;height:100%;margin:0;aspect-ratio:auto;border-radius:0}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-card figure img {width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-card figure:after {content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 25%,#17151e25 48%,#17151ee0 100%)}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-card figcaption {position:absolute;z-index:1;top:22px;left:22px;bottom:auto;color:white;background:#29263360;border:1px solid #ffffff50;backdrop-filter:blur(14px);padding:6px 12px;border-radius:999px;font-size:11px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-copy {position:absolute;bottom:0;left:0;right:0;padding:32px;background:none;border:0;color:#fff}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-copy .b2b-kicker {color:#ffffffe0;font-size:12px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-copy h2 {font-size:clamp(24px,2.7vw,34px);line-height:1.4;color:#fff;font-weight:500;margin:10px 0 16px;letter-spacing:-.03em}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-text-link {color:#fff;font-size:13px;min-height:32px}
+/* Concise product pages; deeper material stays in one disclosure. */
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero {position:relative;isolation:isolate;height:580px;border-radius:36px;overflow:hidden;background:#514951}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero>img {width:100%;height:100%;object-fit:cover;display:block}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero:after {position:absolute;content:"";inset:0;background:linear-gradient(0deg,#15131ace,transparent 80%);z-index:0}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero-copy {position:absolute;left:48px;right:40px;bottom:52px;z-index:1;color:white}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero-copy .soft-kicker {color:#fffd}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero-copy h1 {font-size:clamp(38px,5vw,64px);color:white;margin:0 0 20px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero-copy>p:last-child {font-size:18px;line-height:1.6}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero>.soft-image-label {z-index:2}
+html[data-theme] body.cinema-app.soft-ui .soft-product-body {position:relative;margin:-24px 22px 0;border-radius:36px;background:var(--su-panel);padding:60px 48px;z-index:2}
+html[data-theme] body.cinema-app.soft-ui .soft-product-body>section {margin-bottom:70px;scroll-margin-top:100px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-intro>p:not(.soft-kicker) {color:var(--su-muted);font-size:16px;line-height:1.9;max-width:680px;margin-top:20px}
+html[data-theme] body.cinema-app.soft-ui .soft-heading-row {display:flex;align-items:end;justify-content:space-between;gap:20px}
+html[data-theme] body.cinema-app.soft-ui .soft-heading-row h2 {font-size:30px}
+html[data-theme] body.cinema-app.soft-ui .soft-heading-row>a {flex-shrink:0}
+html[data-theme] body.cinema-app.soft-ui .soft-featured-grid {display:grid;grid-template-columns:1fr 1fr;gap:20px}
+html[data-theme] body.cinema-app.soft-ui .soft-featured-plan {position:relative;aspect-ratio:1.1;border-radius:26px;overflow:hidden;color:#fff;isolation:isolate}
+html[data-theme] body.cinema-app.soft-ui .soft-featured-plan img {width:100%;height:100%;display:block;object-fit:cover}
+html[data-theme] body.cinema-app.soft-ui .soft-featured-plan>div {position:absolute;inset:0;display:flex;flex-direction:column;justify-content:end;align-items:start;padding:24px;background:linear-gradient(0deg,#17121edb,transparent 85%)}
+html[data-theme] body.cinema-app.soft-ui .soft-featured-plan span {font-size:11px;color:#fffd;margin-bottom:10px}
+html[data-theme] body.cinema-app.soft-ui .soft-featured-plan h3 {color:white;font-size:22px;padding-right:12px}
+html[data-theme] body.cinema-app.soft-ui .soft-featured-plan svg {margin-top:15px}
+html[data-theme] body.cinema-app.soft-ui .soft-play-options {margin:28px 0 16px}
+html[data-theme] body.cinema-app.soft-ui .soft-play-options>a {display:flex;align-items:center;gap:24px;padding:25px 0;border-bottom:1px solid var(--su-line);color:var(--su-ink)}
+html[data-theme] body.cinema-app.soft-ui .soft-play-options>a>span {font-size:12px;color:var(--su-muted)}
+html[data-theme] body.cinema-app.soft-ui .soft-play-options>a>svg {margin-left:auto;flex-shrink:0}
+html[data-theme] body.cinema-app.soft-ui .soft-play-options h3 {font-size:21px}
+html[data-theme] body.cinema-app.soft-ui .soft-play-options p {color:var(--su-muted);font-size:14px;margin-top:6px;line-height:1.7}
+html[data-theme] body.cinema-app.soft-ui .soft-pricing>p:last-child {font-size:16px;line-height:1.9;color:var(--su-muted);max-width:650px;margin-top:20px}
+html[data-theme] body.cinema-app.soft-ui .soft-project-details {padding:0;border-top:1px solid var(--su-line);border-bottom:1px solid var(--su-line)}
+html[data-theme] body.cinema-app.soft-ui .soft-project-details>summary {display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:80px;list-style:none;cursor:pointer;font-size:16px;color:var(--su-ink)}
+html[data-theme] body.cinema-app.soft-ui .soft-project-details-body {padding:0 0 30px;max-width:760px;font-size:15px;line-height:1.9;color:var(--su-muted)}
+html[data-theme] body.cinema-app.soft-ui .soft-project-details-body h3 {font-size:22px;color:var(--su-ink);margin:32px 0 20px}
+html[data-theme] body.cinema-app.soft-ui .soft-project-details-body h4 {font-size:16px;color:var(--su-ink);margin:20px 0 8px}
+html[data-theme] body.cinema-app.soft-ui .soft-project-details-body :is(ul,ol) {padding-left:20px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-body>.soft-product-cta {text-align:center;margin:70px 0 0}
+html[data-theme] body.cinema-app.soft-ui .soft-product-cta>p {margin:18px 0;color:var(--su-muted);line-height:1.8}
+html[data-theme] body.cinema-app.soft-ui .soft-product-cta .button {margin:5px 0}
+html[data-theme] body.cinema-app.soft-ui .soft-sample video {width:100%;border-radius:24px}
+/* Shared task surfaces use the same quiet, bright palette. */
+html[data-theme] body.cinema-app.soft-ui .ec-shell {--ec-bg:var(--su-bg);--ec-panel:var(--su-panel);--ec-soft:var(--su-soft);--ec-ink:var(--su-ink);--ec-muted:var(--su-muted);--ec-line:var(--su-line);--ec-accent:var(--su-accent);--ec-on-accent:var(--ae-on-accent);padding-top:20px}
+html[data-theme] body.cinema-app.soft-ui .ec-heading {margin-bottom:28px}
+html[data-theme] body.cinema-app.soft-ui .ec-heading h1 {font-weight:500;letter-spacing:-.04em}
+html[data-theme] body.cinema-app.soft-ui .ec-mode-tabs {border-radius:999px;padding:6px;max-width:560px}
+html[data-theme] body.cinema-app.soft-ui .ec-mode-tabs>button {min-height:54px;border-radius:999px}
+html[data-theme] body.cinema-app.soft-ui .ec-mode-tabs strong {font-size:15px}
+html[data-theme] body.cinema-app.soft-ui .ec-mode-tabs span {display:none}
+html[data-theme] body.cinema-app.soft-ui .ec-demo-context {font-size:12px;color:var(--su-muted);margin-top:22px;line-height:1.7}
+html[data-theme] body.cinema-app.soft-ui .ec-template {border:0;border-radius:30px}
+html[data-theme] body.cinema-app.soft-ui .ec-template-media {aspect-ratio:4/3}
+html[data-theme] body.cinema-app.soft-ui .ec-template-copy {padding:24px}
+html[data-theme] body.cinema-app.soft-ui .ec-template-facts {font-size:13px}
+html[data-theme] body.cinema-app.soft-ui .ec-stage-panel {border:0;border-radius:32px}
+html[data-theme] body.cinema-app.soft-ui .ec-choice {border-radius:22px}
+html[data-theme] body.cinema-app.soft-ui .ec-custom-editor {margin-top:32px}
+html[data-theme] body.cinema-app.soft-ui .consultation-page {--cp-bg:var(--su-panel);--cp-soft:var(--su-soft);--cp-ink:var(--su-ink);--cp-muted:var(--su-muted);--cp-line:var(--su-line);--cp-accent:var(--su-ink);--cp-on:var(--su-bg)}
+html[data-theme] body.cinema-app.soft-ui .consultation-page .page-intro {padding:22px 0 35px}
+html[data-theme] body.cinema-app.soft-ui .consultation-page .page-intro h1 {font-weight:500}
+html[data-theme] body.cinema-app.soft-ui .consultation-page .demand-form {border:0;border-radius:32px;padding:32px}
+html[data-theme] body.cinema-app.soft-ui .consultation-page .consultation-state {border:0;background:transparent;padding:0;margin:0 0 20px;font-size:13px}
+html[data-theme] body.cinema-app.soft-ui .consultation-page :is(input,select,textarea) {border-radius:16px}
+html[data-theme] body.cinema-app.soft-ui .consultation-page details {border-top:1px solid var(--su-line);margin:20px 0}
+html[data-theme] body.cinema-app.soft-ui .consultation-page details>summary {min-height:56px;padding:16px 0;cursor:pointer;font-size:14px;color:var(--su-muted)}
+html[data-theme] body.cinema-app.soft-ui .consultation-page .consultation-guide {border:0;border-radius:32px;background:var(--su-panel)}
+html[data-theme] body.cinema-app.soft-ui .consultation-page .inquiry-context {border:0;border-radius:22px}
+html[data-theme] body.cinema-app.soft-ui .ec-template-details {margin:10px 0 16px}
+html[data-theme] body.cinema-app.soft-ui .ec-template-details>summary {font-size:13px;color:var(--su-muted);cursor:pointer;min-height:44px;display:flex;align-items:center;gap:8px}
+@media(hover:hover){html[data-theme] body.cinema-app.soft-ui :is(.soft-product-card:hover .soft-product-photo,.soft-gallery .b2b-solution-card:hover figure) img {transform:scale(1.035)}}
+@media(max-width:700px){
+html[data-theme] body.cinema-app.soft-ui .topbar-inner {height:68px;padding:0 22px}
+html[data-theme] body.cinema-app.soft-ui .page-shell.compact-shell {padding:16px 20px 120px;min-height:calc(100svh - 68px)}
+html[data-theme] body.cinema-app.soft-ui .page-shell.compact-shell.is-home {padding:0 0 120px}
+html[data-theme] body.cinema-app.soft-ui .mobile-nav {left:16px;right:16px;width:auto;bottom:max(12px,env(safe-area-inset-bottom));border:1px solid #ffffff85;border-radius:30px;background:color-mix(in srgb,var(--su-panel) 88%,transparent);backdrop-filter:blur(24px);box-shadow:0 8px 35px #28203012;padding:7px 10px;gap:4px}
+html[data-theme] body.cinema-app.soft-ui .mobile-nav>a {min-height:50px;border-radius:24px;color:var(--su-muted);font-size:11px;gap:4px;padding:4px}
+html[data-theme] body.cinema-app.soft-ui .mobile-nav>a.active {color:var(--su-ink);background:var(--su-soft);font-weight:500}
+html[data-theme] body.cinema-app.soft-ui .mobile-nav>a.active:before {display:none}
+html[data-theme] body.cinema-app.soft-ui .mobile-nav svg {height:19px;width:19px}
+html[data-theme] body.cinema-app.soft-ui .soft-home-hero {min-height:660px;height:calc(100svh - 68px);max-height:850px;padding:0 28px 90px;display:flex;align-items:flex-end;background:radial-gradient(ellipse at 85% 37%,#e4def8b0,transparent 60%),radial-gradient(ellipse at 10% 33%,#f5e1d4b0,transparent 50%)}
+html[data-theme] body.cinema-app.soft-ui .soft-atmosphere {width:410px;max-width:112%;height:410px;right:-8%;top:0;filter:blur(13px);opacity:.72}
+html[data-theme] body.cinema-app.soft-ui .soft-orbit {width:360px;height:360px;right:2%;top:10px}
+html[data-theme] body.cinema-app.soft-ui .soft-orbit-core {width:230px;height:230px;right:15%;top:78px}
+html[data-theme] body.cinema-app.soft-ui .soft-orbit-glint {width:160px;height:240px;right:12%;top:40px}
+html[data-theme] body.cinema-app.soft-ui .soft-hero-copy {width:100%;padding:45px 0 0}
+html[data-theme] body.cinema-app.soft-ui .soft-hero-copy h1 {font-size:clamp(34px,8.8vw,45px);line-height:1.32;letter-spacing:-.055em}
+html[data-theme] body.cinema-app.soft-ui .soft-hero-copy .soft-kicker {font-size:11px;margin-bottom:16px}
+html[data-theme] body.cinema-app.soft-ui .soft-home-subtitle {font-size:14px;margin-top:18px;max-width:20em}
+html[data-theme] body.cinema-app.soft-ui .soft-home-hero .soft-actions {margin-top:25px;gap:10px 20px}
+html[data-theme] body.cinema-app.soft-ui .soft-home-hero .button {padding:13px 22px}
+html[data-theme] body.cinema-app.soft-ui .soft-hero-foot {left:28px;right:28px;bottom:30px;font-size:10px}
+html[data-theme] body.cinema-app.soft-ui .soft-home-products {padding:60px 22px 0}
+html[data-theme] body.cinema-app.soft-ui .soft-product-grid {grid-template-columns:1fr;gap:30px;margin-top:30px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-photo {border-radius:32px;aspect-ratio:1.16}
+html[data-theme] body.cinema-app.soft-ui .soft-product-caption {padding:23px 6px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-caption h3 {font-size:27px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-caption p:not(.soft-kicker) {font-size:14px}
+html[data-theme] body.cinema-app.soft-ui .soft-home-invitation {margin:35px 20px 0;padding:55px 22px;border-radius:32px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-page-heading {padding:26px 4px 30px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-page-heading h1 {font-size:40px;margin:15px 0}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-page-heading p {font-size:14px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-filter-row {flex-wrap:wrap;gap:7px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .chip {padding:9px 14px;font-size:12px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-grid {grid-template-columns:1fr;gap:24px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-card {aspect-ratio:4/5;min-height:390px;border-radius:30px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-copy {padding:27px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-copy h2 {font-size:27px;max-width:10em}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero {height:490px;height:min(64svh,540px);min-height:380px;border-radius:32px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero-copy {left:25px;right:25px;bottom:48px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero-copy h1 {font-size:38px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-hero-copy>p:last-child {font-size:15px;max-width:18em}
+html[data-theme] body.cinema-app.soft-ui .soft-product-body {margin:-25px 0 0;padding:36px 24px;border-radius:32px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-body>section {margin-bottom:48px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-body h2 {font-size:27px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-intro>p:not(.soft-kicker) {font-size:15px}
+html[data-theme] body.cinema-app.soft-ui .soft-heading-row {display:block}
+html[data-theme] body.cinema-app.soft-ui .soft-heading-row>a {margin-top:12px}
+html[data-theme] body.cinema-app.soft-ui .soft-featured-grid {grid-template-columns:1fr;gap:16px}
+html[data-theme] body.cinema-app.soft-ui .soft-featured-plan {aspect-ratio:1.1}
+html[data-theme] body.cinema-app.soft-ui .soft-featured-plan h3 {font-size:23px}
+html[data-theme] body.cinema-app.soft-ui .soft-play-options>a {gap:16px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-body>.soft-product-cta {margin-top:48px}
+html[data-theme] body.cinema-app.soft-ui .ec-shell {padding-top:22px}
+html[data-theme] body.cinema-app.soft-ui .ec-heading h1 {font-size:30px}
+html[data-theme] body.cinema-app.soft-ui .ec-heading>p:last-child {font-size:14px;line-height:1.8}
+html[data-theme] body.cinema-app.soft-ui .ec-template-grid {gap:24px}
+html[data-theme] body.cinema-app.soft-ui .ec-template-copy {padding:22px}
+html[data-theme] body.cinema-app.soft-ui .ec-stage-panel {padding:24px 20px}
+html[data-theme] body.cinema-app.soft-ui .ec-stage-panel>h2 {font-size:25px}
+html[data-theme] body.cinema-app.soft-ui .ec-identity-options {grid-template-columns:1fr}
+html[data-theme] body.cinema-app.soft-ui .ec-choice {min-height:70px;padding:16px 20px}
+html[data-theme] body.cinema-app.soft-ui .ec-scene-choice {padding:0}
+html[data-theme] body.cinema-app.soft-ui .ec-scene-options {grid-template-columns:1fr 1fr;gap:12px}
+html[data-theme] body.cinema-app.soft-ui .consultation-page .demand-form {padding:26px 20px}
+html[data-theme] body.cinema-app.soft-ui .consultation-page .page-intro h1 {font-size:36px}
+}
+@media(max-width:360px){
+html[data-theme] body.cinema-app.soft-ui .soft-home-hero {padding-inline:23px}
+html[data-theme] body.cinema-app.soft-ui .soft-home-hero .soft-actions {gap:8px 12px}
+html[data-theme] body.cinema-app.soft-ui .soft-home-hero .button {padding:12px 17px;font-size:14px}
+html[data-theme] body.cinema-app.soft-ui .soft-home-hero .soft-inline-link {font-size:13px}
+html[data-theme] body.cinema-app.soft-ui .soft-product-body {padding:30px 20px}
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .chip {padding-inline:11px}
+}
+@media(prefers-reduced-motion:reduce){html[data-theme] body.cinema-app.soft-ui * {scroll-behavior:auto;transition:none;animation:none}}
+/* Explicit minimums prevent aspect-ratio cards from widening narrow grids. */
+html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-card {width:100%;min-width:0}
+html[data-theme] body.cinema-app.soft-ui .soft-consultation-extra>summary {display:flex;justify-content:space-between;align-items:center;list-style:none}
+html[data-theme] body.cinema-app.soft-ui .soft-consultation-fields>label {display:block;font-size:14px;margin-bottom:20px}
+html[data-theme] body.cinema-app.soft-ui .soft-consultation-fields input {display:block;width:100%;margin-top:8px}
+html[data-theme] body.cinema-app.soft-ui .soft-consultation-kicker {font-size:12px;color:var(--su-muted);display:block;margin-bottom:16px}
+html[data-theme] body.cinema-app.soft-ui .soft-consultation .cooperate-grid {max-width:840px;margin-inline:auto}
+html[data-theme] body.cinema-app.soft-ui .soft-consultation .inquiry-context {max-width:840px;margin:0 auto 24px;padding:16px 20px}
+html[data-theme] body.cinema-app.soft-ui .soft-consultation .page-intro {max-width:840px;margin:auto}
+html[data-theme] body.cinema-app.soft-ui .soft-consultation .soft-consultation-guide {margin-top:0;padding:0 22px;border:0}
+html[data-theme] body.cinema-app.soft-ui .soft-consultation .soft-consultation-guide-body {padding-bottom:24px}
+html[data-theme="dark"] body.cinema-app.soft-ui .soft-home-hero {background:radial-gradient(ellipse at 80% 38%,#454055,transparent 65%),var(--su-bg)}
+html[data-theme="dark"] body.cinema-app.soft-ui .soft-atmosphere {opacity:.28}
+@media(max-width:700px){html[data-theme] body.cinema-app.soft-ui .soft-gallery .b2b-solution-grid {grid-template-columns:minmax(0,1fr)}}
+html[data-theme] body.cinema-app.soft-ui .ec-template-media {width:100%;height:auto;aspect-ratio:4/3}
+/* 2026-11-03: task-first landing and direct solution browsing. */
+html[data-theme] body.cinema-app.soft-ui .ux-home {max-width:1120px;margin:0 auto;padding:52px 32px 60px;position:relative;isolation:isolate}
+html[data-theme] body.cinema-app.soft-ui .ux-home:before {content:"";position:absolute;z-index:-1;pointer-events:none;top:-60px;right:0;width:65%;height:570px;border-radius:50%;background:radial-gradient(ellipse at 40% 25%,#e9d7c866,transparent 55%),radial-gradient(ellipse at 70% 50%,#d7cff4a0,transparent 65%);filter:blur(30px)}
+html[data-theme] body.cinema-app.soft-ui .ux-home-intro {margin-bottom:38px;max-width:740px}
+html[data-theme] body.cinema-app.soft-ui .ux-home-intro>p:first-child {font-size:12px;line-height:1.6;color:var(--su-muted);letter-spacing:.08em;margin:0 0 15px}
+html[data-theme] body.cinema-app.soft-ui .ux-home-intro h1 {font-size:clamp(36px,4.5vw,56px);font-weight:500;line-height:1.25;letter-spacing:-.04em;color:var(--su-ink);margin:0}
+html[data-theme] body.cinema-app.soft-ui .ux-home-description {font-size:16px;color:var(--su-muted);line-height:1.8;margin:18px 0 0}
+html[data-theme] body.cinema-app.soft-ui .ux-service-choices {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+html[data-theme] body.cinema-app.soft-ui .ux-service-choice {min-width:0;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);background:var(--su-panel);color:var(--su-ink);border-radius:28px;overflow:hidden;border:1px solid #ffffff80;min-height:245px;box-shadow:0 10px 40px #29213006;transition:box-shadow .2s,transform .2s}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy {padding:30px 10px 30px 28px;position:relative;z-index:1;align-self:center}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy>span {font-size:12px;color:var(--su-accent);display:block;margin-bottom:12px}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy h2 {font-size:26px;line-height:1.4;color:var(--su-ink);font-weight:550;margin:0;letter-spacing:-.03em}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy p {font-size:14px;color:var(--su-muted);line-height:1.8;margin:12px 0 20px}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy strong {display:flex;align-items:center;gap:12px;font-size:14px;font-weight:500;color:var(--su-ink)}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy strong svg {width:18px}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-image {position:relative;min-width:0;height:100%;overflow:hidden;background:var(--su-soft)}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-image img {display:block;height:100%;width:100%;object-fit:cover;object-position:54% center}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-image:after {content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--su-panel),transparent 30%);pointer-events:none}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-image small {position:absolute;right:10px;bottom:10px;z-index:1;background:#27222d75;color:white;font-size:9px;padding:4px 7px;border-radius:99px}
+html[data-theme] body.cinema-app.soft-ui .ux-home-trial {display:flex;gap:15px;justify-content:center;align-items:center;margin-top:34px;font-size:13px;color:var(--su-muted)}
+html[data-theme] body.cinema-app.soft-ui .ux-home-trial>a {display:flex;align-items:center;gap:8px;color:var(--su-accent);min-height:44px}
+html[data-theme] body.cinema-app.soft-ui .ux-home-trial svg {width:16px}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-page-heading {padding:16px 0 18px;margin:0}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-page-heading h1 {font-size:38px;margin:12px 0;line-height:1.3}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-page-heading>p {max-width:36em;font-size:15px;line-height:1.8}
+html[data-theme] body.cinema-app.soft-ui .ux-product-context {display:flex;align-items:center;gap:12px 22px;flex-wrap:wrap;margin:0 0 10px}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-filter-row {margin:8px 0 10px}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-evidence-note {margin:0 0 18px}
+html[data-theme] body.cinema-app.soft-ui .ux-product-context>a {font-size:13px;color:var(--su-accent);min-height:44px;display:flex;align-items:center;gap:8px}
+html[data-theme] body.cinema-app.soft-ui .ux-product-context>a>span {color:var(--su-muted);font-size:11px}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-solution-copy .ux-plan-purpose {color:#f5f3f8;font-size:14px;line-height:1.7;margin:0 0 14px;max-width:24em}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-solution-copy h2 {margin-bottom:10px}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-solution-card {min-height:380px}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery-next {padding:45px 20px 10px;text-align:center}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery-next>p {font-size:16px;color:var(--su-muted);margin:0 0 20px}
+html[data-theme] body.cinema-app.soft-ui .soft-plan .ux-plan-action {display:inline-flex;align-items:center;gap:25px;border-radius:999px;background:#fff;color:#28232f;margin-top:22px;padding:12px 20px;min-height:46px;font-size:14px;line-height:1.5}
+html[data-theme] body.cinema-app.soft-ui .soft-plan .soft-plan-hero {height:56svh;min-height:440px}
+html[data-theme] body.cinema-app.soft-ui .soft-plan .soft-plan-hero-copy {padding-bottom:65px}
+html[data-theme] body.cinema-app.soft-ui .ec-heading>p:last-child {max-width:32em}
+html[data-theme="dark"] body.cinema-app.soft-ui .ux-home:before {opacity:.2}
+@media(hover:hover){html[data-theme] body.cinema-app.soft-ui .ux-service-choice:hover {box-shadow:0 12px 40px #29213014;transform:translateY(-2px)}}
+@media(max-width:700px){
+html[data-theme] body.cinema-app.soft-ui .ux-home {padding:24px 20px 20px}
+html[data-theme] body.cinema-app.soft-ui .ux-home-intro {margin-bottom:24px}
+html[data-theme] body.cinema-app.soft-ui .ux-home-intro>p:first-child {font-size:11px;margin-bottom:12px}
+html[data-theme] body.cinema-app.soft-ui .ux-home-intro h1 {font-size:32px;line-height:1.35}
+html[data-theme] body.cinema-app.soft-ui .ux-home-description {font-size:13px;margin-top:12px}
+html[data-theme] body.cinema-app.soft-ui .ux-service-choices {grid-template-columns:minmax(0,1fr);gap:14px}
+html[data-theme] body.cinema-app.soft-ui .ux-service-choice {min-height:162px;border-radius:24px;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy {padding:20px 4px 20px 20px}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy>span {font-size:11px;margin-bottom:6px}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy h2 {font-size:22px}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy p {font-size:12px;line-height:1.7;margin:8px 0 12px}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy strong {font-size:12px;gap:12px}
+html[data-theme] body.cinema-app.soft-ui .ux-home-trial {gap:8px;font-size:11px;margin-top:18px;flex-wrap:wrap}
+html[data-theme] body.cinema-app.soft-ui .ux-home-trial>a {font-size:12px}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-page-heading {padding:10px 0 14px}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-page-heading h1 {font-size:32px;margin:10px 0}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-page-heading>p {font-size:14px}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-solution-card {min-height:360px;aspect-ratio:1/1.15}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-solution-copy h2 {font-size:25px}
+html[data-theme] body.cinema-app.soft-ui .ux-gallery .b2b-solution-copy .ux-plan-purpose {font-size:12px}
+html[data-theme] body.cinema-app.soft-ui .soft-plan .soft-plan-hero {height:55svh;min-height:400px}
+html[data-theme] body.cinema-app.soft-ui .soft-plan .soft-plan-hero-copy {padding:32px 24px 60px}
+html[data-theme] body.cinema-app.soft-ui .soft-plan .ux-plan-action {margin-top:18px}
+}
+@media(max-width:360px), (max-height:720px) and (max-width:700px){
+html[data-theme] body.cinema-app.soft-ui .ux-home {padding-top:16px}
+html[data-theme] body.cinema-app.soft-ui .ux-home-intro {margin-bottom:18px}
+html[data-theme] body.cinema-app.soft-ui .ux-home-intro h1 {font-size:28px;line-height:1.3}
+html[data-theme] body.cinema-app.soft-ui .ux-home-intro>p:first-child {margin-bottom:8px}
+html[data-theme] body.cinema-app.soft-ui .ux-service-choice {min-height:145px}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy {padding:16px 3px 16px 17px}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy h2 {font-size:20px}
+html[data-theme] body.cinema-app.soft-ui .ux-choice-copy p {font-size:11px;margin:6px 0 9px}
+html[data-theme] body.cinema-app.soft-ui .ux-service-choices {gap:12px}
+}

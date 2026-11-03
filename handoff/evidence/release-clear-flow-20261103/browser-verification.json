@@ -1,0 +1,157 @@
+{
+  "version": "clear-flow-20261103",
+  "layout": [
+    {
+      "active": "首页",
+      "heading": "AI 影像互动，与专属影片创作。",
+      "overflow": 0,
+      "route": "#/",
+      "viewport": [
+        320,
+        640
+      ]
+    },
+    {
+      "active": "应用方案",
+      "heading": "活动互动方案",
+      "overflow": 0,
+      "route": "#/works?product=hall",
+      "viewport": [
+        320,
+        640
+      ]
+    },
+    {
+      "active": "应用方案",
+      "heading": "与深圳 共成长",
+      "overflow": 0,
+      "route": "#/category/brand?from=solutions&filter=hall",
+      "viewport": [
+        320,
+        640
+      ]
+    },
+    {
+      "active": "应用方案",
+      "heading": "我的活动高光时刻",
+      "overflow": 0,
+      "route": "#/category/event?from=solutions&filter=hall",
+      "viewport": [
+        320,
+        640
+      ]
+    },
+    {
+      "active": "应用方案",
+      "heading": "一位人物的职业故事",
+      "overflow": 0,
+      "route": "#/category/person?from=solutions&filter=bespoke",
+      "viewport": [
+        320,
+        640
+      ]
+    },
+    {
+      "active": "合作需求",
+      "heading": "聊聊你的专属影片",
+      "overflow": 0,
+      "route": "#/cooperate?product=bespoke&source=solutions",
+      "viewport": [
+        320,
+        640
+      ]
+    },
+    {
+      "active": "体验演示",
+      "heading": "设定预览已完成",
+      "overflow": 0,
+      "route": "#/experience-center?mode=custom",
+      "viewport": [
+        320,
+        640
+      ]
+    },
+    {
+      "active": "首页",
+      "heading": "AI 影像互动，与专属影片创作。",
+      "overflow": 0,
+      "route": "#/",
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "active": "应用方案",
+      "heading": "活动互动方案",
+      "overflow": 0,
+      "route": "#/works?product=hall",
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "active": "应用方案",
+      "heading": "与深圳 共成长",
+      "overflow": 0,
+      "route": "#/category/brand?from=solutions&filter=hall",
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "active": "应用方案",
+      "heading": "我的活动高光时刻",
+      "overflow": 0,
+      "route": "#/category/event?from=solutions&filter=hall",
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "active": "应用方案",
+      "heading": "一位人物的职业故事",
+      "overflow": 0,
+      "route": "#/category/person?from=solutions&filter=bespoke",
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "active": "合作需求",
+      "heading": "聊聊你的专属影片",
+      "overflow": 0,
+      "route": "#/cooperate?product=bespoke&source=solutions",
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "active": "体验演示",
+      "heading": "设定预览已完成",
+      "overflow": 0,
+      "route": "#/experience-center?mode=custom",
+      "viewport": [
+        390,
+        844
+      ]
+    }
+  ],
+  "verifiedJourneys": [
+    "home → hall solutions → brand → cooperation → same proposal → same filter",
+    "brand → template → optional photo skipped → review → cooperation → same review → same proposal → same filter",
+    "home → bespoke solutions → person → cooperation → same proposal → same filter",
+    "hall solutions → product explanation → hall solutions",
+    "global custom → identity + scene + action → photo skipped → review → cooperation → same mode and configuration"
+  ],
+  "limits": [
+    "desktop browser responsive emulation, not physical devices",
+    "photo upload was not changed or re-tested in this iteration",
+    "no actual generation, payment or enquiry transmission"
+  ]
+}

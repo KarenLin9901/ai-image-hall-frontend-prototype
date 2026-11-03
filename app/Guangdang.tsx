@@ -4,7 +4,7 @@ import { safeRoute, isPublishedAndAuthorized } from './guangdang-guards';
 import { EditorialHome, EditorialProduct, EditorialScenario } from './MobileEditorial';
 import { editorialPlans } from './mobile-editorial-data';
 import SolutionGallery from './SolutionGallery';
-import { experienceReturnFor, experiencePathFor } from './experience-navigation';
+import { experienceReturnFor, experiencePathFor, normalizeExperienceReturn, normalizeExperienceRoute } from './experience-navigation';
 import ExperienceCenter, { createExperienceMemory, releaseExperienceMemory } from './ExperienceCenter';
 
 type ThemeDraft={step:number;choices:string[];photo:string;authorized:boolean};
@@ -12,34 +12,38 @@ type ProductSection='experience'|'introduction'|'applications'|'benefits'|'prici
 type ProductView={section:ProductSection;filter:string;scroll:Record<string,number>};
 type InquiryDraft={direction:string;description:string;organization:string;timing:string;scope:string;name:string;contact:string};
 type BrowsingMemory={solutionViews:Record<string,{scroll:number}>;carouselIndices:Record<Business,number>;productViews:Record<Business,ProductView>;draft:{themeId:string;value:ThemeDraft}|null;inquiryDrafts:Record<string,InquiryDraft>;sampleViews:Record<string,{open:boolean;scroll:number;filter:string}>;configurationReturns:Record<string,{to:string;label:string}>};
-type InquirySource='product'|'application'|'theme'|'samples'|'chooser';
-type InquiryOptions={source?:InquirySource;section?:ProductSection;direction?:string;theme?:string;origin?:string;filter?:string};
+type InquirySource='product'|'application'|'theme'|'samples'|'chooser'|'solutions'|'experience';
+type InquiryOptions={source?:InquirySource;section?:ProductSection;direction?:string;theme?:string;origin?:string;filter?:string;experienceReturn?:string};
 function inquiryPath(business:Business,options:InquiryOptions={}){
  const params=new URLSearchParams({product:business,source:options.source||'product'});
  if(options.section)params.set('section',options.section);
  if(options.direction)params.set('direction',options.direction);
  if(options.theme)params.set('theme',options.theme);
+ if(options.source==='experience'){const target=normalizeExperienceRoute(options.experienceReturn||null);if(target)params.set('experienceReturn',target);}
  if(options.origin==='solutions'){params.set('origin','solutions');if(options.filter==='hall'||options.filter==='bespoke')params.set('filter',options.filter);}
  return '/cooperate?'+params.toString();
 }
 function inquiryContext(route:string){
  const params=new URLSearchParams(route.split('?')[1]||'');
  const requested=params.get('product');
+ const requestedBusiness=requested==='hall'||requested==='bespoke'?requested:undefined;
+ const experienceRoute=requestedBusiness==='hall'?normalizeExperienceRoute(params.get('experienceReturn')):undefined;
+ const experienceCategory=experienceRoute?categoryById.get(experienceReturnFor(experienceRoute).to.split('?')[0].split('/')[2]||''):undefined;
  const rawCategory=categoryById.get(params.get('direction')||'');
  const rawTheme=themeConfigurations.find(theme=>theme.id===params.get('theme'));
  const business:Business|undefined=requested==='hall'||requested==='bespoke'?requested:rawCategory?.business||(rawTheme?'hall':undefined);
- const category=rawCategory?.business===business?rawCategory:undefined;
- const theme=business==='hall'&&rawTheme&&(!category||rawTheme.categoryId===category.id)?rawTheme:undefined;
+ const category=rawCategory?.business===business&&(params.get('source')!=='experience'||rawCategory?.id===experienceCategory?.id)?rawCategory:undefined;
+ const theme=business==='hall'&&params.get('source')!=='experience'&&rawTheme&&(!category||rawTheme.categoryId===category.id)?rawTheme:undefined;
  const direction=category||(theme?categoryById.get(theme.categoryId):undefined);
  const requestedSection=params.get('section');
  const section:ProductSection=requestedSection==='introduction'||requestedSection==='applications'||requestedSection==='pricing'||requestedSection==='benefits'||requestedSection==='experience'?requestedSection:'introduction';
- const source:InquirySource=params.get('source')==='chooser'?'chooser':params.get('source')==='samples'&&business?'samples':params.get('source')==='theme'&&theme?'theme':params.get('source')==='application'&&direction?'application':params.has('source')||!direction?'product':'application';
+ const source:InquirySource=params.get('source')==='experience'&&experienceRoute?'experience':params.get('source')==='solutions'&&requestedBusiness?'solutions':params.get('source')==='chooser'?'chooser':params.get('source')==='samples'&&business?'samples':params.get('source')==='theme'&&theme?'theme':params.get('source')==='application'&&direction?'application':params.has('source')||!direction?'product':'application';
  const origin=params.get('origin')==='solutions'?'solutions':'';
  const filter=params.get('filter');
  const originQuery=origin?'?from=solutions'+(filter==='hall'||filter==='bespoke'?'&filter='+filter:''):'';
- const returnTo=source==='chooser'?'/cooperate':source==='samples'&&business?'/samples/'+business+(direction?'?category='+direction.id:''):source==='theme'&&theme?experiencePath(theme.categoryId,theme.id):source==='application'&&direction?'/category/'+direction.id+originQuery:business?'/'+business+'?section='+section+(requestedSection===section?'&restore=1':''):'/';
- const returnLabel=source==='chooser'?'返回合作咨询':source==='samples'?'返回样片专区':source==='theme'?'返回主题配置':source==='application'?'返回应用方案':business?'返回'+businessName(business):'返回首页';
- const plan=source==='application'&&direction&&!theme?editorialPlans[direction.id]:undefined;
+ const returnTo=source==='experience'&&experienceRoute?experienceRoute:source==='solutions'&&business?'/works?product='+business:source==='chooser'?'/cooperate':source==='samples'&&business?'/samples/'+business+(direction?'?category='+direction.id:''):source==='theme'&&theme?experiencePath(theme.categoryId,theme.id):source==='application'&&direction?'/category/'+direction.id+originQuery:business?'/'+business+'?section='+section+(requestedSection===section?'&restore=1':''):'/';
+ const returnLabel=source==='experience'?'返回体验演示':source==='solutions'?(business==='hall'?'返回活动方案':'返回定制方案'):source==='chooser'?'返回合作需求':source==='samples'?'返回样片专区':source==='theme'?'返回主题配置':source==='application'?'返回方案详情':business?'返回'+businessName(business):'返回首页';
+ const plan=(source==='application'||source==='experience')&&direction&&!theme?editorialPlans[direction.id]:undefined;
  return {business,direction,theme,plan,section,source,returnTo,returnLabel,key:[business||'all',direction?.id||'',theme?.id||''].join(':')};
 }
 type IconName = 'home'|'works'|'cooperate'|'mine'|'arrow'|'back'|'close'|'play'|'pause'|'check'|'spark'|'copy'|'image'|'sun'|'moon';
@@ -94,7 +98,6 @@ function Empty({title,children}:{title:string;children:ReactNode}) { return <div
 
 function Home(){return <EditorialHome Image={Picture}/>;}
 
-const themeGroups=[{id:'all',label:'全部主题'},{id:'brand',label:'城市品牌'},{id:'event',label:'活动节庆'},{id:'team',label:'职场团队'},{id:'campus',label:'校园青春'}];
 function Catalogue({business,memory,route}:{business:Business;memory:BrowsingMemory;route:string}){
  const view=memory.productViews[business];
  const requested=new URLSearchParams(route.split('?')[1]||'').get('section');
@@ -141,11 +144,7 @@ function Samples({business,memory,route}:{business:Business;memory:BrowsingMemor
  const selectedCategory=category?.business===business?category:undefined;
  const viewKey=business+':'+(selectedCategory?.id||'all');
  const view=memory.sampleViews[viewKey]||(memory.sampleViews[viewKey]={open:false,scroll:0,filter:selectedCategory?.id||'all'});
- const [expanded,setExpanded]=useState(view.open||params.get('preview')==='themes'||Boolean(selectedCategory));
- const [filter,setFilter]=useState(view.filter);
  const works=publishedWorks.filter(work=>work.business===business&&isPublishedAndAuthorized(work)&&work.media.type==='video'&&(!selectedCategory||work.categoryId===selectedCategory.id));
- const retirement=selectedCategory?.id==='team';
- const themes=retirement?[]:themeConfigurations.filter(theme=>(!selectedCategory||theme.categoryId===selectedCategory.id)&&(filter==='all'||theme.categoryId===filter));
  useLayoutEffect(()=>{
   let restoring=true;let release=0;const saved=view.scroll;
   const save=()=>{if(!restoring)view.scroll=window.scrollY;};window.addEventListener('scroll',save,{passive:true});
@@ -154,8 +153,7 @@ function Samples({business,memory,route}:{business:Business;memory:BrowsingMemor
  },[view]);
  return <section className="samples-page"><header><h1>{business==='hall'?'模板样片':'高定样片'}</h1>{selectedCategory?<p>{selectedCategory.title}</p>:null}</header>
   <div className="sample-entry-actions">{business==='hall'?<LinkButton to="/experience-center?mode=template">进入体验中心<Icon name="arrow" size={17}/></LinkButton>:<LinkButton to={inquiryPath('bespoke',{source:'samples',direction:selectedCategory?.id})}>咨询定制<Icon name="arrow" size={17}/></LinkButton>}</div>
-  {works.length?<div className="sample-grid">{works.map(work=><article className="sample-card" key={work.id}><div className="sample-card-media"><MediaDisplay media={work.media}/></div><div className="sample-card-copy"><h2>{work.title}</h2><LinkButton to={inquiryPath(business,{source:'samples',direction:work.categoryId})} className="button secondary">{business==='bespoke'?'咨询同类创作':'整理合作需求'}</LinkButton></div></article>)}</div>:<div className="samples-pending"><Picture src={reference(selectedCategory?.image||(business==='hall'?2:3))} alt="样片创作方向参考图"/><div><span className="status-tag">制作中</span><h2>样片制作中</h2><p>{business==='hall'?'模板样片正在准备，上架后可在此观看。':'高定样片正在准备，上架后可在此观看。'}</p><div className="action-row"><LinkButton to={selectedCategory?'/category/'+selectedCategory.id:'/'+business+'?section=applications'} className="button secondary">查看应用方案</LinkButton><LinkButton to={inquiryPath(business,{source:'samples',direction:selectedCategory?.id})}>{business==='bespoke'?'咨询定制':'整理合作需求'}</LinkButton></div></div></div>}
-  {business==='hall'?<details className="simple-fold legacy-theme-library" open={expanded} onToggle={event=>{const next=event.currentTarget.open;view.open=next;setExpanded(next);}}><summary>主题配置预览<Icon name="arrow" size={18}/></summary><div className="fold-content"><p>保留原有九主题配置预览，影像生成尚未开放。两种新玩法请进入体验中心。</p>{selectedCategory?<div className="sample-category-context"><p>{retirement?'退休纪念设置尚未开放；原有职场主题可在全库另行查看。':selectedCategory.title+'的主题设置'}</p><LinkButton to="/samples/hall?preview=themes" className="text-link">浏览全部主题配置<Icon name="arrow" size={16}/></LinkButton></div>:<div className="experience-filters" aria-label="主题分类">{themeGroups.map(group=><button key={group.id} className={filter===group.id?'chip active':'chip'} aria-pressed={filter===group.id} onClick={()=>{setFilter(group.id);view.filter=group.id;}}>{group.label}</button>)}</div>}<div className="theme-grid">{themes.map(theme=><a key={theme.id} data-theme={theme.id} className={'theme-card'+(memory.draft?.themeId===theme.id?' last-used':'')} href={'#'+experiencePath(theme.categoryId,theme.id)} aria-label={'使用主题：'+theme.title} onClick={()=>{view.scroll=window.scrollY;}}><div className="theme-card-media"><Picture src={theme.image} alt={theme.title}/></div><div className="theme-card-copy"><h3>{theme.title}</h3><span className="theme-card-action">{memory.draft?.themeId===theme.id&&memory.draft.value.choices.some(Boolean)?'继续配置':'使用主题'}<Icon name="arrow" size={17}/></span></div></a>)}</div></div></details>:null}
+  {works.length?<div className="sample-grid">{works.map(work=><article className="sample-card" key={work.id}><div className="sample-card-media"><MediaDisplay media={work.media}/></div><div className="sample-card-copy"><h2>{work.title}</h2><LinkButton to={inquiryPath(business,{source:'samples',direction:work.categoryId})} className="button secondary">{business==='bespoke'?'咨询同类创作':'整理合作需求'}</LinkButton></div></article>)}</div>:<div className="samples-pending"><Picture src={reference(selectedCategory?.image||(business==='hall'?2:3))} alt="样片创作方向参考图"/><div><span className="status-tag">待上架</span><h2>正式样片待上架</h2><p>当前图片是创作方向参考，可先浏览方案。</p><div className="action-row"><LinkButton to={selectedCategory?'/category/'+selectedCategory.id:'/'+business+'?section=applications'} className="button secondary">查看应用方案</LinkButton><LinkButton to={inquiryPath(business,{source:'samples',direction:selectedCategory?.id})}>{business==='bespoke'?'咨询定制':'整理合作需求'}</LinkButton></div></div></div>}
  </section>;
 }
 function Detail({category:c,themeIndex,route}:{category:Category;themeIndex?:number;route:string}){
@@ -292,24 +290,24 @@ function Cooperation({route,draft,themeChoices,onDraftChange}:{route:string;draf
   setSummary(['咣当 AI影像 · 合作需求',...(business?['产品：'+businessName(business)]:[]),...(context.plan&&data.direction===context.direction?.title?['参考方案：'+context.plan.title]:[]),...(context.theme?['参考主题：'+context.theme.title,...selections]:[]),...(data.organization?['单位／项目：'+data.organization]:[]),'需求方向：'+data.direction,'需求描述：'+data.description,...(data.timing?['计划时间：'+data.timing]:[]),...(data.scope?['规模与交付要求：'+data.scope]:[]),...(data.name?['联系人：'+data.name]:[]),...(data.contact?['联系方式：'+data.contact]:[]),'','尚未发送，仅供复制留存。正式咨询渠道待开放。'].join('\n'));
   setCopyState('复制需求摘要');
  }
- return <div className={'consultation-page'+(bespoke?' bespoke-consultation':'')}>
-  <section className="page-intro compact"><h1>{bespoke?'高定创作咨询':'合作咨询'}</h1><p>{bespoke?'从故事、资料和用途开始，整理专属影片需求。':'从项目目标开始，确定产品、参与对象和交付需求。'}</p></section>
-  {!context.business?<section className="b2b-cooperation-intro" aria-label="选择合作产品"><h2>这次项目，需要哪一种能力？</h2><div className="b2b-service-choices"><a href="#/cooperate?product=hall&source=chooser"><strong>AI影像馆</strong><span>组织品牌、活动或集体纪念中的用户互动</span></a><a href="#/cooperate?product=bespoke&source=chooser"><strong>高定AI影像</strong><span>委托团队策划、制作一部专属影片 · 按需求报价</span></a></div><p>也可以在下方选择“尚未确定”，先整理项目需求。</p></section>:null}
+ return <div className={'consultation-page soft-consultation'+(bespoke?' bespoke-consultation':'')}>
+  <section className="page-intro compact"><span className="soft-consultation-kicker">一起，让想法成形</span><h1>{bespoke?'聊聊你的专属影片':'从你的项目开始。'}</h1><p>{bespoke?'告诉我们故事与用途，按需求确认方案和报价。':'选一个方向，写下你希望实现的事。'}</p></section>
   {context.business?<section className="inquiry-context" aria-label="当前合作方向"><div><span>{businessName(context.business)}</span>{context.theme?<strong>参考主题：{context.theme.title}</strong>:context.plan?(planApplies?<strong>参考方案：{context.plan.title}</strong>:<strong>当前方向：{direction}（已取消原方案引用）</strong>):context.direction?<strong>{context.direction.title}</strong>:null}</div>{selections.length?<ul className="inquiry-theme-options">{selections.map(item=><li key={item}>{item}</li>)}</ul>:null}</section>:null}
   <div className="cooperate-grid">
-   <p className="notice consultation-state">可先整理并复制需求，正式咨询待开放。</p>
+   <p className="notice consultation-state">当前可整理并复制需求，尚未发送给团队。</p>
    <form className="demand-form" onSubmit={submit} onChange={e=>remember(e.currentTarget)}>
-    <div className="section-line"><h2>{bespoke?'告诉我们，你想讲什么故事':'你的项目计划'}</h2></div>
     <label>需求方向<select name="direction" required value={direction} aria-invalid={directionMismatch} aria-describedby={directionMismatch?'direction-error':undefined} onChange={event=>setDirection(event.currentTarget.value)}><option value="" disabled>请选择需求方向</option>{(['hall','bespoke'] as Business[]).filter(business=>directions.some(category=>category.business===business)).map(business=><optgroup key={business} label={businessName(business)}>{directions.filter(category=>category.business===business).map(category=><option key={category.id}>{category.title}</option>)}</optgroup>)}<option>尚未确定，想先了解</option></select></label>
     {directionMismatch?<p id="direction-error" className="field-error" role="alert">当前参考主题属于“{themeDirection}”。请选择该方向，或从其他方向页面重新整理需求。</p>:null}
-    <label>单位／项目（选填）<input name="organization" maxLength={100} defaultValue={initial.organization} autoComplete="organization" placeholder="单位名称或项目名称"/></label>
     <label>需求描述<textarea name="description" required maxLength={2000} defaultValue={initial.description} rows={4} placeholder={context.business==='hall'?'希望谁参与？传递什么主题？用于什么活动或传播场景？':'希望讲述什么故事？给谁观看？用于什么场景？有哪些现成资料？'} onInput={e=>e.currentTarget.setCustomValidity('')}/></label>
+    <details className="soft-consultation-extra"><summary>补充项目资料（选填）<span aria-hidden="true">＋</span></summary><div className="soft-consultation-fields">
+    <label>单位／项目（选填）<input name="organization" maxLength={100} defaultValue={initial.organization} autoComplete="organization" placeholder="单位名称或项目名称"/></label>
     <div className="form-pair"><label>计划时间（选填）<input name="timing" maxLength={100} defaultValue={initial.timing} placeholder="活动或交付时间"/></label><label>规模与交付要求（选填）<input name="scope" maxLength={160} defaultValue={initial.scope} placeholder={context.business==='hall'?'人数、场次':'片长、画幅'}/></label></div>
     <div className="form-pair"><label>联系人（选填）<input name="name" maxLength={50} defaultValue={initial.name} autoComplete="name" placeholder="怎么称呼你"/></label><label>联系方式（选填）<input name="contact" maxLength={100} defaultValue={initial.contact} placeholder="手机、邮箱或微信" autoComplete="off"/></label></div>
+    </div></details>
     <p className="field-hint">仅本机临时保留，刷新后清空。不会上传或发送。</p>
     <button type="submit" className="button wide" disabled={directionMismatch}>整理需求摘要 <Icon name="arrow" size={18}/></button>
    </form>
-   {bespoke?<aside className="consultation-guide" aria-label="高定咨询与创作流程"><div className="consultation-visual"><Picture src={asset('images/editorial-20261029/bespoke-story-1920.webp')} alt="照片、资料与专属影片的创作方向示意"/><span>创作方向示意</span></div><h2>咨询后如何开展</h2><ol>{[{title:'需求沟通',text:'了解故事、现有资料、观看对象与用途。'},{title:'方案与报价',text:'沟通创作方向、服务范围与交付要求。'},{title:'团队创作',text:'确认后进行策划、样段、影像制作与后期。'},{title:'审片与交付',text:'按约定审片，并交付确认的影片版本。'}].map((step,index)=><li key={step.title}><span>{String(index+1).padStart(2,'0')}</span><div><h3>{step.title}</h3><p>{step.text}</p></div></li>)}</ol><section className="consultation-channel"><h3>联系创作团队</h3><p>正式联系方式待配置。当前可先整理并复制需求，尚未发送给团队。</p><button className="button secondary wide" disabled>正式咨询渠道待接入</button><LinkButton to="/bespoke?section=pricing" className="text-link">查看价格与服务范围<Icon name="arrow" size={16}/></LinkButton></section></aside>:null}
+   {bespoke?<details className="consultation-guide soft-consultation-guide"><summary>高定创作如何开展<span aria-hidden="true">＋</span></summary><div className="soft-consultation-guide-body"><div className="consultation-visual"><Picture src={asset('images/editorial-20261029/bespoke-story-1920.webp')} alt="照片、资料与专属影片的创作方向示意"/><span>创作方向示意</span></div><h2>咨询后如何开展</h2><ol>{[{title:'需求沟通',text:'了解故事、现有资料、观看对象与用途。'},{title:'方案与报价',text:'沟通创作方向、服务范围与交付要求。'},{title:'团队创作',text:'确认后进行策划、样段、影像制作与后期。'},{title:'审片与交付',text:'按约定审片，并交付确认的影片版本。'}].map((step,index)=><li key={step.title}><span>{String(index+1).padStart(2,'0')}</span><div><h3>{step.title}</h3><p>{step.text}</p></div></li>)}</ol><section className="consultation-channel"><h3>联系创作团队</h3><p>正式联系方式待配置。当前可先整理并复制需求，尚未发送给团队。</p><LinkButton to="/bespoke?section=pricing" className="text-link">查看价格与服务范围<Icon name="arrow" size={16}/></LinkButton></section></div></details>:null}
   </div>
   {summary?<Modal title="你的需求摘要" onClose={()=>setSummary('')}><div className="notice">尚未发送 · 可复制留存</div><textarea className="summary-text" readOnly value={summary} aria-label="需求摘要" rows={12}/><div className="action-row"><button className="button" onClick={copy}><Icon name="copy" size={17}/>{copyState}</button><button className="button secondary" onClick={()=>setSummary('')}>返回修改</button></div></Modal>:null}
  </div>;
@@ -373,7 +371,7 @@ export default function Guangdang(){
  const [route,setRoute]=useState(getRoute);
  const [reduceMotion,setReduceMotion]=useState(()=>matchMedia('(prefers-reduced-motion: reduce)').matches);
  const [manualPaused,setManualPaused]=useState(false);
- const [colorMode,setColorMode]=useState<'dark'|'light'>('dark');
+ const [colorMode,setColorMode]=useState<'dark'|'light'>('light');
  const motionPaused=reduceMotion||manualPaused;
  const routeRef=useRef(route);
  const [share,setShare]=useState('');
@@ -391,7 +389,7 @@ export default function Guangdang(){
   return()=>{if(previous===undefined)delete root.dataset.theme;else root.dataset.theme=previous;};
  },[colorMode]);
  useEffect(()=>{const preference=matchMedia('(prefers-reduced-motion: reduce)');const change=()=>setReduceMotion(preference.matches);preference.addEventListener('change',change);return()=>preference.removeEventListener('change',change);},[]);
- useLayoutEffect(()=>{document.body.classList.add('lightfield-app','cinema-app');document.body.classList.toggle('motion-paused',motionPaused);return()=>{document.body.classList.remove('lightfield-app','cinema-app','motion-paused');};},[motionPaused]);
+ useLayoutEffect(()=>{document.body.classList.add('lightfield-app','cinema-app','soft-ui');document.body.classList.toggle('motion-paused',motionPaused);return()=>{document.body.classList.remove('lightfield-app','cinema-app','soft-ui','motion-paused');};},[motionPaused]);
  const rememberDraft=useCallback((themeId:string,value:ThemeDraft)=>{
   const previous=memory.current.draft;
   if(previous&&previous.themeId!==themeId&&previous.value.photo)URL.revokeObjectURL(previous.value.photo);
@@ -450,17 +448,29 @@ export default function Guangdang(){
  }
  const path=route.split('?')[0];const parts=path.split('/').filter(Boolean);const c=categoryById.get(parts[1]||'');
  const configuration=configurationForRoute(route);
- const active=path.startsWith('/cooperate')?'cooperate':path==='/experience-center'||parts[0]==='experience'?'play':path==='/works'||parts[0]==='category'||parts[0]==='theme'||parts[0]==='samples'?'works':path==='/'||path==='/hall'||path==='/bespoke'?'home':'';
- const navigation=[{id:'home',title:'首页',to:'/'},{id:'works',title:'应用方案',to:'/works'},{id:'play',title:'能力体验',to:'/experience-center?mode=template'},{id:'cooperate',title:'合作咨询',to:'/cooperate'}] as const;
+ const active=path.startsWith('/cooperate')?'cooperate':path==='/experience-center'||parts[0]==='experience'?'play':path==='/works'||path==='/hall'||path==='/bespoke'||parts[0]==='category'||parts[0]==='theme'||parts[0]==='samples'?'works':path==='/'?'home':'';
+ const navigation=[{id:'home',title:'首页',to:'/'},{id:'works',title:'应用方案',to:'/works'},{id:'play',title:'体验演示',to:'/experience-center?mode=template'},{id:'cooperate',title:'合作需求',to:'/cooperate'}] as const;
  const routeParams=new URLSearchParams(route.split('?')[1]||'');
  const returnFilter=routeParams.get('filter');
  const solutionReturn='/works'+(returnFilter==='hall'||returnFilter==='bespoke'?'?product='+returnFilter:'');
  const sampleCategory=parts[0]==='samples'?categoryById.get(routeParams.get('category')||''):undefined;
- const sampleBack=sampleCategory && sampleCategory.business===parts[1]?{to:'/category/'+sampleCategory.id,label:'返回应用方案'}:{to:'/'+parts[1],label:'返回'+businessName(parts[1] as Business)};
+ const sampleBack=sampleCategory && sampleCategory.business===parts[1]?{to:'/category/'+sampleCategory.id,label:'返回方案详情'}:{to:'/'+parts[1],label:'返回'+businessName(parts[1] as Business)};
  const centerBack=experienceReturnFor(route);
+ const hasCenterReturn=Boolean(normalizeExperienceReturn(routeParams.get('returnTo'))||routeParams.get('source')==='brand');
+ const showBack=parts.length>0&&path!=='/works'&&(path!=='/cooperate'||Boolean(inquiryContext(route).business))&&(path!=='/experience-center'||hasCenterReturn);
  const centerCategory=categoryById.get(centerBack.to.split('?')[0].split('/')[2]||'');
  const centerOrigin=new URLSearchParams(centerBack.to.split('?')[1]||'');
- const centerInquiry=centerCategory?.business==='hall'?inquiryPath('hall',{source:'application',direction:centerCategory.id,origin:centerOrigin.get('from')||'',filter:centerOrigin.get('filter')||''}):inquiryPath('hall',{section:'experience'});
+ const centerMode=routeParams.get('mode');
+ const centerExperience=experiencePathFor(centerMode==='custom'||centerMode==='template'?centerMode:experienceMemory.mode,hasCenterReturn?centerBack.to:undefined);
+ const centerInquiry=inquiryPath('hall',{source:'experience',experienceReturn:centerExperience,...(centerCategory?.business==='hall'?{direction:centerCategory.id,origin:centerOrigin.get('from')||'',filter:centerOrigin.get('filter')||''}:{})});
+ const pageBack=path==='/experience-center'?centerBack
+  :path==='/cooperate'?{to:inquiryContext(route).returnTo,label:inquiryContext(route).returnLabel}
+  :path==='/hall'||path==='/bespoke'?{to:'/works?product='+path.slice(1),label:path==='/hall'?'返回活动方案':'返回定制方案'}
+  :parts[0]==='samples'?sampleBack
+  :parts[0]==='theme'?{to:'/category/'+c?.id,label:'返回方案详情'}
+  :parts[0]==='category'?(routeParams.get('from')==='solutions'?{to:solutionReturn,label:'返回方案列表'}:{to:c?'/'+c.business+'?section=applications&restore=1':'/',label:'返回'+businessName(c?.business||'hall')})
+  :parts[0]==='experience'&&configuration?memory.current.configurationReturns[configuration.id]||{to:'/samples/hall?preview=themes',label:'返回主题配置预览'}
+  :{to:'/',label:'返回首页'};
  let page:ReactNode;
  if(path==='/')page=<Home/>;
  else if(path==='/experience-center')page=<ExperienceCenter route={route} memory={experienceMemory} Image={Picture} backLabel={centerBack.label} onBack={()=>go(centerBack.to)} onConsult={()=>go(centerInquiry)}/>;
@@ -479,14 +489,14 @@ export default function Guangdang(){
   <header className="topbar"><div className="topbar-inner">
    <a className="brand" href="#/" aria-label="咣当首页"><span className="brand-mark"><img className="brand-logo" src={asset('images/brand/guangdang-logo.png')} alt="咣当原品牌Logo"/></span><span className="brand-wordmark"><strong>咣当</strong><small>GUANGDANG</small></span></a>
    <nav className="desktop-nav" aria-label="主导航">{navigation.map(item=><a key={item.id} href={'#'+item.to} className={active===item.id?'active':''} aria-current={active===item.id?'page':undefined}>{item.title}</a>)}</nav>
-   <div className="header-actions"><button className="icon-button theme-toggle" data-testid="theme-toggle" onClick={()=>setColorMode(value=>value==='dark'?'light':'dark')} aria-label="亮色模式" aria-pressed={colorMode==='light'} title={colorMode==='dark'?'切换到亮色模式':'切换到深色模式'}><Icon name={colorMode==='dark'?'sun':'moon'} size={20}/></button><details className="header-more" ref={headerMore} onKeyDown={event=>{if(event.key==='Escape'){event.currentTarget.open=false;event.currentTarget.querySelector('summary')?.focus();}}}><summary className="icon-button" aria-label="更多选项"><span aria-hidden="true">•••</span></summary><div className="header-more-panel"><button onClick={()=>{setAbout(true);if(headerMore.current)headerMore.current.open=false;}}>关于产品与预览</button><button className="motion-toggle" onClick={()=>setManualPaused(value=>!value)} disabled={reduceMotion} aria-pressed={motionPaused}>{reduceMotion?'遵循系统减少动态效果':motionPaused?'恢复动效':'暂停动效'}</button><button className="share-button" onClick={()=>{void sharePage();if(headerMore.current)headerMore.current.open=false;}}>复制当前页面链接</button></div></details></div>
+   <div className="header-actions"><details className="header-more" ref={headerMore} onKeyDown={event=>{if(event.key==='Escape'){event.currentTarget.open=false;event.currentTarget.querySelector('summary')?.focus();}}}><summary className="icon-button" aria-label="更多选项"><span aria-hidden="true">•••</span></summary><div className="header-more-panel"><button className="theme-toggle" data-testid="theme-toggle" onClick={()=>setColorMode(value=>value==='dark'?'light':'dark')} aria-label="亮色模式" aria-pressed={colorMode==='light'}><Icon name={colorMode==='dark'?'sun':'moon'} size={18}/>{colorMode==='dark'?'切换亮色':'切换深色'}</button><button onClick={()=>{setAbout(true);if(headerMore.current)headerMore.current.open=false;}}>关于产品</button><button className="motion-toggle" onClick={()=>setManualPaused(value=>!value)} disabled={reduceMotion} aria-pressed={motionPaused}>{reduceMotion?'遵循系统减少动态效果':motionPaused?'恢复动效':'暂停动效'}</button><button className="share-button" onClick={()=>{void sharePage();if(headerMore.current)headerMore.current.open=false;}}>复制当前页面链接</button></div></details></div>
   </div></header>
   <main id="main" data-route={path} ref={main} tabIndex={-1} key={path} className={'page-shell compact-shell lightfield-page '+(path==='/'?'is-home':'')+' '+(path==='/hall'||path==='/bespoke'?'is-business':'')+' '+(path==='/experience-center'?'is-experience-center':'')}>
-   {parts.length>0?<button className="back-button" onClick={()=>{if(path==='/experience-center')go(centerBack.to);else if(parts[0]==='experience')go(configuration?memory.current.configurationReturns[configuration.id]?.to||'/samples/hall?preview=themes':'/samples/hall?preview=themes');else if(parts[0]==='samples')go(sampleBack.to);else if(parts[0]==='theme')go('/category/'+c?.id);else if(parts[0]==='category')go(routeParams.get('from')==='solutions'?solutionReturn:c?'/'+c.business+'?section=applications&restore=1':'/');else if(path==='/cooperate')go(inquiryContext(route).returnTo);else go('/');}}><Icon name="back" size={16}/>{path==='/cooperate'?inquiryContext(route).returnLabel:path==='/experience-center'?centerBack.label:parts[0]==='samples'?sampleBack.label:parts[0]==='category'&&routeParams.get('from')==='solutions'?'返回应用方案':parts[0]==='experience'&&configuration?memory.current.configurationReturns[configuration.id]?.label||'返回主题配置预览':'返回'+(parts[0]==='samples'?businessName(parts[1] as Business):parts[0]==='category'?businessName(c?.business||'hall'):parts[0]==='theme'?'应用方案':'首页')}</button>:null}{page}
+   {showBack?<a className="back-button" href={'#'+pageBack.to}><Icon name="back" size={16}/>{pageBack.label}</a>:null}{page}
   </main>
   <nav className="mobile-nav" aria-label="底部导航">{navigation.map(item=><a key={item.id} href={'#'+item.to} className={active===item.id?'active':''} aria-current={active===item.id?'page':undefined}><Icon name={item.id}/><span>{item.title}</span></a>)}</nav>
   {share?<div className="toast" role="status">{share}</div>:null}
-  {about?<Modal title="关于本次改版预览" onClose={()=>setAbout(false)}><p>咣当为品牌、企业与机构提供 AI 影像互动和专属影片创作。本网站用于介绍产品、讨论应用方案，并演示用户参与方式。</p><div className="about-links"><a className="button secondary" href="#/works" onClick={()=>setAbout(false)}>了解应用方案</a><a className="button secondary" href="#/experience-center?mode=template" onClick={()=>setAbout(false)}>体验产品能力</a></div><p>场景配图不代表真实案例，高定样品待上架。真实生成、咨询渠道和账户服务尚未开放。</p><p className="muted">配置只在本次浏览中临时保留，刷新后清空。新体验中心按两种玩法分别保存草稿；旧主题更换仍需确认。照片不上传，需求尚未发送。</p><button className="button wide" onClick={()=>setAbout(false)}>继续浏览</button></Modal>:null}
+  {about?<Modal title="关于咣当" onClose={()=>setAbout(false)}><p>咣当为品牌与机构提供 AI 影像互动和专属影片创作。</p><div className="about-links"><a className="button secondary" href="#/works" onClick={()=>setAbout(false)}>了解应用方案</a><a className="button secondary" href="#/experience-center?mode=template" onClick={()=>setAbout(false)}>体验产品能力</a></div><p>方案配图为内容参考，正式样片待上架。当前可体验设定与本机素材预览；生成和咨询渠道待接入。</p><p className="muted">模板与自定义分别保留本次浏览的设定，刷新后清空。照片不上传，需求不自动发送。</p><button className="button wide" onClick={()=>setAbout(false)}>继续浏览</button></Modal>:null}
   {pendingRoute?<Modal title="更换主题？" onClose={()=>setPendingRoute(null)}><p>更换后，当前主题的选择和本机照片将被清空。复制的文字配置可继续留存。</p><div className="action-row"><button className="button secondary" onClick={()=>setPendingRoute(null)}>保留当前配置</button><button className="button" onClick={confirmThemeChange}>更换并清空</button></div></Modal>:null}
  </>;
 }
